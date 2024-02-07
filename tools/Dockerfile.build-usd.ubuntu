@@ -1,5 +1,6 @@
 FROM ubuntu:focal
 ARG PYTHON_VERSION=3.9
+ARG USD_VERSION=v23.05
 ENV PYTHONBUFFERED=1
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/London
@@ -8,7 +9,7 @@ RUN mkdir /USD
 RUN mkdir /src
 WORKDIR /src
 
-# Add RTX repo - Easier to install/build diffenrent Pytohn versions.
+# Add RTX repo - Easier to install/build diffenrent Python versions.
 RUN apt-get update && apt-get install --assume-yes gpg wget 
 RUN wget -qO - https://rtx.pub/gpg-key.pub | gpg --dearmor | tee /usr/share/keyrings/rtx-archive-keyring.gpg 1> /dev/null
 RUN echo "deb [signed-by=/usr/share/keyrings/rtx-archive-keyring.gpg arch=amd64] https://rtx.pub/deb stable main" | tee /etc/apt/sources.list.d/rtx.list
@@ -31,7 +32,7 @@ RUN ls -lha /usr/bin | grep rtx
 
 # Install USD Building deps and build it
 RUN apt-get install --assume-yes cmake pkg-config libglew-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev libxt-dev
-RUN git clone https://github.com/PixarAnimationStudios/OpenUSD.git --branch release . 
+RUN git clone --depth 1 --branch $USD_VERSION https://github.com/PixarAnimationStudios/OpenUSD.git .
 RUN python -m pip show PySide2
 RUN python build_scripts/build_usd.py /USD --ptex --openvdb --openimageio --openimageio --alembic --hdf5 -v
 
