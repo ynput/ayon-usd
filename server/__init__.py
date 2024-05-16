@@ -7,7 +7,6 @@ from ayon_server.addons import BaseServerAddon
 from ayon_server.api.dependencies import dep_current_user
 from ayon_server.entities import UserEntity
 
-from .version import __version__
 from .settings import USDSettings
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,8 +15,8 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 class USDAddon(BaseServerAddon):
     name = "usd"
     title = "USD Support in AYON"
-    version = __version__
     settings_model = USDSettings
+    version = "1.0.2"
 
     def initialize(self):
         self.add_endpoint(

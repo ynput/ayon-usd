@@ -1,9 +1,10 @@
 import os
+import sys
 
-from openpype.modules import AYONAddon, ITrayModule
+from ayon_core.modules import AYONAddon, ITrayModule
+from .utils import is_usd_download_needed, get_downloaded_usd_root
 
-from .utils import is_usd_download_needed
-from .version import __version__
+
 
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -17,26 +18,21 @@ class USDAddon(AYONAddon, ITrayModule):
 
     Cares about supplying USD Framework.
     """
+    name = "ayon_usd"
+    _download_window = None
 
-    name = "usd"
-    version = __version__
+
+    def tray_init(self):
+        super(USDAddon, self).tray_init()
 
     def initialize(self, module_settings):
         self.enabled = True
         self._download_window = None
 
-    def tray_exit(self):
-        pass
-
-    def tray_menu(self, tray_menu):
-        pass
-
-    def tray_init(self):
-        pass
-
     def tray_start(self):
         download_usd = is_usd_download_needed()
         if not download_usd:
+            print(f"get_downloaded_usd_root: {get_downloaded_usd_root()}")
             return
 
         from .download_ui import show_download_window
