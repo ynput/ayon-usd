@@ -9,7 +9,7 @@ RUN mkdir /USD
 RUN mkdir /src
 WORKDIR /src
 
-# Add RTX repo - Easier to install/build diffenrent Python versions.
+# Add RTX repo - Easier to install/build different Python versions.
 RUN apt-get update && apt-get install --assume-yes gpg wget 
 RUN wget -qO - https://rtx.pub/gpg-key.pub | gpg --dearmor | tee /usr/share/keyrings/rtx-archive-keyring.gpg 1> /dev/null
 RUN echo "deb [signed-by=/usr/share/keyrings/rtx-archive-keyring.gpg arch=amd64] https://rtx.pub/deb stable main" | tee /etc/apt/sources.list.d/rtx.list

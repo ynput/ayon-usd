@@ -1,58 +1,34 @@
-"""Prepares server package from addon repo to upload to server.
-
-Requires Python 3.9. (Or at least 3.8+).
-
-This script should be called from cloned addon repo.
-
-It will produce 'package' subdirectory which could be pasted into server
-addon directory directly (e.g. into `ayon-backend/addons`).
-
-Format of package folder:
-ADDON_REPO/package/{addon name}/{addon version}
-
-You can specify `--output_dir` in arguments to change output directory where
-package will be created. Existing package directory will always be purged if
-already present! This could be used to create package directly in server folder
-if available.
-
-Package contains server side files directly,
-client side code zipped in `private` subfolder.
-"""
-
-import os
-import sys
-import re
-import json
-import shutil
+"""USD Addon build script."""
 import argparse
-import platform
-import logging
 import collections
-import zipfile
+import contextlib
 import hashlib
+import json
+import logging
+import os
+import platform
+import re
+import shutil
+import sys
 import urllib.request
+import zipfile
 from pathlib import Path
-
 from typing import Optional
-
 
 ADDON_NAME = "ayon_usd"
 ADDON_CLIENT_DIR = "ayon_usd"
 
-DISTRIBUTE_SOURCE_URL = "https://distribute.openpype.io/thirdparty"
+# Set sources to download
+AYON_SOURCE_URL = "https://distribute.openpype.io/thirdparty"
 USD_SOURCES = {
-    "windows": {
-        "url": f"{DISTRIBUTE_SOURCE_URL}/usd-23.05_win64_py39.zip",
-        "checksum": "33ad059cf628ced57f6d7b87f46a0a72fc47c51e73fe42d4cc2b471ee6fe7a26",
-        "checksum_algorithm": "sha256",
-    },
-    "linux": {
-        "url": f"{DISTRIBUTE_SOURCE_URL}/usd-23.05_linux_py39.tgz",
-        "checksum": "b6242a1e74395e4ef3b662d4fa89a4fbf76f2103bf3e6b40e13c85e9dea1615b",
-        "checksum_algorithm": "sha256",
+        "24.03": {
+            "windows": {
+                "url": f"{AYON_SOURCE_URL}/usd-24.03_win64_py39.zip",
+                "checksum": "7d7852b9c8e3501e5f64175decc08d70e3bf1c083faaaf2c1a8aa8f9af43ab30",
+                "checksum_algorithm": "sha256",
+            }
+        }
     }
-}
-
 
 # Patterns of directories to be skipped for server part of addon
 IGNORE_DIR_PATTERNS = [
@@ -78,7 +54,21 @@ IGNORE_FILE_PATTERNS = [
 ]
 
 
-def calculate_file_checksum(filepath, hash_algorithm, chunk_size=10000):
+def calculate_file_checksum(
+        filepath: str,
+        hash_algorithm: str,
+        chunk_size: int = 10000) -> str:
+    """Calculate checksum of a file.
+
+    Args:
+        filepath (str): Path to file.
+        hash_algorithm (str): Hash algorithm to use.
+        chunk_size (int): Size of chunk to read from file.
+
+    Returns:
+        str: Checksum of the file.
+
+    """
     func = getattr(hashlib, hash_algorithm)
     hash_obj = func()
     with open(filepath, "rb") as f:
@@ -94,6 +84,7 @@ class ZipFileLongPaths(zipfile.ZipFile):
     the string's terminating NUL character.
     That limit can be exceeded by using an extended-length path that
     starts with the '\\?\' prefix.
+
     """
     _is_windows = platform.system().lower() == "windows"
 
@@ -110,7 +101,7 @@ class ZipFileLongPaths(zipfile.ZipFile):
         )
 
 
-def safe_copy_file(src_path, dst_path):
+def safe_copy_file(src_path: str, dst_path: str) -> None:
     """Copy file and make sure destination directory exists.
 
     Ignore if destination already contains directories from source.
@@ -124,26 +115,40 @@ def safe_copy_file(src_path, dst_path):
         return
 
     dst_dir = os.path.dirname(dst_path)
-    try:
-        os.makedirs(dst_dir)
-    except Exception:
-        pass
-
+    with contextlib.suppress(Exception):
+        os.makedirs(dst_dir, exist_ok=True)
     shutil.copy2(src_path, dst_path)
 
 
-def _value_match_regexes(value, regexes):
-    for regex in regexes:
-        if regex.search(value):
-            return True
-    return False
+def _value_match_regexes(value: str, regexes: list) -> bool:
+    """Check if value matches any of the regexes.
+
+    Args:
+        value (str): Value to check.
+        regexes (list): List of compiled regexes.
+
+    Returns:
+        bool: True if value matches any of the regexes.
+    """
+    return any(regex.search(value) for regex in regexes)
 
 
 def find_files_in_subdir(
-    src_path,
-    ignore_file_patterns=None,
-    ignore_dir_patterns=None
-):
+    src_path: str,
+    ignore_file_patterns: list[str] = None,
+    ignore_dir_patterns: list[str] = None
+) -> list[tuple[str, str]]:
+    """Find files in subdirectories.
+
+    Args:
+        src_path (str): Path to directory.
+        ignore_file_patterns (list): List of regex patterns to ignore files.
+        ignore_dir_patterns (list): List of regex patterns to ignore
+            directories.
+
+    Returns:
+        list: List of tuples containing file path and sub-path.
+    """
     if ignore_file_patterns is None:
         ignore_file_patterns = IGNORE_FILE_PATTERNS
 
@@ -162,7 +167,9 @@ def find_files_in_subdir(
                 if not _value_match_regexes(name, ignore_file_patterns):
                     items = list(parents)
                     items.append(name)
-                    output.append((path, os.path.sep.join(items)))
+                    output.append(
+                        (path, os.path.sep.join(items))
+                    )
                 continue
 
             if not _value_match_regexes(name, ignore_dir_patterns):
@@ -174,7 +181,7 @@ def find_files_in_subdir(
 
 
 def copy_server_content(addon_output_dir, current_dir, log):
-    """Copies server side folders to 'addon_package_dir'
+    """Copies server side folders to ``addon_package_dir``.
 
     Args:
         addon_output_dir (str): package dir in addon repo dir
@@ -184,14 +191,12 @@ def copy_server_content(addon_output_dir, current_dir, log):
 
     log.info("Copying server content")
 
-    filepaths_to_copy = []
     server_dirpath = os.path.join(current_dir, "server")
 
     # Version
     src_version_path = os.path.join(current_dir, "version.py")
     dst_version_path = os.path.join(addon_output_dir, "version.py")
-    filepaths_to_copy.append((src_version_path, dst_version_path))
-
+    filepaths_to_copy = [(src_version_path, dst_version_path)]
     for item in find_files_in_subdir(server_dirpath):
         src_path, dst_subpath = item
         dst_path = os.path.join(addon_output_dir, dst_subpath)
@@ -236,41 +241,54 @@ def zip_client_side(addon_package_dir, current_dir, log):
 
 
 def download_usd_zip(downloads_dir: Path, log: logging.Logger):
+    """Download USD zip files.
+
+    Args:
+        downloads_dir (Path): Directory path to download zip files.
+        log (logging.Logger): Logger object.
+
+    Returns:
+        list: List of dictionaries containing information
+            about downloaded zip files.
+
+    """
     zip_files_info = []
-    for platform_name, platform_info in USD_SOURCES.items():
-        src_url = platform_info["url"]
-        filename = src_url.split("/")[-1]
-        zip_path = downloads_dir / filename
-        checksum = platform_info["checksum"]
-        checksum_algorithm = platform_info["checksum_algorithm"]
-        zip_files_info.append({
-            "name": "usd",
-            "filename": filename,
-            "checksum": checksum,
-            "checksum_algorithm": checksum_algorithm,
-            "platform": platform_name,
-        })
-        if zip_path.exists():
+
+    for item, platforms in USD_SOURCES.items():
+        for platform_name, platform_info in platforms.items():
+            src_url = platform_info["url"]
+            filename = src_url.split("/")[-1]
+            zip_path = downloads_dir / filename
+            checksum = platform_info["checksum"]
+            checksum_algorithm = platform_info["checksum_algorithm"]
+            zip_files_info.append({
+                "name": "usd",
+                "filename": filename,
+                "checksum": checksum,
+                "checksum_algorithm": checksum_algorithm,
+                "platform": platform_name,
+            })
+            if zip_path.exists():
+                file_checksum = calculate_file_checksum(
+                    zip_path.as_posix(), checksum_algorithm)
+                if checksum == file_checksum:
+                    log.debug(f"USD zip from {src_url} already exists")
+                    continue
+                os.remove(zip_path)
+
+            log.debug(f"USD zip from {src_url} -> {zip_path}")
+
+            log.info("USD zip download - started")
+            urllib.request.urlretrieve(src_url, zip_path)
+            log.info("USD zip download - finished")
+
             file_checksum = calculate_file_checksum(
-                zip_path, checksum_algorithm)
-            if checksum == file_checksum:
-                log.debug(f"USD zip from {src_url} already exists")
-                continue
-            os.remove(zip_path)
+                zip_path.as_posix(), checksum_algorithm)
 
-        log.debug(f"USD zip from {src_url} -> {zip_path}")
-
-        log.info("USD zip download - started")
-        urllib.request.urlretrieve(src_url, zip_path)
-        log.info("USD zip download - finished")
-
-        file_checksum = calculate_file_checksum(
-            zip_path, checksum_algorithm)
-
-        if checksum != file_checksum:
-            raise Exception(
-                f"USD zip checksum mismatch: {file_checksum} != {checksum}"
-            )
+            if checksum != file_checksum:
+                raise ValueError(
+                    f"USD zip checksum mismatch: {file_checksum} != {checksum}"
+                )
 
     return zip_files_info
 
@@ -326,8 +344,19 @@ def create_server_package(
 def main(
     output_dir: Optional[str] = None,
     skip_zip: bool = False,
-    keep_sources: bool = False
+    keep_sources: bool = False,
+    verbose: bool = False
 ):
+    """Main function to create package.
+
+    Args:
+        output_dir (Optional[str]): Directory path to output package.
+        skip_zip (bool): Skip zipping server package.
+        keep_sources (bool): Keep sources when server package is created.
+        verbose (bool): Enable verbose logging.
+
+    """
+    logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
     log = logging.getLogger("create_package")
     log.info("Start creating package")
 
@@ -417,6 +446,13 @@ if __name__ == "__main__":
             "Directory path where package will be created"
             " (Will be purged if already exists!)"
         )
+    )
+
+    parser.add_argument(
+        "-v", "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="Enable verbose logging."
     )
 
     args = parser.parse_args(sys.argv[1:])
