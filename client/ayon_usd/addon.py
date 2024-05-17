@@ -1,11 +1,7 @@
 import os
-import sys
 
 from ayon_core.modules import AYONAddon, ITrayModule
 from .utils import is_usd_download_needed, get_downloaded_usd_root
-
-
-
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,10 +13,10 @@ class USDAddon(AYONAddon, ITrayModule):
     use path/arguments defined by server.
 
     Cares about supplying USD Framework.
+
     """
     name = "ayon_usd"
     _download_window = None
-
 
     def tray_init(self):
         super(USDAddon, self).tray_init()
@@ -47,3 +43,9 @@ class USDAddon(AYONAddon, ITrayModule):
     def _on_download_finish(self):
         self._download_window.close()
         self._download_window = None
+
+    def tray_exit(self):
+        pass
+
+    def tray_menu(self, tray_menu):
+        pass
