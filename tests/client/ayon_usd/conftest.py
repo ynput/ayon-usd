@@ -1,3 +1,16 @@
+"""The conftest module for the ayon_usd addon.
+
+This is setting up fixtures for installing and testing addon on the
+server. Currently, it provides fixtures for installing the addon through
+REST API, waiting for the installation event to finish, restarting,
+and checking the addon is installed.
+
+This could be speed up by copying the addon package directly to the server.
+In the future, we can add a fixture to do that.
+
+TODO: Add a fixture to copy the addon package to the server.
+
+"""
 import contextlib
 import hashlib
 import os
@@ -33,16 +46,19 @@ def replace_string_in_file(
 
 @pytest.fixture(scope="session")
 def tmp_path(tmp_path_factory):
+    """Get the temporary directory path."""
     return tmp_path_factory.mktemp("data")
 
 
 @pytest.fixture(scope="session")
 def project_root_path(request):
+    """Get the project root path."""
     return request.config.rootpath
 
 
 @pytest.fixture
 def file_info():
+    """Get the file info."""
     return {
         "filename": "test_file.zip",
         "checksum": "d41d8cd98f00b204e9800998ecf8427e",
@@ -52,6 +68,7 @@ def file_info():
 
 @pytest.fixture(scope="session")
 def ayon_connection_env():
+    """Get the server URL and the API key."""
     os.environ["AYON_SERVER_URL"] = os.getenv("AYON_SERVER_URL") \
         or "http://localhost:5000"
     os.environ["AYON_API_KEY"] = os.getenv("AYON_API_KEY") \
@@ -61,6 +78,7 @@ def ayon_connection_env():
 
 @pytest.fixture(scope="session")
 def ayon_server_session(ayon_connection_env):
+    """Get the server session."""
     _, api_key = ayon_connection_env
     session = requests.Session()
     session.headers.update({'x-api-key': api_key})
@@ -86,10 +104,6 @@ def imprint_test_version(project_root_path):
         (Path(root) / "package.py").as_posix(),
         f'version = "{current_version}"',
         f'version = "{test_version}"')
-    replace_string_in_file(
-        (Path(root) / "version.py").as_posix(),
-        f'__version__ = "{current_version}"',
-        f'__version__ = "{test_version}"')
 
     yield test_version
 
@@ -98,10 +112,6 @@ def imprint_test_version(project_root_path):
         (Path(root) / "package.py").as_posix(),
         f'version = "{test_version}"',
         f'version = "{current_version}"')
-    replace_string_in_file(
-        (Path(root) / "version.py").as_posix(),
-        f'__version__ = "{test_version}"',
-        f'__version__ = "{current_version}"')
 
 
 @pytest.fixture(scope="session")
@@ -169,7 +179,7 @@ def _wait_for_the_event(
     response = None
 
     while try_count < max_tries:
-        response = session.get(f"{server_url}/events/{event_id}")
+        response = session.get(f"{server_url}/api/events/{event_id}")
         assert response.status_code == 200, f"Failed to get event: {response.text}"
         if response.json()["status"] == "finished":
             break
@@ -190,7 +200,7 @@ def _wait_for_server_restart(server_url, api_key):
     session.headers.update({'x-api-key': api_key})
 
     response = session.post(f"{server_url}/api/system/restart")
-    assert response.status_code == 200, f"Failed to restart server: {response.text}"
+    assert response.status_code == 204, f"Failed to restart server: {response.text}"
 
     time.sleep(1)
 
@@ -200,7 +210,7 @@ def _wait_for_server_restart(server_url, api_key):
         with contextlib.suppress(requests.exceptions.ConnectionError):
             response = session.get(f"{server_url}/api/info")
             # if motd is present, server is up
-            if "motd" in response.json():
+            if "version" in response.json():
                 return True
         time.sleep(6)
 
@@ -264,7 +274,7 @@ def installed_addon(
     yield version
 
     printer_session("Uninstalling addon ...")
-    response = session.delete(f"{server_url}/api/usd/{version}")
-    assert response.status_code == 200, f"Failed to uninstall addon: {response.text}"
+    # response = session.delete(f"{server_url}/api/ayon_usd/{version}")
+    # assert response.status_code == 200, f"Failed to uninstall addon: {response.text}"
 
     

@@ -39,5 +39,5 @@ def test_file_info_endpoint(
     session = ayon_server_session
     version = installed_addon
 
-    response = session.get(f"{server_url}/api/addons/usd/{version}/files_info")
+    response = session.get(f"{server_url}/api/addons/ayon_usd/{version}/files_info")
     assert response.status_code == 200
