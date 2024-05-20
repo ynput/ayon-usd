@@ -3,7 +3,7 @@
   Helper script to run various tasks on ayon-usd addon repository.
 
 .DESCRIPTION
-  This script helps to manage various managament function from building
+  This script helps to manage various management function from building
   to linting.
 
 .EXAMPLE
@@ -28,7 +28,6 @@ PS> .\tools\manage.ps1 build
 https://github.com/ynput/ayon-usd
 
 #>
-
 # Settings and gitmodule init
 $CurrentDir = Get-Location
 $ScriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
@@ -37,7 +36,7 @@ $RepoRoot = (Get-Item $ScriptDir).parent.FullName
 $env:PSModulePath = $env:PSModulePath + ";$($openpype_root)\tools\modules\powershell"
 
 $FunctionName=$ARGS[0]
-$Arguments=@()
+$Arguments = @()
 if ($ARGS.Length -gt 1) {
     $Arguments = $ARGS[1..($ARGS.Length - 1)]
 }
@@ -274,22 +273,22 @@ function Resolve-Function {
         Invoke-CodeSpell
     } elseif ($FunctionName -eq "build") {
         $poetryPath = "$RepoRoot\.poetry\bin\poetry.exe"
-        $executable = $poetryPath
         if (Get-Command $poetryPath -ErrorAction SilentlyContinue) {
             Write-Host "Using Poetry at $poetryPath"
+            & "$($poetryPath)" run python $RepoRoot"\create_package.py"
         } else {
             Write-Host "Poetry does not exist at $poetryPath, using plain Python"
-            $executable = "python"
+            & python $RepoRoot"\create_package.py"
         }
-        & $executable ./create_package.py -v
-        Write-Host "Package created in ./package folder."
+
+        Write-Host "Package created in .\package folder."
     } else {
         Write-Host "Unknown function ""$FunctionName"""
         Write-Help
     }
 }
 
-# -----------------------------------------------------
+# ----------------------------------------------------------------------------
 
 Show-PSWarning
 Write-AsciiArt
