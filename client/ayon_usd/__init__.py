@@ -1,12 +1,15 @@
-import sys
+"""USD Addon for AYON - client part."""
 import os
-from .addon import USDAddon, USD_ADDON_DIR
-from .utils import get_downloaded_usd_root
+import sys
 
+from .addon import USD_ADDON_DIR, USDAddon
+from .utils import extract_zip_file, get_download_dir, get_downloaded_usd_root
 
 __all__ = (
     "USDAddon",
-    "get_downloaded_usd_root"
+    "get_downloaded_usd_root",
+    "extract_zip_file",
+    "get_download_dir",
 )
 
 
@@ -33,5 +36,3 @@ def initialize_environment():
     os.environ["AYONLOGGERLOGLVL"] = "WARN"
     os.environ["AYONLOGGERSFILELOGGING"] = "1"
     os.environ["AYONLOGGERSFILEPOS"] = ".log"
-
-
