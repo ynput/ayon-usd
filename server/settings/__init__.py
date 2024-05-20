@@ -1,3 +1,4 @@
+"""Settings for the server part."""
 from .main import (
     USDSettings,
 )

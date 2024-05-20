@@ -1,18 +1,26 @@
-import uuid
+"""Download UI."""
 import threading
+import uuid
 from functools import partial
 
-from qtpy import QtWidgets, QtCore
-
 from ayon_api import TransferProgress
-
-from openpype import style
+from ayon_core import style
+from qtpy import QtCore, QtWidgets
 
 from .utils import download_usd
 
 
 class DownloadItem:
+    """Download item."""
+
     def __init__(self, title, func):
+        """Download item.
+
+        Args:
+            title (str): Title.
+            func (Callable): Function.
+
+        """
         self._id = uuid.uuid4().hex
         progress = TransferProgress()
         self._func = partial(func, progress)
@@ -22,20 +30,22 @@ class DownloadItem:
 
     @property
     def id(self):
+        """Id."""
         return self._id
 
     @property
     def finished(self):
-        if self._thread is None:
-            return True
-        return not self._thread.is_alive()
+        """Check if download is finished."""
+        return True if self._thread is None else not self._thread.is_alive()
 
     def download(self):
+        """Download."""
         if self._thread is None:
             self._thread = threading.Thread(target=self._func)
             self._thread.start()
 
     def finish(self):
+        """Finish."""
         if self._thread is None:
             return
         self._thread.join()
@@ -43,7 +53,15 @@ class DownloadItem:
 
 
 class DownloadController:
+    """Download controller."""
+    
     def __init__(self, usd):
+        """Download controller.
+        
+        Args:
+            usd (bool): Download usd.
+            
+        """
         self._items = [DownloadItem("usd", download_usd)]
 
         self._items_by_id = {
@@ -54,33 +72,34 @@ class DownloadController:
         self._download_finished = False
 
     def items(self):
-        for item_id, item in self._items_by_id.items():
-            yield item_id, item
+        """Items."""
+        yield from self._items_by_id.items()
 
     @property
     def download_items(self):
-        for item in self._items:
-            yield item
+        """Download items."""
+        yield from self._items
 
     @property
     def download_started(self):
+        """Check if download is started."""
         return self._download_started
 
     @property
     def download_finished(self):
+        """Check if download is finished."""
         return self._download_finished
 
     @property
     def is_downloading(self):
+        """Check if downloading is in progress."""
         if not self._download_started or self._download_finished:
             return False
 
-        for item in self.download_items:
-            if not item.finished:
-                return True
-        return False
+        return any(not item.finished for item in self.download_items)
 
     def start_download(self):
+        """Start download."""
         if self._download_started:
             return
         self._download_started = True
@@ -88,6 +107,7 @@ class DownloadController:
             item.download()
 
     def finish_download(self):
+        """Finish download."""
         if self._download_finished:
             return
         for item in self.download_items:
@@ -96,7 +116,16 @@ class DownloadController:
 
 
 class DownloadItemWidget(QtWidgets.QWidget):
+    """Download item widget."""
+
     def __init__(self, download_item, parent):
+        """Download item widget.
+
+        Args:
+            download_item (DownloadItem): Download item.
+            parent (QWidget): Parent widget.
+
+        """
         super(DownloadItemWidget, self).__init__(parent)
 
         title_label = QtWidgets.QLabel(download_item.title, self)
@@ -111,6 +140,7 @@ class DownloadItemWidget(QtWidgets.QWidget):
         self._download_item = download_item
 
     def update_progress(self):
+        """Update progress."""
         if self._download_item.finished:
             self._progress_label.setText("Finished")
             return
@@ -137,9 +167,18 @@ class DownloadItemWidget(QtWidgets.QWidget):
 
 
 class DownloadWindow(QtWidgets.QWidget):
+    """Download window."""
+
     finished = QtCore.Signal()
 
     def __init__(self, controller, parent=None):
+        """Download window.
+
+        Args:
+            controller (DownloadController): Download controller.
+            parent (QWidget): Parent widget.
+
+        """
         super(DownloadWindow, self).__init__(parent=parent)
 
         self.setWindowTitle("Downloading 3rd party dependencies")
@@ -170,6 +209,7 @@ class DownloadWindow(QtWidgets.QWidget):
         self._start_on_show = False
 
     def showEvent(self, event):
+        """Show event."""
         super(DownloadWindow, self).showEvent(event)
         if self._first_show:
             self._first_show = False
@@ -203,6 +243,7 @@ class DownloadWindow(QtWidgets.QWidget):
         self._update_progress()
 
     def start(self):
+        """Start download."""
         if self._first_show:
             self._start_on_show = True
             return
@@ -212,6 +253,13 @@ class DownloadWindow(QtWidgets.QWidget):
 
 
 def show_download_window(usd, parent=None):
+    """Show download window.
+
+    Args:
+        usd (bool): Download usd.
+        parent (QWidget): Parent widget.
+
+    """
     controller = DownloadController(usd)
     window = DownloadWindow(controller, parent=parent)
     window.show()

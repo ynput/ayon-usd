@@ -1,3 +1,4 @@
+"""Main settings for USD on AYON server."""
 from ayon_server.settings import BaseSettingsModel, MultiplatformPathListModel
 from pydantic import Field
 
@@ -12,6 +13,8 @@ def platform_enum():
 
 
 class AppPlatformURIModel(BaseSettingsModel):
+    """Application platform URI model."""
+
     _layout = "compact"
     app_name: str = Field(
         title="App Name",
@@ -27,6 +30,8 @@ class AppPlatformURIModel(BaseSettingsModel):
 
 
 class USDSettings(BaseSettingsModel):
+    """USD settings."""
+
     use_downloaded: bool = Field(
         default=True,
         title="Download USD from server",

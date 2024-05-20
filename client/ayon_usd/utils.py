@@ -1,3 +1,4 @@
+"""USD Addon utility functions."""
 import copy
 import datetime
 import hashlib
@@ -29,6 +30,12 @@ class _USDCache:
 
 
 def get_addon_settings():
+    """Get addon settings.
+
+    Return:
+        dict: Addon settings.
+
+    """
     if _USDCache.addon_settings is NOT_SET:
         _USDCache.addon_settings = ayon_api.get_addon_settings(
             ADDON_NAME, ADDON_VERSION
@@ -37,8 +44,15 @@ def get_addon_settings():
 
 
 def get_download_dir(create_if_missing=True):
-    """Dir path where files are downloaded."""
+    """Dir path where files are downloaded.
 
+    Args:
+        create_if_missing (bool): Create dir if missing.
+
+    Returns:
+        str: Path to download dir.
+
+    """
     if create_if_missing and not os.path.exists(DOWNLOAD_DIR):
         os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     return DOWNLOAD_DIR
@@ -82,7 +96,7 @@ def _get_info_path(name):
     return get_ayon_appdirs("addons", f"{ADDON_NAME}-{name}.json")
 
 
-def filter_file_info(name):
+def _filter_file_info(name):
     filepath = _get_info_path(name)
 
     if os.path.exists(filepath):
@@ -91,7 +105,8 @@ def filter_file_info(name):
     return []
 
 
-def store_file_info(name, info):
+def _store_file_info(name, info):
+    """Store info to file."""
     filepath = _get_info_path(name)
     root, filename = os.path.split(filepath)
     if not os.path.exists(root):
@@ -101,11 +116,18 @@ def store_file_info(name, info):
 
 
 def get_downloaded_usd_info():
-    return filter_file_info("usd")
+    """Get USD info from file."""
+    return _filter_file_info("usd")
 
 
 def store_downloaded_usd_info(usd_info):
-    store_file_info("usd", usd_info)
+    """Store USD info to file.
+
+    Args:
+        usd_info (list[dict[str, str]]): USD info to store.
+
+    """
+    _store_file_info("usd", usd_info)
 
 
 def get_server_files_info():
@@ -116,8 +138,8 @@ def get_server_files_info():
 
     Returns:
         list[dict[str, str]]: Information about files on server.
-    """
 
+    """
     response = ayon_api.get(f"{_get_addon_endpoint()}/files_info")
     response.raise_for_status()
     return response.data
@@ -132,8 +154,8 @@ def _find_file_info(name, files_info):
 
     Returns:
         Union[dict[str, str], None]: File info data.
-    """
 
+    """
     platform_name = platform.system().lower()
     return next(
         (
@@ -148,7 +170,8 @@ def _find_file_info(name, files_info):
     )
 
 
-def get_downloaded_usd_root():
+def get_downloaded_usd_root() -> str:
+    """Get downloaded USD binary root path."""
     if _USDOptions.downloaded_root is not NOT_SET:
         return _USDOptions.downloaded_root
 
@@ -171,8 +194,8 @@ def is_usd_download_needed(addon_settings=None):
 
     Returns:
         bool: Should be config downloaded.
-    """
 
+    """
     if _USDOptions.download_needed is not None:
         return _USDOptions.download_needed
 
@@ -220,12 +243,12 @@ def validate_file_checksum(filename: str, checksum: str, hash_function: str):
 
 
 def extract_zip_file(zip_file_path: str, dest_dir: str):
-    """
-    Extracts a zip file to a destination directory.
+    """Extract a zip file to a destination directory.
 
     Args:
         zip_file_path (str): The path to the zip file.
         dest_dir (str): The directory where the zip file should be extracted.
+
     """
     with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
         zip_ref.extractall(dest_dir)
@@ -267,8 +290,8 @@ def download_usd(progress=None):
 
     Args:
         progress (ayon_api.TransferProgress): Keep track about download.
-    """
 
+    """
     dir_path = os.path.join(get_download_dir(), "usd")
 
     files_info = get_server_files_info()
