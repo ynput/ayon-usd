@@ -1,24 +1,28 @@
+"""USD Addon for AYON - server part."""
 import os
 import json
+from pathlib import Path
 
-from fastapi import Depends
+from fastapi import Depends  # noqa: F401
 
 from ayon_server.addons import BaseServerAddon
 from ayon_server.api.dependencies import dep_current_user
 from ayon_server.entities import UserEntity
+from ayon_server.exceptions import NotFoundException
 
 from .settings import USDSettings
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PRIVATE_DIR = Path(
+    os.path.dirname(os.path.abspath(__file__))).parent / "private"
 
 
 class USDAddon(BaseServerAddon):
-    name = "usd"
-    title = "USD Support in AYON"
+    """USD Addon for AYON."""
+
     settings_model = USDSettings
-    version = "1.0.2"
 
     def initialize(self):
+        """Initialize USD Addon."""
         self.add_endpoint(
             "files_info",
             self._get_files_info,
@@ -31,9 +35,10 @@ class USDAddon(BaseServerAddon):
         self,
         user: UserEntity = Depends(dep_current_user)
     ) -> list[dict[str, str]]:
-        info_filepath = os.path.join(
-            CURRENT_DIR, "private", "files_info.json"
-        )
-        with open(info_filepath, "r") as stream:
-            data = json.load(stream)
+        info_filepath = (PRIVATE_DIR / "files_info.json").resolve().as_posix()
+        try:
+            with open(info_filepath, "r") as stream:
+                data = json.load(stream)
+        except FileNotFoundError as e:
+            raise NotFoundException("Files info not found") from e
         return data
