@@ -26,7 +26,7 @@ ruff = "^0.4.4"
 pre-commit = "^3.6.2"
 codespell = "^2.2.6"
 pydantic = "^2.7.1"
-progressbar2 = "^4.4.2"
+pydocstyle = "*"
 semver = "^3.0.2"  # needed for ayon-python-api to run tests
 clique = "^2.0.0"  # needed for ayon-python-api to run tests
 
