@@ -6,4 +6,5 @@ build system based on the content of package.py.
 
 Do not manually edit this file.
 """
-__version__ = "ayon_usd"
+name = "ayon_usd"
+__version__ = "1.0.2"

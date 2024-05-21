@@ -49,6 +49,7 @@ build system based on the content of package.py.
 
 Do not manually edit this file.
 """
+name = "{}"
 __version__ = "{}"
 '''
 

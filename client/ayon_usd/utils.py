@@ -10,14 +10,14 @@ import zipfile
 from pathlib import Path
 
 import ayon_api
-import package
 from ayon_core.lib.local_settings import get_ayon_appdirs
+from ayon_usd import version
 
 CURRENT_DIR: Path = Path(os.path.dirname(os.path.abspath(__file__)))
 DOWNLOAD_DIR: Path = CURRENT_DIR / "downloads"
 NOT_SET = type("NOT_SET", (), {"__bool__": lambda: False})()
-ADDON_NAME: str = package.name
-ADDON_VERSION: str = package.version
+ADDON_NAME: str = version.name
+ADDON_VERSION: str = version.__version__
 
 
 class _USDOptions:
@@ -284,7 +284,7 @@ def _download_file(file_info, dirpath, progress=None):
 def download_usd(progress=None):
     """Download usd from server.
 
-    Todos:
+    Todo:
         Add safeguard to avoid downloading of the file from multiple
             processes at once.
 
@@ -292,12 +292,12 @@ def download_usd(progress=None):
         progress (ayon_api.TransferProgress): Keep track about download.
 
     """
-    dir_path = os.path.join(get_download_dir(), "usd")
+    dir_path = os.path.join(get_download_dir(), "ayon_usd")
 
     files_info = get_server_files_info()
-    file_info = _find_file_info("usd", files_info)
+    file_info = _find_file_info("ayon_usd", files_info)
     if file_info is None:
-        raise ValueError(f"Couldn't find usd file for platform '{platform.system()}'")
+        raise ValueError(f"Can't find USD binary zip for the platform '{platform.system()}'")
 
     _download_file(file_info, dir_path, progress=progress)
 
