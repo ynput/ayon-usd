@@ -51,21 +51,41 @@ class USDSettings(BaseSettingsModel):
                 platform="windows",
                 uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_maya2025_win64_py310.zip"),
             AppPlatformURIModel(
+                app_name="maya/2025",
+                platform="linux",
+                uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_maya2025_linux_py311.zip"),
+            AppPlatformURIModel(
                 app_name="maya/2024",
                 platform="windows",
                 uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_maya2024.2_win64_py310.zip"),
+            AppPlatformURIModel(
+                app_name="maya/2024",
+                platform="linux",
+                uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_maya2024.2_linux_py310.zip"),
             AppPlatformURIModel(
                 app_name="unreal/5-4",
                 platform="windows",
                 uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_unreal5.4_win64_py311.zip"),
             AppPlatformURIModel(
+                app_name="unreal/5-4",
+                platform="linux",
+                uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_unreal5.4_linux_py311.zip"),
+            AppPlatformURIModel(
                 app_name="houdini/19-5",
                 platform="windows",
                 uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_hou19.5_win64_py39.zip"),
             AppPlatformURIModel(
+                app_name="houdini/19-5",
+                platform="linux",
+                uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_hou19.5_linux_py39.zip"),
+            AppPlatformURIModel(
                 app_name="houdini/20",
                 platform="windows",
-                uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_hou20_win64_py39.zip"),
+                uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_hou20_win64_py310.zip"),
+            AppPlatformURIModel(
+                app_name="houdini/20",
+                platform="linux",
+                uri="https://distribute.openpype.io/resolvers/ayon-usd-resolver_hou20_linux_py310.zip"),
 
         ],
     )
