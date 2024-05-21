@@ -98,5 +98,6 @@ line-ending = "auto"
 [tool.codespell]
 # Ignore words that are not in the dictionary.
 ignore-words-list = "ayon,ynput"
+skip = "./.*,./client/ayon_usd/downloads,*/vendor/*,./downloads,./package,./private"
 count = true
 quiet-level = 3
