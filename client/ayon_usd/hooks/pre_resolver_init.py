@@ -110,7 +110,7 @@ class InitializeAssetResolver(PreLaunchHook):
             pxr_plugin_paths.append(
                 (
                     resolver_dir / "ayonUsdResolver" /
-                    "resources" / "plugInfo.json"
+                    "resources"
                 ).as_posix()
             )
             ld_path.append(
@@ -143,5 +143,5 @@ class InitializeAssetResolver(PreLaunchHook):
         #   resolver_dir.as_posix()
 
         # TODO: move debug options to AYON settings
-        self.launch_context.env["TF_DEBUG"] = "1"
+        self.launch_context.env["TF_DEBUG"] = "AYONUSDRESOLVER_RESOLVER"
         self.launch_context.env["AYONLOGGERLOGLVL"] = "INFO"
