@@ -130,13 +130,15 @@ class InitializeAssetResolver(PreLaunchHook):
             pxr_plugin_paths
         )
 
-        self.launch_context.env["PYTHONPATH"] += os.pathsep.join(python_path)
+        self.launch_context.env["PYTHONPATH"] += (os.pathsep +
+                                                  os.pathsep.join(python_path))
 
         if system().lower() == "windows":
-            self.launch_context.env["PATH"] += os.pathsep.join(ld_path)
+            self.launch_context.env["PATH"] += (os.pathsep +
+                                                os.pathsep.join(ld_path))
         else:
             self.launch_context.env["LD_LIBRARY_PATH"] += \
-                os.pathsep.join(ld_path)
+                os.pathsep + os.pathsep.join(ld_path)
 
         # is there used in the application? Can it hold multiple values?
         # self.launch_context.env["USD_ASSET_RESOLVER"] = \
