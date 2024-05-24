@@ -61,6 +61,11 @@ USD_SOURCES = {
                 "url": f"{AYON_SOURCE_URL}/usd-24.03_win64_py39.zip",
                 "checksum": "7d7852b9c8e3501e5f64175decc08d70e3bf1c083faaaf2c1a8aa8f9af43ab30",
                 "checksum_algorithm": "sha256",
+            },
+            "linux": {
+                "url": f"{AYON_SOURCE_URL}/usd-24.03_linux_py39.zip",
+                "checksum": "27010ad67d5acd25e3c95b1ace4ab30e047b5a9e48082db0545ae44ae7ec9b09",
+                "checksum_algorithm": "sha256",
             }
         }
     }
