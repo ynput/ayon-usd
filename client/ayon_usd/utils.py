@@ -8,6 +8,7 @@ import platform
 import subprocess
 import zipfile
 from pathlib import Path
+from typing import Union
 
 import ayon_api
 from ayon_core.lib.local_settings import get_ayon_appdirs
@@ -170,12 +171,15 @@ def _find_file_info(name, files_info):
     )
 
 
-def get_downloaded_usd_root() -> str:
+def get_downloaded_usd_root() -> Union[str, None]:
     """Get downloaded USD binary root path."""
     if _USDOptions.downloaded_root is not NOT_SET:
         return _USDOptions.downloaded_root
 
     server_usd_info = _find_file_info("usd", get_server_files_info())
+    if not server_usd_info:
+        return None
+
     root = None
     for existing_info in get_downloaded_usd_info():
         if existing_info["checksum"] != server_usd_info["checksum"]:
