@@ -152,7 +152,3 @@ class InitializeAssetResolver(PreLaunchHook):
         elif ld_path:
             self.launch_context.env["LD_LIBRARY_PATH"] += \
                     os.pathsep + os.pathsep.join(ld_path)
-
-        # TODO: move debug options to AYON settings
-        self.launch_context.env["TF_DEBUG"] = "AYONUSDRESOLVER_RESOLVER"
-        self.launch_context.env["AYONLOGGERLOGLVL"] = "INFO"
