@@ -132,15 +132,14 @@ class InitializeAssetResolver(PreLaunchHook):
 
         self.launch_context.env["PYTHONPATH"] += os.pathsep.join(python_path)
 
-        if system().lower() == "windows":
-            if ld_path:
-                self.launch_context.env["PATH"] = \
-                        os.pathsep + os.pathsep.join(ld_path)
-        elif ld_path:
-            existing_ld_path = self.launch_context.env.get("LD_LIBRARY_PATH")
-            if existing_ld_path:
-                ld_path.insert(0, existing_ld_path)
-            self.launch_context.env["LD_LIBRARY_PATH"] = os.pathsep.join(ld_path)
+        if ld_path:
+            env_key = "LD_LIBRARY_PATH"
+            if system().lower() == "windows":
+                env_key = "PATH"
+            existing_path = self.launch_context.env.get(env_key)
+            if existing_path:
+                ld_path.insert(0, existing_path)
+                self.launch_context.env[env_key] = os.pathsep.join(ld_path)
 
         # TODO: move debug options to AYON settings
         self.launch_context.env["TF_DEBUG"] = "1"
