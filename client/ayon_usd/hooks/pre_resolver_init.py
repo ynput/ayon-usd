@@ -133,14 +133,17 @@ class InitializeAssetResolver(PreLaunchHook):
         self.launch_context.env["PYTHONPATH"] += os.pathsep.join(python_path)
 
         if system().lower() == "windows":
-            self.launch_context.env["PATH"] += os.pathsep.join(ld_path)
-        else:
-            self.launch_context.env["LD_LIBRARY_PATH"] += \
-                os.pathsep.join(ld_path)
+            if ld_path:
+                self.launch_context.env["PATH"] = \
+                        os.pathsep + os.pathsep.join(ld_path)
+        elif ld_path:
+            if "LD_LIBRARY_PATH" in os.environ:
+                self.launch_context.env["LD_LIBRARY_PATH"] += \
+                        os.pathsep + os.pathsep.join(ld_path)
+            else:
+               self.launch_context.env["LD_LIBRARY_PATH"] = \
+                        os.pathsep + os.pathsep.join(ld_path)
 
-        # is there used in the application? Can it hold multiple values?
-        # self.launch_context.env["USD_ASSET_RESOLVER"] = \
-        #   resolver_dir.as_posix()
 
         # TODO: move debug options to AYON settings
         self.launch_context.env["TF_DEBUG"] = "1"
