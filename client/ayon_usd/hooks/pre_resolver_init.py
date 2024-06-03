@@ -137,7 +137,7 @@ class InitializeAssetResolver(PreLaunchHook):
                 self.launch_context.env["PATH"] = \
                         os.pathsep + os.pathsep.join(ld_path)
         elif ld_path:
-            existing_ld_path = self.launch_context.get("LD_LIBRARY_PATH")
+            existing_ld_path = self.launch_context.env.get("LD_LIBRARY_PATH")
             if existing_ld_path:
                 ld_path.insert(0, existing_ld_path)
             self.launch_context.env["LD_LIBRARY_PATH"] = os.pathsep.join(ld_path)
