@@ -139,7 +139,7 @@ class InitializeAssetResolver(PreLaunchHook):
             existing_path = self.launch_context.env.get(env_key)
             if existing_path:
                 ld_path.insert(0, existing_path)
-                self.launch_context.env[env_key] = os.pathsep.join(ld_path)
+            self.launch_context.env[env_key] = os.pathsep.join(ld_path)
 
         # TODO: move debug options to AYON settings
         self.launch_context.env["TF_DEBUG"] = "1"
