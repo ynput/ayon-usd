@@ -74,20 +74,20 @@ class InitializeAssetResolver(PreLaunchHook):
             return
 
         try:
-            pxr_plugin_paths = self.launch_context.env.get(
-                "PXR_PLUGINPATH_NAME").split(os.pathsep)
+            pxr_plugin_paths = self.launch_context.env[
+                "PXR_PLUGINPATH_NAME"].split(os.pathsep)
         except AttributeError:
             pxr_plugin_paths = []
 
         try:
-            ld_path = self.launch_context.env.get(
-                "LD_LIBRARY_PATH").split(os.pathsep)
+            ld_path = self.launch_context.env[
+                "LD_LIBRARY_PATH"].split(os.pathsep)
         except AttributeError:
             ld_path = []
 
         try:
-            python_path = self.launch_context.env.get(
-                "PYTHONPATH").split(os.pathsep)
+            python_path = self.launch_context.env[
+                "PYTHONPATH"].split(os.pathsep)
         except AttributeError:
             python_path = []
 
@@ -145,10 +145,8 @@ class InitializeAssetResolver(PreLaunchHook):
                 python_path
             )
 
-        if system().lower() == "windows":
-            if ld_path:
-                self.launch_context.env["PATH"] = \
-                        os.pathsep + os.pathsep.join(ld_path)
-        elif ld_path:
-            self.launch_context.env["LD_LIBRARY_PATH"] += \
-                    os.pathsep + os.pathsep.join(ld_path)
+        if ld_path:
+            env_key = "PATH" if system().lower() == "windows" else "LD_LIBRARY_PATH"  # noqa: E501
+            if existing_path := self.launch_context.env.get(env_key):
+                ld_path.insert(0, existing_path)
+            self.launch_context.env[env_key] = os.pathsep.join(ld_path)
