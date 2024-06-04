@@ -76,19 +76,19 @@ class InitializeAssetResolver(PreLaunchHook):
         try:
             pxr_plugin_paths = self.launch_context.env[
                 "PXR_PLUGINPATH_NAME"].split(os.pathsep)
-        except AttributeError:
+        except KeyError:
             pxr_plugin_paths = []
 
         try:
             ld_path = self.launch_context.env[
                 "LD_LIBRARY_PATH"].split(os.pathsep)
-        except AttributeError:
+        except KeyError:
             ld_path = []
 
         try:
             python_path = self.launch_context.env[
                 "PYTHONPATH"].split(os.pathsep)
-        except AttributeError:
+        except KeyError:
             python_path = []
 
         for resolver in resolver_settings:
