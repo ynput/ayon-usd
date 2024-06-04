@@ -202,7 +202,6 @@ def is_usd_download_needed(addon_settings=None):
     """
     if _USDOptions.download_needed is not None:
 
-        print("testing im testing if usd downloade is needed")
         return _USDOptions.download_needed
 
     if addon_settings is None:
@@ -215,7 +214,6 @@ def is_usd_download_needed(addon_settings=None):
 
     _USDOptions.download_needed = download_needed
 
-    print("testing im testing if usd downloade is needed zwo")
     return _USDOptions.download_needed
 
 
