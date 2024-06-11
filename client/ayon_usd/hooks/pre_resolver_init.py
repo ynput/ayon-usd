@@ -73,9 +73,24 @@ class InitializeAssetResolver(PreLaunchHook):
                 f"No USD asset resolver settings for {self.app_name}.")
             return
 
-        pxr_plugin_paths = []
-        ld_path = []
-        python_path =[]
+        try:
+            pxr_plugin_paths = self.launch_context.env[
+                "PXR_PLUGINPATH_NAME"].split(os.pathsep)
+        except KeyError:
+            pxr_plugin_paths = []
+
+        try:
+            ld_path = self.launch_context.env[
+                "LD_LIBRARY_PATH"].split(os.pathsep)
+        except KeyError:
+            ld_path = []
+
+        try:
+            python_path = self.launch_context.env[
+                "PYTHONPATH"].split(os.pathsep)
+        except KeyError:
+            python_path = []
+
         for resolver in resolver_settings:
             if resolver["app_name"] != self.app_name:
                 continue
@@ -110,7 +125,7 @@ class InitializeAssetResolver(PreLaunchHook):
             pxr_plugin_paths.append(
                 (
                     resolver_dir / "ayonUsdResolver" /
-                    "resources" / "plugInfo.json"
+                    "resources"
                 ).as_posix()
             )
             ld_path.append(
@@ -120,28 +135,18 @@ class InitializeAssetResolver(PreLaunchHook):
                  "lib" / "python").as_posix())
             self.log.info(f"Asset resolver {self.app_name} initiated.")
 
-        if self.launch_context.env.get("PXR_PLUGINPATH_NAME"):
-            pxr_plugin_paths.append(
-                self.launch_context.env["PXR_PLUGINPATH_NAME"].split(
-                    os.pathsep)
+        if pxr_plugin_paths:
+            self.launch_context.env["PXR_PLUGINPATH_NAME"] = os.pathsep.join(
+                pxr_plugin_paths
             )
 
-        self.launch_context.env["PXR_PLUGINPATH_NAME"] = os.pathsep.join(
-            pxr_plugin_paths
-        )
+        if python_path:
+            self.launch_context.env["PYTHONPATH"] = os.pathsep.join(
+                python_path
+            )
 
-        self.launch_context.env["PYTHONPATH"] += os.pathsep.join(python_path)
-
-        if system().lower() == "windows":
-            self.launch_context.env["PATH"] += os.pathsep.join(ld_path)
-        else:
-            self.launch_context.env["LD_LIBRARY_PATH"] += \
-                os.pathsep.join(ld_path)
-
-        # is there used in the application? Can it hold multiple values?
-        # self.launch_context.env["USD_ASSET_RESOLVER"] = \
-        #   resolver_dir.as_posix()
-
-        # TODO: move debug options to AYON settings
-        self.launch_context.env["TF_DEBUG"] = "1"
-        self.launch_context.env["AYONLOGGERLOGLVL"] = "INFO"
+        if ld_path:
+            env_key = "PATH" if system().lower() == "windows" else "LD_LIBRARY_PATH"  # noqa: E501
+            if existing_path := self.launch_context.env.get(env_key):
+                ld_path.insert(0, existing_path)
+            self.launch_context.env[env_key] = os.pathsep.join(ld_path)
