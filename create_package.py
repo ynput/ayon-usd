@@ -383,7 +383,9 @@ def main(
         keep_sources (bool): Keep sources when server package is created.
 
     """
-    log = logging.getLogger("create_package")
+    logging.basicConfig(level=logging.INFO)
+    log = logging.getLogger("create_package", level=logging.INFO)
+
     log.info("Start creating package")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
