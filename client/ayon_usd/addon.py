@@ -3,6 +3,7 @@ import os
 
 from ayon_core.modules import AYONAddon, ITrayModule
 from .utils import is_usd_download_needed, get_downloaded_usd_root
+from .version import __version__
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,6 +18,7 @@ class USDAddon(AYONAddon, ITrayModule):
     """
 
     name = "ayon_usd"
+    version = __version__
     _download_window = None
 
     def tray_init(self):
