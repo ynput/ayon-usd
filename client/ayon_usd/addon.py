@@ -2,7 +2,7 @@
 import os
 
 from ayon_core.modules import AYONAddon, ITrayModule
-from .utils import is_usd_download_needed, get_downloaded_usd_root
+from .utils import is_usd_download_needed
 from .version import __version__
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
