@@ -38,7 +38,6 @@ class USDAddon(AYONAddon, ITrayModule):
         super(USDAddon, self).tray_start()
         download_usd = is_usd_download_needed()
         if not download_usd:
-            print(f"get_downloaded_usd_root: {get_downloaded_usd_root()}")
             return
 
         from .download_ui import show_download_window

@@ -176,7 +176,8 @@ def get_downloaded_usd_root() -> Union[str, None]:
     if _USDOptions.downloaded_root is not NOT_SET:
         return _USDOptions.downloaded_root
 
-    server_usd_info = _find_file_info("usd", get_server_files_info())
+    server_usd_info = _find_file_info(
+        "ayon_usd", get_server_files_info())
     if not server_usd_info:
         return None
 
