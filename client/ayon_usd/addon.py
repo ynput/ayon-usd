@@ -8,9 +8,8 @@ from .utils import (
     get_addon_settings,
     is_usd_download_needed,
 )
-import lakefs
-from ayon_bin_bridge_client.ayon_bin_distro.gui import progress_ui
-from ayon_bin_bridge_client.ayon_bin_distro.work_handler import worker
+from ayon_usd.ayon_bin_client.ayon_bin_distro.gui import progress_ui
+from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 
 from . import utils, config
 

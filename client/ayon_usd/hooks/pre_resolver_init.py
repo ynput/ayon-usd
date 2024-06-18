@@ -10,7 +10,7 @@ from ayon_applications import LaunchTypes, PreLaunchHook
 from ayon_usd.utils import get_addon_settings
 from ayon_usd import get_download_dir, extract_zip_file, config
 
-from ayon_bin_bridge_client.ayon_bin_distro.work_handler import worker
+from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 
 
 class InitializeAssetResolver(PreLaunchHook):
@@ -27,7 +27,6 @@ class InitializeAssetResolver(PreLaunchHook):
 
         self.log.debug(self.app_group)
         settings = get_addon_settings()
-
         resolver_lake_fs_path = self._get_resolver_to_download(settings)
         if not resolver_lake_fs_path:
             return
@@ -45,24 +44,24 @@ class InitializeAssetResolver(PreLaunchHook):
         self, resolver_lake_fs_path, download_dir
     ) -> str:
         controller = worker.Controller()
+
         download_item = controller.construct_work_item(
             func=config.lake_ctl_instance_glob.clone_element,
             args=[resolver_lake_fs_path, download_dir],
         )
-        # zip_path = config.lake_ctl_instance_glob.clone_element(
-        #     None, resolver_lake_fs_path, download_dir
-        # )
-        extract_zip_item = controller.construct_work_item(
-            func=extract_zip_file, args=[download_item.func_return, download_dir, dependency_id=download_item.get_uuid()]
-        )
-        # extract_zip_file(None, zip_path, download_dir)
 
-        return os.path.abspath(
-            os.path.join(
+        extract_zip_item = controller.construct_work_item(
+            func=extract_zip_file,
+            args=[
+                download_item.connect_func_return,
                 download_dir,
-                os.path.basename(extract_zip_item.func_return).split(".")[0],
-            )
+            ],
+            dependency_id=[download_item.get_uuid()],
         )
+
+        controller.start()
+
+        return str(extract_zip_item.func_return)
 
     def _get_resolver_to_download(self, settings) -> str:
         """
@@ -114,8 +113,8 @@ class InitializeAssetResolver(PreLaunchHook):
 
         if (
             not os.path.exists(resolver_python_path)
-            and os.path.exists(resolver_ld_path)
-            and os.path.exists(resolver_python_path)
+            or not os.path.exists(resolver_ld_path)
+            or not os.path.exists(resolver_python_path)
         ):
             raise RuntimeError(
                 f"Cant start Resolver missing path resolver_python_path: {resolver_python_path}, resolver_ld_path: {resolver_ld_path}, resolver_python_path: {resolver_python_path}"
@@ -125,7 +124,6 @@ class InitializeAssetResolver(PreLaunchHook):
         python_path.append(pathlib.Path(resolver_python_path).as_posix())
 
         self.log.info(f"Asset resolver {self.app_name} initiated.")
-
         if self.launch_context.env.get("PXR_PLUGINPATH_NAME"):
             pxr_plugin_paths.append(
                 self.launch_context.env["PXR_PLUGINPATH_NAME"].split(os.pathsep)
@@ -143,11 +141,14 @@ class InitializeAssetResolver(PreLaunchHook):
             self.launch_context.env["LD_LIBRARY_PATH"] = os.pathsep.join(ld_path)
 
         self.launch_context.env["TF_DEBUG"] = settings["usd_tf_debug"]
-
         self.launch_context.env["AYONLOGGERLOGLVL"] = settings["ayon_log_lvl"]
         self.launch_context.env["AYONLOGGERSFILELOGGING"] = settings[
             "ayon_file_logger_enabled"
         ]
-        self.launch_context.env["AYONLOGGERSFILEPOS"] = ["file_logger_file_path"]
+        self.launch_context.env["AYONLOGGERSFILEPOS"] = settings[
+            "file_logger_file_path"
+        ]
 
-        self.launch_context.env["AYON_LOGGIN_LOGGIN_KEYS"] = ["file_logger_file_path"]
+        self.launch_context.env["AYON_LOGGIN_LOGGIN_KEYS"] = settings[
+            "file_logger_file_path"
+        ]

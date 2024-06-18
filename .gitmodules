@@ -1,6 +1,6 @@
 [submodule "client/AyonBinBridge-Client"]
 	path = client/AyonBinBridge-Client
 	url = https://github.com/ynput/AyonBinBridge-Client.git
-[submodule "client/ayon_bin_bridge_client"]
-	path = client/ayon_bin_bridge_client
+[submodule "client/ayon_usd/ayon_bin_client"]
+	path = client/ayon_usd/ayon_bin_client
 	url = https://github.com/ynput/AyonBinBridge-Client.git
