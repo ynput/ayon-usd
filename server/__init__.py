@@ -1,4 +1,5 @@
 """USD Addon for AYON - server part."""
+
 import os
 import json
 from pathlib import Path
@@ -12,8 +13,7 @@ from ayon_server.exceptions import NotFoundException
 
 from .settings import USDSettings
 
-PRIVATE_DIR = Path(
-    os.path.dirname(os.path.abspath(__file__))).parent / "private"
+PRIVATE_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent / "private"
 
 
 class USDAddon(BaseServerAddon):
@@ -32,8 +32,7 @@ class USDAddon(BaseServerAddon):
         )
 
     async def _get_files_info(
-        self,
-        user: UserEntity = Depends(dep_current_user)
+        self, user: UserEntity = Depends(dep_current_user)
     ) -> list[dict[str, str]]:
         info_filepath = (PRIVATE_DIR / "files_info.json").resolve().as_posix()
         try:
@@ -42,3 +41,10 @@ class USDAddon(BaseServerAddon):
         except FileNotFoundError as e:
             raise NotFoundException("Files info not found") from e
         return data
+
+    async def _get_lakefs_repo(self, user: UserEntity = Depends(dep_current_user)):
+        # TODO this endpoint will return everything that the lake ctl needs:
+        # infos for generating a config file
+        # LakeFs server uri
+        # LakeFs repo + path on the server (for lakectl fs ls -r: to find all the resolvers and usd bins)
+        pass

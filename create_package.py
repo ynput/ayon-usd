@@ -29,6 +29,7 @@ import os
 import platform
 import re
 import shutil
+import subprocess
 import sys
 import urllib.request
 import zipfile
@@ -53,23 +54,6 @@ name = "{}"
 __version__ = "{}"
 '''
 
-# Set sources to download
-AYON_SOURCE_URL = "https://distribute.openpype.io/thirdparty"
-USD_SOURCES = {
-        "24.03": {
-            "windows": {
-                "url": f"{AYON_SOURCE_URL}/usd-24.03_win64_py39.zip",
-                "checksum": "7d7852b9c8e3501e5f64175decc08d70e3bf1c083faaaf2c1a8aa8f9af43ab30",
-                "checksum_algorithm": "sha256",
-            },
-            "linux": {
-                "url": f"{AYON_SOURCE_URL}/usd-24.03_linux_py39.zip",
-                "checksum": "27010ad67d5acd25e3c95b1ace4ab30e047b5a9e48082db0545ae44ae7ec9b09",
-                "checksum_algorithm": "sha256",
-            }
-        }
-    }
-
 # Patterns of directories to be skipped for server part of addon
 IGNORE_DIR_PATTERNS = [
     re.compile(pattern)
@@ -77,7 +61,7 @@ IGNORE_DIR_PATTERNS = [
         # Skip directories starting with '.'
         r"^\.",
         # Skip any pycache folders
-        "^__pycache__$"
+        "^__pycache__$",
     }
 ]
 
@@ -89,13 +73,12 @@ IGNORE_FILE_PATTERNS = [
         # NOTE this could be an issue in some cases
         r"^\.",
         # Skip '.pyc' files
-        r"\.pyc$"
+        r"\.pyc$",
     }
 ]
 
 
-def calculate_file_checksum(
-        filepath, hash_algorithm, chunk_size=10000):
+def calculate_file_checksum(filepath, hash_algorithm, chunk_size=10000):
     """Calculate file checksum.
 
     Args:
@@ -134,9 +117,7 @@ class ZipFileLongPaths(zipfile.ZipFile):
             else:
                 tpath = "\\\\?\\" + tpath
 
-        return super(ZipFileLongPaths, self)._extract_member(
-            member, tpath, pwd
-        )
+        return super(ZipFileLongPaths, self)._extract_member(member, tpath, pwd)
 
 
 def safe_copy_file(src_path, dst_path):
@@ -162,11 +143,7 @@ def _value_match_regexes(value, regexes):
     return any(regex.search(value) for regex in regexes)
 
 
-def find_files_in_subdir(
-    src_path,
-    ignore_file_patterns=None,
-    ignore_dir_patterns=None
-):
+def find_files_in_subdir(src_path, ignore_file_patterns=None, ignore_dir_patterns=None):
     """Find files in subdirectories.
 
     Args:
@@ -234,13 +211,9 @@ def copy_server_content(addon_output_dir, current_dir, log):
 
 
 def _fill_client_version(current_dir):
-    version_file = os.path.join(
-        current_dir, "client", ADDON_CLIENT_DIR, "version.py"
-    )
+    version_file = os.path.join(current_dir, "client", ADDON_CLIENT_DIR, "version.py")
     with open(version_file, "w") as stream:
-        stream.write(
-            CLIENT_VERSION_CONTENT.format(
-                ADDON_NAME, ADDON_VERSION))
+        stream.write(CLIENT_VERSION_CONTENT.format(ADDON_NAME, ADDON_VERSION))
 
 
 def zip_client_side(addon_package_dir, current_dir, log):
@@ -257,6 +230,14 @@ def zip_client_side(addon_package_dir, current_dir, log):
         log.info("Client directory was not found. Skipping")
         return
 
+    client_ayon_usd_download_dir = os.path.join(
+        current_dir, "client", "ayon_usd", "downloads"
+    )
+    bin_bridge_repo_dir = os.path.join(current_dir, "client", "ayon_bin_bridge_client")
+    bin_distro_dir = os.path.join(
+        current_dir, "client", "ayon_bin_bridge_client", "ayon_bin_distro"
+    )
+
     log.info("Preparing client code zip")
     private_dir = os.path.join(addon_package_dir, "private")
 
@@ -267,57 +248,15 @@ def zip_client_side(addon_package_dir, current_dir, log):
     with ZipFileLongPaths(zip_filepath, "w", zipfile.ZIP_DEFLATED) as zipf:
         # Add client code content to zip
         for path, sub_path in find_files_in_subdir(client_dir):
-            zipf.write(path, sub_path)
-
-
-def download_usd_zip(downloads_dir: Path, log: logging.Logger):
-    """Download USD zip files.
-
-    Args:
-        downloads_dir (Path): Directory path to download zip files.
-        log (logging.Logger): Logger object.
-
-    """
-    zip_files_info = []
-    for item_name, item_info in USD_SOURCES.items():
-        for platform_name, platform_info in item_info.items():
-            src_url = platform_info["url"]
-            filename = src_url.split("/")[-1]
-            zip_path = downloads_dir / filename
-            checksum = platform_info["checksum"]
-            checksum_algorithm = platform_info["checksum_algorithm"]
-            zip_files_info.append({
-                "name": ADDON_NAME,
-                "filename": filename,
-                "checksum": checksum,
-                "checksum_algorithm": checksum_algorithm,
-                "platform": platform_name,
-            })
-            if zip_path.exists():
-                file_checksum = calculate_file_checksum(
-                    zip_path, checksum_algorithm)
-                if checksum == file_checksum:
-                    log.debug(f"USD zip from {src_url} already exists")
+            if (
+                client_ayon_usd_download_dir in path
+                or client_ayon_usd_download_dir in sub_path
+            ):
+                continue
+            if bin_bridge_repo_dir in path or bin_bridge_repo_dir in sub_path:
+                if not bin_distro_dir in path or bin_distro_dir in sub_path:
                     continue
-                os.remove(zip_path)
-
-            log.debug(f"USD zip from {src_url} -> {zip_path}")
-            log.info("USD zip download - started")
-
-            urllib.request.urlretrieve(
-                src_url,
-                zip_path)
-            log.info("USD zip download - finished")
-
-            file_checksum = calculate_file_checksum(
-                zip_path, checksum_algorithm)
-
-            if checksum != file_checksum:
-                raise ValueError(
-                    f"USD zip checksum mismatch: {file_checksum} != {checksum}"
-                )
-
-    return zip_files_info
+            zipf.write(path, sub_path)
 
 
 def create_server_package(
@@ -325,7 +264,7 @@ def create_server_package(
     output_dir: str,
     addon_output_dir: str,
     addon_version: str,
-    log: logging.Logger
+    log: logging.Logger,
 ):
     """Create server package zip file.
 
@@ -340,14 +279,10 @@ def create_server_package(
 
     """
     log.info("Creating server package")
-    output_path = os.path.join(
-        output_dir, f"{ADDON_NAME}-{addon_version}.zip"
-    )
+    output_path = os.path.join(output_dir, f"{ADDON_NAME}-{addon_version}.zip")
     with ZipFileLongPaths(output_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         # Write a manifest to zip
-        zipf.write(
-            os.path.join(current_dir, "package.py"), "package.py"
-        )
+        zipf.write(os.path.join(current_dir, "package.py"), "package.py")
 
         # Move addon content to zip into 'addon' directory
         addon_output_dir_offset = len(addon_output_dir) + 1
@@ -369,9 +304,7 @@ def create_server_package(
 
 
 def main(
-    output_dir: Optional[str] = None,
-    skip_zip: bool = False,
-    keep_sources: bool = False
+    output_dir: Optional[str] = None, skip_zip: bool = False, keep_sources: bool = False
 ):
     """Create addon package.
 
@@ -390,14 +323,7 @@ def main(
     if not output_dir:
         output_dir = os.path.join(current_dir, "package")
 
-    downloads_dir = Path(os.path.join(current_dir, "downloads"))
-    downloads_dir.mkdir(exist_ok=True)
-
-    files_info = download_usd_zip(downloads_dir, log)
-
-    new_created_version_dir = os.path.join(
-        output_dir, ADDON_NAME, ADDON_VERSION
-    )
+    new_created_version_dir = os.path.join(output_dir, ADDON_NAME, ADDON_VERSION)
     if os.path.isdir(new_created_version_dir):
         log.info(f"Purging {new_created_version_dir}")
         shutil.rmtree(output_dir)
@@ -416,16 +342,6 @@ def main(
     private_dir = Path(addon_output_dir) / "private"
     if not private_dir.exists():
         private_dir.mkdir(parents=True)
-
-    for file_info in files_info:
-        filename = file_info["filename"]
-        src_path = downloads_dir / filename
-        dst_path = private_dir / filename
-        shutil.copy(src_path, dst_path)
-
-    zips_info_path = private_dir / "files_info.json"
-    with open(zips_info_path, "w") as stream:
-        json.dump(files_info, stream)
 
     zip_client_side(addon_output_dir, current_dir, log)
 
@@ -448,26 +364,24 @@ if __name__ == "__main__":
         dest="skip_zip",
         action="store_true",
         help=(
-            "Skip zipping server package and create only"
-            " server folder structure."
-        )
+            "Skip zipping server package and create only" " server folder structure."
+        ),
     )
     parser.add_argument(
         "--keep-sources",
         dest="keep_sources",
         action="store_true",
-        help=(
-            "Keep folder structure when server package is created."
-        )
+        help=("Keep folder structure when server package is created."),
     )
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         dest="output_dir",
         default=None,
         help=(
             "Directory path where package will be created"
             " (Will be purged if already exists!)"
-        )
+        ),
     )
 
     args = parser.parse_args(sys.argv[1:])

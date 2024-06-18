@@ -1,4 +1,5 @@
 """USD Addon for AYON - client part."""
+
 import os
 import sys
 
@@ -23,16 +24,16 @@ def initialize_environment():
     already embedded.
 
     """
-    sys.path.append(
-        os.path.join(get_downloaded_usd_root(), "lib", "python"))
+    sys.path.append(os.path.join(get_downloaded_usd_root(), "lib", "python"))
 
     # Resolver settings
     os.environ["PXR_PLUGINPATH_NAME"] = USD_ADDON_DIR
     os.environ["USD_ASSET_RESOLVER"] = ""
-    os.environ["TF_DEBUG"] = "1"
-    os.environ["PYTHONPATH"] = os.path.join(
-        get_downloaded_usd_root(), "lib", "python")
-    os.environ["PATH"] = f"{os.getenv('PATH')}{os.path.pathsep}{os.path.join(get_downloaded_usd_root(), 'bin')}"
+    os.environ["TF_DEBUG"] = ""
+    os.environ["PYTHONPATH"] = os.path.join(get_downloaded_usd_root(), "lib", "python")
+    os.environ["PATH"] = (
+        f"{os.getenv('PATH')}{os.path.pathsep}{os.path.join(get_downloaded_usd_root(), 'bin')}"
+    )
     os.environ["AYONLOGGERLOGLVL"] = "WARN"
-    os.environ["AYONLOGGERSFILELOGGING"] = "1"
-    os.environ["AYONLOGGERSFILEPOS"] = ".log"
+    os.environ["AYONLOGGERSFILELOGGING"] = "OFF"
+    os.environ["AYONLOGGERSFILEPOS"] = ""

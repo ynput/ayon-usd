@@ -1,8 +1,18 @@
 """USD Addon for AYON."""
+
 import os
 
 from ayon_core.modules import AYONAddon, ITrayModule
-from .utils import is_usd_download_needed, get_downloaded_usd_root
+from .utils import (
+    DOWNLOAD_DIR,
+    get_addon_settings,
+    is_usd_download_needed,
+)
+import lakefs
+from ayon_bin_bridge_client.ayon_bin_distro.gui import progress_ui
+from ayon_bin_bridge_client.ayon_bin_distro.work_handler import worker
+
+from . import utils, config
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,23 +44,41 @@ class USDAddon(AYONAddon, ITrayModule):
         Download USD if needed.
         """
         super(USDAddon, self).tray_start()
-        download_usd = is_usd_download_needed()
-        if not download_usd:
-            print(f"get_downloaded_usd_root: {get_downloaded_usd_root()}")
+
+        if not is_usd_download_needed():
+            print(f"usd is allready downloaded")
             return
 
-        from .download_ui import show_download_window
+        settings = get_addon_settings()
+        controller = worker.Controller()
 
-        download_window = show_download_window(
-            download_usd
+        usd_download_work_item = controller.construct_work_item(
+            func=config.lake_ctl_instance_glob.clone_element,
+            kwargs={
+                "lake_fs_object_uir": f"{settings['ayon_usd_lake_fs_server_repo']}{config.get_usd_lib_conf_from_lakefs()}",
+                "dist_path": DOWNLOAD_DIR,
+            },
+            progress_title="Download UsdLib",
         )
-        download_window.finished.connect(self._on_download_finish)
-        download_window.start()
-        self._download_window = download_window
 
-    def _on_download_finish(self):
-        self._download_window.close()
-        self._download_window = None
+        controller.construct_work_item(
+            func=utils.extract_zip_file,
+            kwargs={
+                "zip_file_path": config.USD_ZIP_PATH,
+                "dest_dir": config.USD_LIB_PATH,
+            },
+            progress_title="Unzip UsdLib",
+            dependency_id=[usd_download_work_item.get_uuid()],
+        )
+
+        download_ui = progress_ui.ProgressDialog(
+            controller,
+            close_on_finish=True,
+            auto_close_timeout=1,
+            delet_progress_bar_on_finish=False,
+        )
+        download_ui.start()
+        self._download_window = download_ui
 
     def tray_exit(self):
         """Exit tray module."""
@@ -62,6 +90,4 @@ class USDAddon(AYONAddon, ITrayModule):
 
     def get_launch_hook_paths(self):
         """Get paths to launch hooks."""
-        return [
-            os.path.join(USD_ADDON_DIR, "hooks")
-        ]
+        return [os.path.join(USD_ADDON_DIR, "hooks")]
