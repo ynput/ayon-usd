@@ -2,7 +2,3 @@
 lakefs = "^0.6"
 PyYAML = "^6.0"
 
-
-[tool.poetry.dependencies]
-lakefs = "^0.6"
-PyYAML = "^6.0"
