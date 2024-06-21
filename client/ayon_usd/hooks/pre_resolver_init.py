@@ -151,6 +151,6 @@ class InitializeAssetResolver(PreLaunchHook):
             "file_logger_file_path"
         ]
 
-        self.launch_context.env["AYON_LOGGER_LOGGING_KEYS"] = settings[
+        self.launch_context.env["AYON_LOGGIN_LOGGIN_KEYS"] = settings[
             "ayon_logger_logging_keys"
         ]
