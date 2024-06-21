@@ -111,7 +111,7 @@ class USDSettings(BaseSettingsModel):
     )
     ayon_file_logger_enabled: str = Field(
         "OFF",
-        title="AyonResolver Log Lvl",
+        title="AyonResolver File Logger Enabled ",
         enum_resolver=file_logger_enum,
         description="Allows you to enable or disalbe the AyonUsdResolver file logger, default is Off",
     )

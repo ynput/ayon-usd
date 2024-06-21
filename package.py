@@ -2,7 +2,7 @@
 
 name = "ayon_usd"
 title = "AYON Addon providing USD support"
-version = "1.0.25-LR"
+version = "1.0.26-LR"
 client_dir = "ayon_usd"
 
 services = {}

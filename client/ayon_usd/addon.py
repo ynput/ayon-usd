@@ -2,18 +2,11 @@
 
 import os
 
+from . import config, utils
 from ayon_core.modules import AYONAddon, ITrayModule
-from .utils import (
-    DOWNLOAD_DIR,
-    get_addon_settings,
-    is_usd_download_needed,
-)
-from ayon_usd.ayon_bin_client.ayon_bin_distro.gui import progress_ui
-from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
-
-from . import utils, config
-
-USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
+from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
+from .ayon_bin_client.ayon_bin_distro.work_handler import worker
+from .ayon_bin_client.ayon_bin_distro.util import zip
 
 
 class USDAddon(AYONAddon, ITrayModule):
@@ -44,24 +37,23 @@ class USDAddon(AYONAddon, ITrayModule):
         """
         super(USDAddon, self).tray_start()
 
-        if not is_usd_download_needed():
+        if not utils.is_usd_download_needed():
             print(f"usd is allready downloaded")
             return
 
-        settings = get_addon_settings()
+        settings = config.get_addon_settings()
         controller = worker.Controller()
-
         usd_download_work_item = controller.construct_work_item(
-            func=config.lake_ctl_instance_glob.clone_element,
+            func=config.get_global_lake_instance().clone_element,
             kwargs={
                 "lake_fs_object_uir": f"{settings['ayon_usd_lake_fs_server_repo']}{config.get_usd_lib_conf_from_lakefs()}",
-                "dist_path": DOWNLOAD_DIR,
+                "dist_path": config.DOWNLOAD_DIR,
             },
             progress_title="Download UsdLib",
         )
 
         controller.construct_work_item(
-            func=utils.extract_zip_file,
+            func=zip.extract_zip_file,
             kwargs={
                 "zip_file_path": config.USD_ZIP_PATH,
                 "dest_dir": config.USD_LIB_PATH,
