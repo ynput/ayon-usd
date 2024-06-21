@@ -58,7 +58,7 @@ class AppPlatformPathModel(BaseSettingsModel):
     lake_fs_path: str = Field(
         title="LakeFs Object Path",
         description="The LakeFs internal path to the resolver zip, e.g: `AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`\n"
-                    "This information can be found in can be found in Object Information.",
+                    "This information can be found on LakeFs server Object Information.",
     )
 
 
