@@ -384,7 +384,8 @@ def main(
 
     """
     logging.basicConfig(level=logging.INFO)
-    log = logging.getLogger("create_package", level=logging.INFO)
+    log = logging.getLogger("create_package")
+    log.setLevel(logging.INFO)
 
     log.info("Start creating package")
 
