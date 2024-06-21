@@ -65,16 +65,18 @@ class InitializeAssetResolver(PreLaunchHook):
 
     def _get_resolver_to_download(self, settings) -> str:
         """
-        gets lakeFs path that can be used with copy element to download specific resolver, this will priorities lake_fs_overwrites over asset_resolvers entry's
+        Gets LakeFs path that can be used with copy element to download
+        specific resolver, this will prioritize `lake_fs_overrides` over
+        asset_resolvers entries.
 
-        Returns: str: lakeFs object path to be used with lake_fs_py wrapper
+        Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
         """
 
         resolver_overwrite = next(
             (
                 item
-                for item in settings["lake_fs_overwrites"]
+                for item in settings["lake_fs_overrides"]
                 if item["app_name"] == self.app_name
                 and item["platform"] == sys.platform.lower()
             ),
@@ -149,6 +151,6 @@ class InitializeAssetResolver(PreLaunchHook):
             "file_logger_file_path"
         ]
 
-        self.launch_context.env["AYON_LOGGIN_LOGGIN_KEYS"] = settings[
-            "file_logger_file_path"
+        self.launch_context.env["AYON_LOGGER_LOGGING_KEYS"] = settings[
+            "ayon_logger_logging_keys"
         ]
