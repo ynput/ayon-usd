@@ -1,0 +1,255 @@
+name: Proposal (Technical)
+description: 'Propose a new implementation, tool, system or feature. '
+title: "[Pruposal]_Title"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Description
+        
+  - type: textarea
+    attributes:
+      label: Summary
+      description: A brief proposal summary, including the main goals and expected outcomes.
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: A detailed description of the project or feature. Include background information, context, and the importance of the project.
+
+  - type: textarea
+    attributes:
+      label: Approval
+      description: Specify the approval process for the proposal, including key stakeholders and decision-makers.
+
+
+  - type: markdown
+    attributes:
+      value: |
+        # Story Time
+
+
+  - type: textarea
+    attributes:
+      label: To Reproduce (if issue/bug/etc)
+      description: |
+        Steps to reproduce the behaviour:
+
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+
+  - type: textarea
+    attributes:
+      label: User Stories
+      description: |
+        Describe scenarios illustrating how users are affected by the current problem and how the proposed solution will improve their experience. Example User Stories:
+
+        User Story 1: As a [type of user], I want [some goal] so that [some reason].
+        User Story 2: As a [type of user], I am facing [specific problem], which affects [aspect of the user's experience].
+
+  - type: markdown
+    attributes:
+      value: |
+        # impect assumptions
+
+  - type: dropdown
+    attributes:
+      label: Impact
+      description: Please specify the impact this PR has on your Operation
+      multiple: true
+      options:
+        - No Impact
+        - Low
+        - Mid
+        - High
+        - Critical
+        - Stopper
+
+  - type: dropdown
+    attributes:
+      label: Assumed Complexity
+      description: Please specify how complex you assume this will be
+      multiple: true
+      options:
+        - Hours
+        - Days
+        - Months
+        - more than 1/2 Year
+
+  - type: dropdown
+    attributes:
+      label: Impact Scale
+      description: Please specify how much other code/tools this might impact
+      multiple: true
+      options:
+        - no other tool
+        - one more tool 
+        - a few more tools
+        - an entire tool group
+        - might propagate to all tools
+        
+  - type: textarea
+    attributes:
+      label: Other tools that get touched
+      description: If you put the Impact Scale to anything but None, list all the tools / repos that get affected.
+
+  - type: markdown
+    attributes:
+      value: |
+        # Implementation and Details
+
+  - type: textarea
+    attributes:
+      label: How it Solves the Problem
+      description: Explain how the proposed implementation addresses the initial problems.
+
+  - type: textarea
+    attributes:
+      label: Implementation Idea/Details
+      description: Provide a detailed plan for implementing the project or feature.
+
+  - type: textarea
+    attributes:
+      label: Technical Approach
+      description: Describe the technical steps, methodologies, and tools used.
+
+  - type: textarea
+    attributes:
+      label: Architecture
+      description: Outline the high-level architecture and design of the proposed solution.
+
+  - type: textarea
+    attributes:
+      label: Unresolved Questions
+      description: List all the unresolved questions so that they can be debated and considered. 
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Steps and milestones
+      
+  - type: textarea
+    attributes:
+      label: milestones
+      description: Provide key milestones so that the work steps for this Proposal are clear.
+
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Dependencies and problems
+
+  - type: markdown
+    attributes:
+      value: |
+        ### problems
+        
+  - type: textarea
+    attributes:
+      label: Potential Problems
+      description: Identify any potential issues or challenges that may arise during implementation.
+
+  - type: textarea
+    attributes:
+      label: Long-term Issues
+      description: Identify any long-term issues that might emerge after implementation.
+
+  - type: textarea
+    attributes:
+      label: Transient Problems
+      description: Identify any temporary issues arising from implementing the proposed solution.
+
+  - type: textarea
+    attributes:
+      label: impacting Branches
+      description: Detail any branches or repositories that the project will impact.
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Dependencies
+
+  - type: textarea
+    attributes:
+      label: Dependencies
+      description: List all dependencies the project relies on, including software, hardware, and third-party services.
+
+  - type: textarea
+    attributes:
+      label: outgoing Dependencies
+      description: List all the projects, branches, and issues that rely on this implementation.
+
+  - type: textarea
+    attributes:
+      label: dependency Issues
+      description: Identify any existing issues that might impact the project.
+
+  - type: textarea
+    attributes:
+      label: Dependant Branches
+      description: Detail any branches or repositories on which the project will depend.
+
+  - type: textarea
+    attributes:
+      label: Common Dependencies
+      description: List any commonly used libraries, tools, or frameworks required for the project.
+
+      
+  - type: markdown
+    attributes:
+      value: |
+        ## Testing and Documentation
+
+  - type: textarea
+    attributes:
+      label: non-persistent test (e.g. development time tests)
+      description: Outline all tests that can be run while this Proposal is in development, e.g. Automated tests and tests that a developer can run to know the validity of the implementation
+
+  - type: textarea
+    attributes:
+      label: Testing Plan (president tests)
+      description: Outline the strategy for testing the project or feature, including unit, integration, and user acceptance tests.
+
+  - type: textarea
+    attributes:
+      label: Documentation
+      description: Describe the documentation that will be created or updated as part of this project.
+
+
+  - type: markdown
+    attributes:
+      value: |
+        ## maintenance
+
+  - type: textarea
+    attributes:
+      label: Maintenance
+      description: Explain the plan for maintaining the project or feature after implementation.
+
+  - type: textarea
+    attributes:
+      label: Risk Management
+      description: Identify potential risks and provide a mitigation plan for each risk.
+
+  - type: textarea
+    attributes:
+      label: Appendices
+      description: Include any additional information, diagrams, or references that support the Proposal.
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue with this?
+      description: >-
+        Please search to see if an issue with the bug you encountered already exists.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Are there any labels you wish to add?
+      description: Please search labels and identify those related to your bug.
+      options:
+        - label: I have added the relevant labels to the bug report.
+          required: true

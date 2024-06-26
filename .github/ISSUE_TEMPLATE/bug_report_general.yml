@@ -1,0 +1,152 @@
+name: Bug report (general)
+description: Report a bug so we can all improve together.
+title: "[Bug]_Title"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Description
+
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: Provide a general overview of the bug and its impact on you or your peers.
+
+  - type: input
+    attributes:
+      label: Describe yourself
+      description: Provide a general overview of your perspective on the problem. Are you a developer, user, artist, etc.? This can help us understand you better. Developers, artists, and users sometimes use different ways to describe the same thing, and we want to meet you in your domain.
+
+  - type: textarea
+    attributes:
+      label: To Reproduce
+      description: |
+        Steps to reproduce the behaviour:
+
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+
+  - type: textarea
+    attributes:
+      label: How did you discover the bug?
+      description: |
+        Tell us what you did when you encountered the bug and what impact it had:
+        1. I was playing around with x.y / I was working with {softwareA, softwareB, etc.}
+        2. I opened '...'
+        3. Then boom
+
+  - type: textarea
+    attributes:
+      label: Expected behaviour
+      description: A clear and concise description of what you expected to happen.
+
+  - type: textarea
+    attributes:
+      label: Screenshots
+      description: If applicable, please add screenshots to help explain your problem.
+
+  - type: markdown
+    attributes:
+      value: |
+        # Environment Description
+        
+  - type: textarea
+    attributes:
+      label: Hardware Setup
+      description: |
+        Please describe your system Setup:
+        - Environment: VM, bare metal
+        - Hardware Specs: Cpu, Ram, Drives, etc.
+        - Network: internal/external [e.g., Self, Hosted, Cloud, Peer-to-Peer, Complex VPN, etc.]
+        
+  - type: textarea
+    attributes:
+      label: Software Setup
+      description: |
+        Please describe what software you are using so we know what to look out for:
+        - Affected Software: [e.g., Chrome, Safari, Ayon, Houdini, etc.]
+        - Driver Versions
+
+  - type: input
+    attributes:
+      label: User Type
+      description: |
+        Please describe what user this setup was made for:
+        - Environment: Developer, Td, Artist, General User, Admin, etc.
+        
+  - type: textarea
+    attributes:
+      label: Additional Environment Details
+      description: |
+        if you have some special stuff running that we should be aware of, here is the place to tell us:
+        
+  - type: dropdown
+    validations:
+      required: true
+    attributes:
+      label: What platform are you running on?
+      description: |
+        Please specify the operating systems you are using.
+      multiple: true
+      options:
+        - Windows 10
+        - Windows 11
+        - Windows Server 2019
+        - Windows Server 2022
+        - Ubuntu
+        - CentOS
+        - Red Hat Enterprise Linux (RHEL)
+        - Debian
+        - Fedora
+        - openSUSE
+        - Arch Linux
+        - Linux Mint
+        - Slackware
+        - Elementary OS
+        - Kali Linux
+        - Gentoo
+        - Manjaro
+        - FreeBSD
+        - OpenBSD
+        - NetBSD
+        - Solaris
+        - OpenIndiana
+        - AIX (IBM)
+        - macOS Monterey
+        - macOS Big Sur
+        - macOS Catalina
+        - macOS Mojave
+        - VMware ESXi (Hypervisor)
+        - Microsoft Hyper-V (Hypervisor)
+        - Citrix XenServer (Hypervisor)
+        - Proxmox (Hypervisor)
+        - Oracle VM Server
+        - CoreOS
+        - Ubuntu Server
+        - CentOS Stream
+        - Red Hat Enterprise Linux Server
+        - SUSE Linux Enterprise Server
+        
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue with this?
+      description: >-
+        Please search to see if an issue with the bug you encountered already exists.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Are there any labels you wish to add?
+      description: Please search labels and identify those related to your bug.
+      options:
+        - label: I have added the relevant labels to the bug report.
+          required: true
