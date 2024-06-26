@@ -1,9 +1,11 @@
 """USD Addon for AYON."""
 
 import os
+import shutil
 
 from . import config, utils
 from ayon_core.modules import AYONAddon, ITrayModule
+from ayon_core import style
 from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
@@ -41,6 +43,12 @@ class USDAddon(AYONAddon, ITrayModule):
             print(f"usd is allready downloaded")
             return
 
+        # TODO remove this ( this exists because for some reason there is a downloades.zip where the downloades folder should be and i dont know why it is there it dose not create a re download off the usd lib)
+        if not os.path.exists(config.DOWNLOAD_DIR):
+            os.makedirs(config.DOWNLOAD_DIR, exist_ok=True)
+        if os.path.exists(str(config.DOWNLOAD_DIR) + ".zip"):
+            os.remove(str(config.DOWNLOAD_DIR) + ".zip")
+
         settings = config.get_addon_settings()
         controller = worker.Controller()
         usd_download_work_item = controller.construct_work_item(
@@ -68,6 +76,7 @@ class USDAddon(AYONAddon, ITrayModule):
             auto_close_timeout=1,
             delet_progress_bar_on_finish=False,
         )
+        download_ui.setStyleSheet(style.load_stylesheet())
         download_ui.start()
         self._download_window = download_ui
 
@@ -81,4 +90,4 @@ class USDAddon(AYONAddon, ITrayModule):
 
     def get_launch_hook_paths(self):
         """Get paths to launch hooks."""
-        return [os.path.join(USD_ADDON_DIR, "hooks")]
+        return [os.path.join(config.USD_ADDON_DIR, "hooks")]

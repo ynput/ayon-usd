@@ -1,0 +1,120 @@
+name: "Refactoring Request/Design Discussion"
+description: "Suggest code refactoring or discuss design decisions."
+title: "[Refactoring Request/Design Discussion]_Title "
+labels: ["refactor", "design"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Please provide the following information:**
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Describe the request or discussion topic."
+      placeholder: "Detailed description"
+
+  - type: textarea
+    id: areas_affected
+    attributes:
+      label: "Areas Affected"
+      description: "List the areas of code or design that are affected."
+      placeholder: "Areas of code/design affected."
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: "Rationale"
+      description: "Explain why this refactoring or discussion is necessary."
+      placeholder: "Why is this necessary?"
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Describe your proposed solution or approach."
+      placeholder: "Describe your solution."
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "List any alternatives you've considered."
+      placeholder: "Alternatives considered"
+
+  - type: textarea
+    id: unresolved_questions
+    attributes:
+      label: "Unresolved Questions"
+      description: "List any unresolved questions or concerns."
+      placeholder: "Unresolved questions"
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context or screenshots."
+      placeholder: "Additional context."
+
+  - type: markdown
+    attributes:
+      value: |
+        # impect assumptions
+
+  - type: dropdown
+    attributes:
+      label: Impact
+      description: Please specify the impact this PR has on your Operation
+      multiple: true
+      options:
+        - No Impact
+        - Low
+        - Mid
+        - High
+        - Critical
+        - Stopper
+
+  - type: dropdown
+    attributes:
+      label: Assumed Complexity
+      description: Please specify how complex you assume this will be
+      multiple: true
+      options:
+        - Hours
+        - Days
+        - Months
+        - more than 1/2 Year
+
+  - type: dropdown
+    attributes:
+      label: Impact Scale
+      description: Please specify how much other code/tools this might impact
+      multiple: true
+      options:
+        - no other tool
+        - one more tool 
+        - a few more tools
+        - an entire tool group
+        - might propagate to all tools
+        
+  - type: textarea
+    attributes:
+      label: Other tools that get touched
+      description: If you put the Impact Scale to anything but None, list all the tools / repos that get affected.
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue with this?
+      description: >-
+        Please search to see if an issue with the bug you encountered already exists.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Are there any labels you wish to add?
+      description: Please search labels and identify those related to your bug.
+      options:
+        - label: I have added the relevant labels to the bug report.
+          required: true

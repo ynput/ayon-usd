@@ -226,6 +226,7 @@ def zip_client_side(addon_package_dir, current_dir, log):
 
     """
     client_dir = os.path.join(current_dir, "client")
+
     if not os.path.isdir(client_dir):
         log.info("Client directory was not found. Skipping")
         return
@@ -233,6 +234,9 @@ def zip_client_side(addon_package_dir, current_dir, log):
     client_ayon_usd_download_dir = os.path.join(
         current_dir, "client", "ayon_usd", "downloads"
     )
+    shutil.rmtree(client_ayon_usd_download_dir)
+    os.mkdir(client_ayon_usd_download_dir)
+
     bin_bridge_repo_dir = os.path.join(current_dir, "client", "ayon_bin_bridge_client")
     bin_distro_dir = os.path.join(
         current_dir, "client", "ayon_bin_bridge_client", "ayon_bin_distro"
@@ -245,14 +249,11 @@ def zip_client_side(addon_package_dir, current_dir, log):
         os.makedirs(private_dir)
 
     zip_filepath = os.path.join(os.path.join(private_dir, "client.zip"))
+
     with ZipFileLongPaths(zip_filepath, "w", zipfile.ZIP_DEFLATED) as zipf:
         # Add client code content to zip
         for path, sub_path in find_files_in_subdir(client_dir):
-            if (
-                client_ayon_usd_download_dir in path
-                or client_ayon_usd_download_dir in sub_path
-            ):
-                continue
+
             if bin_bridge_repo_dir in path or bin_bridge_repo_dir in sub_path:
                 if not bin_distro_dir in path or bin_distro_dir in sub_path:
                     continue

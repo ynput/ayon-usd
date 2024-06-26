@@ -1,0 +1,99 @@
+name: "Test Case Request"
+description: "Request new test cases or report gaps in existing tests."
+title: "[Test Case Request]_Title "
+labels: ["test"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Please provide the following information:**
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Describe the request in detail."
+      placeholder: "Detailed description of the test case request."
+
+  - type: textarea
+    id: area_to_test
+    attributes:
+      label: "Area to Test"
+      description: "Specify the area or feature to be tested."
+      placeholder: "Area or feature to be tested."
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: "Rationale"
+      description: "Explain why this test case is needed."
+      placeholder: "Why is this test case needed?"
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context or screenshots."
+      placeholder: "Additional context."
+
+  - type: markdown
+    attributes:
+      value: |
+        # impect assumptions
+
+  - type: dropdown
+    attributes:
+      label: Impact
+      description: Please specify the impact this PR has on your Operation
+      multiple: true
+      options:
+        - No Impact
+        - Low
+        - Mid
+        - High
+        - Critical
+        - Stopper
+
+  - type: dropdown
+    attributes:
+      label: Assumed Complexity
+      description: Please specify how complex you assume this will be
+      multiple: true
+      options:
+        - Hours
+        - Days
+        - Months
+        - more than 1/2 Year
+
+  - type: dropdown
+    attributes:
+      label: Impact Scale
+      description: Please specify how much other code/tools this might impact
+      multiple: true
+      options:
+        - no other tool
+        - one more tool 
+        - a few more tools
+        - an entire tool group
+        - might propagate to all tools
+        
+  - type: textarea
+    attributes:
+      label: Other tools that get touched
+      description: If you put the Impact Scale to anything but None, list all the tools / repos that get affected.
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue with this?
+      description: >-
+        Please search to see if an issue with the bug you encountered already exists.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Are there any labels you wish to add?
+      description: Please search labels and identify those related to your bug.
+      options:
+        - label: I have added the relevant labels to the bug report.
+          required: true

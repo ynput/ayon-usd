@@ -1,0 +1,59 @@
+name: "Documentation Update"
+description: "Suggest updates or additions to the documentation."
+title: "[Documentation Update]_Title "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Please provide the following information:**
+
+  - type: dropdown
+    id: section
+    attributes:
+      label: "Section of Documentation"
+      description: "Select the section of documentation to update."
+      options:
+        - "Getting Started"
+        - "User Guide"
+        - "API Docs"
+        - "Code Docs"
+        - "Auto Docs"
+        - "Other"
+
+  - type: textarea
+    id: proposed_changes
+    attributes:
+      label: "Proposed Changes"
+      description: "Describe the proposed changes to the documentation."
+      placeholder: "Detailed description of the changes"
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: "Rationale"
+      description: "Explain why this change is necessary."
+      placeholder: "Why is this change needed?"
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context or screenshots."
+      placeholder: "Additional context."
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue with this?
+      description: >-
+        Please search to see if an issue with the bug you encountered already exists.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Are there any labels you wish to add?
+      description: Please search labels and identify those related to your bug.
+      options:
+        - label: I have added the relevant labels to the bug report.
+          required: true

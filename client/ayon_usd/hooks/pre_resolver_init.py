@@ -1,20 +1,7 @@
 """Pre-launch hook to initialize asset resolver for the application."""
 
-import os
-import sys
-import pathlib
-from platform import system
-
 from ayon_applications import LaunchTypes, PreLaunchHook
-
-# TODO fix the imports to import module not function
 from ayon_usd import utils
-from ayon_usd.ayon_bin_client.ayon_bin_distro import util
-from ayon_usd import get_download_dir, config
-from ayon_usd import utils
-
-from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
-from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 
 
 class InitializeAssetResolver(PreLaunchHook):
@@ -36,7 +23,7 @@ class InitializeAssetResolver(PreLaunchHook):
             return
 
         local_resolver = utils.download_and_extract_resolver(
-            resolver_lake_fs_path, get_download_dir()
+            resolver_lake_fs_path, str(utils.get_download_dir())
         )
 
         if not local_resolver:

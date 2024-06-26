@@ -3,6 +3,8 @@
 import functools
 import os
 import platform
+import json
+import hashlib
 from pathlib import Path
 from ayon_usd import version
 from ayon_usd.ayon_bin_client.ayon_bin_distro.lakectlpy import wrapper
@@ -30,14 +32,39 @@ class SingletonFuncCache:
     def cache(cls, func):
         @functools.wraps(func)
         def cache_func(*args, **kwargs):
-            cache_key = (func.__name__, args, tuple(kwargs.items()))
-            if cache_key in cls._cache:
+
+            cache_key = tuple((func.__name__, cls._hash_args_kwargs(args, kwargs)))
+
+            if cache_key in cls._cache.keys():
                 return cls._cache[cache_key]
             result = func(*args, **kwargs)
             cls._cache[cache_key] = result
+
             return result
 
         return cache_func
+
+    @staticmethod
+    def _hash_args_kwargs(args, kwargs):
+        """Generate a hashable key from *args and **kwargs."""
+        args_hash = SingletonFuncCache._make_hashable(args)
+        kwargs_hash = SingletonFuncCache._make_hashable(kwargs)
+        return args_hash + kwargs_hash
+
+    @staticmethod
+    def _make_hashable(obj):
+        """Converts an object to a hashable representation."""
+
+        if isinstance(obj, (int, float, str, bool, type(None))):
+            return hashlib.sha256(str(obj).encode()).hexdigest()
+
+        if isinstance(obj, dict) or hasattr(obj, "__dict__"):
+            return hashlib.sha256(json.dumps(obj, sort_keys=True).encode()).hexdigest()
+
+        try:
+            return hashlib.sha256(json.dumps(obj).encode()).hexdigest()
+        except TypeError:
+            return hashlib.sha256(str(id(obj)).encode()).hexdigest()
 
     def debug(self):
         return self._cache
@@ -52,23 +79,22 @@ def get_addon_settings():
     return ayon_api.get_addon_settings(ADDON_NAME, ADDON_VERSION)
 
 
-# TODO should this be replaced with get_addon_settings ?
-global_addon_settings = get_addon_settings()
-
-
 @SingletonFuncCache.cache
 def get_global_lake_instance():
+    addon_settings = (
+        get_addon_settings()
+    )  # the function is cached, but this reduces the call stack
     return wrapper.LakeCtl(
-        server_url=global_addon_settings["ayon_usd_lake_fs_server_uri"],
-        access_key_id=global_addon_settings["access_key_id"],
-        secret_access_key=global_addon_settings["secret_access_key"],
+        server_url=addon_settings["ayon_usd_lake_fs_server_uri"],
+        access_key_id=addon_settings["access_key_id"],
+        secret_access_key=addon_settings["secret_access_key"],
     )
 
 
 @SingletonFuncCache.cache
 def _get_lake_fs_repo_items() -> list:
     return get_global_lake_instance().list_repo_objects(
-        global_addon_settings["ayon_usd_lake_fs_server_repo"]
+        get_addon_settings()["ayon_usd_lake_fs_server_repo"]
     )
 
 
@@ -85,7 +111,7 @@ USD_ZIP_PATH = Path(
     os.path.join(
         DOWNLOAD_DIR,
         os.path.basename(
-            f"{global_addon_settings['ayon_usd_lake_fs_server_repo']}{get_usd_lib_conf_from_lakefs()}"
+            f"{get_addon_settings()['ayon_usd_lake_fs_server_repo']}{get_usd_lib_conf_from_lakefs()}"
         ),
     )
 )

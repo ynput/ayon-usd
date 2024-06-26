@@ -5,6 +5,7 @@ import platform
 import pathlib
 import sys
 
+
 import ayon_api
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
@@ -66,7 +67,6 @@ def is_usd_download_needed() -> bool:
     return True
 
 
-# TODO optionally allow to start a ui for the work items
 def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str) -> str:
     """downloads an individual object based on the lake_fs_path and extracts the zip into the specific download_dir
 
