@@ -22,11 +22,17 @@ body:
     attributes:
       label: Description
       description: A detailed description of the project or feature. Include background information, context, and the importance of the project.
-
+      
   - type: textarea
     attributes:
       label: Approval
-      description: Specify the approval process for the proposal, including key stakeholders and decision-makers.
+      description: >
+        What do you think is needed for this to get approved? 
+
+        - **Reviews**: Who should review this? If unsure, reviewers can be people who often commit to the repo-
+        - **Implementations**: Is this self-contained or does it affect externals? If this affects other libraries or tools, it might be necessary that they do a sample implementation to see if this works for them as well (e.g., if ToolA needs this for a new feature or to work on an existing one, consider creating a ticket/branch with a sample implementation).
+        - **Acknowledgements**: Does this need to be acknowledged by separate tooling or projects? (this should be a list of other tools and teams that need to ACK this proposal. If your impact is self contained, you can keep this empty)
+        - **Testing Progress**: What should the testing process look like? (are there any automated or manual tests that should be run ?)
 
   - type: markdown
     attributes:
