@@ -1,6 +1,6 @@
 name: Proposal (Technical)
-description: 'Propose a new implementation, tool, system or feature. '
-title: "[Pruposal]_Title"
+description: 'Propose a new implementation, tool, system or feature.'
+title: "[Proposal]_Title"
 labels: ["enhancement"]
 body:
   - type: markdown
@@ -45,7 +45,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        # impact assumptions
+        # Impact Assumptions
 
   - type: dropdown
     attributes:
@@ -85,15 +85,15 @@ body:
       label: How it Solves the Problem
       description: Explain how the proposed implementation addresses the initial problems.
 
-- type: textarea
-  attributes:
-    label: High-Level Overview
-    description: Provide a brief and rough outline of the proposed implementation and its key components.
+  - type: textarea
+    attributes:
+      label: High-Level Overview
+      description: Provide a brief and rough outline of the proposed implementation and its key components.
 
-- type: textarea
-  attributes:
-    label: Detailed Technical Plan
-    description: Describe the in-depth technical approach, including the specific steps, methodologies, tools, and options considered for implementation.
+  - type: textarea
+    attributes:
+      label: Detailed Technical Plan
+      description: Describe the in-depth technical approach, including the specific steps, methodologies, tools, and options considered for implementation.
 
   - type: textarea
     attributes:
@@ -107,19 +107,18 @@ body:
       
   - type: textarea
     attributes:
-      label: milestones
+      label: Milestones
       description: Provide key milestones so that the work steps for this Proposal are clear.
 
+  - type: markdown
+    attributes:
+      value: |
+        ## Dependencies and Problems
 
   - type: markdown
     attributes:
       value: |
-        ## Dependencies and problems
-
-  - type: markdown
-    attributes:
-      value: |
-        ### problems
+        ### Problems
         
   - type: textarea
     attributes:
@@ -138,7 +137,7 @@ body:
 
   - type: textarea
     attributes:
-      label: impacting Branches
+      label: Impacting Branches
       description: Detail any branches or repositories that the project will impact.
 
   - type: markdown
@@ -171,7 +170,6 @@ body:
       label: Common Dependencies
       description: List any commonly used libraries, tools, or frameworks required for the project.
 
-      
   - type: markdown
     attributes:
       value: |
@@ -179,12 +177,12 @@ body:
 
   - type: textarea
     attributes:
-      label: non-persistent test (e.g. development time tests)
-      description: Outline all tests that can be run while this Proposal is in development, e.g. Automated tests and tests that a developer can run to know the validity of the implementation
+      label: Non-persistent Tests (e.g., Development Time Tests)
+      description: Outline all tests that can be run while this Proposal is in development, e.g., automated tests and tests that a developer can run to know the validity of the implementation.
 
   - type: textarea
     attributes:
-      label: Testing Plan (president tests)
+      label: Testing Plan (President Tests)
       description: Outline the strategy for testing the project or feature, including unit, integration, and user acceptance tests.
 
   - type: textarea
@@ -192,11 +190,10 @@ body:
       label: Documentation
       description: Describe the documentation that will be created or updated as part of this project.
 
-
   - type: markdown
     attributes:
       value: |
-        ## maintenance
+        ## Maintenance
 
   - type: textarea
     attributes:
@@ -212,6 +209,7 @@ body:
     attributes:
       label: Appendices
       description: Include any additional information, diagrams, or references that support the Proposal.
+
   - type: checkboxes
     attributes:
       label: Is there an existing issue with this?
@@ -220,6 +218,7 @@ body:
       options:
         - label: I have searched the existing issues
           required: true
+
   - type: checkboxes
     attributes:
       label: Are there any labels you wish to add?
