@@ -11,12 +11,10 @@ who needs to approve this, and who is affected by this PR
 list all issues and branches that interact with this branch
 
 ### Type of Change
-Please delete options that are not relevant.
-
-- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] Bug-fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality not to work as expected)
-- [ ] This change requires a documentation update
+- [ ] Requires a documentation update
 
 ## Additional info
 Paragraphs of text give context to additional technical information or code examples.
