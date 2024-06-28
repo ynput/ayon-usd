@@ -92,14 +92,14 @@ body:
   - type: checkboxes
     attributes:
       label: Is there an existing issue with this?
-      description: Please search to see if an issue with the bug you encountered already exists.
+      description: Please search to see if an issue with your feature request already exists.
       options:
         - label: I have searched the existing issues
           required: true
   - type: checkboxes
     attributes:
       label: Are there any labels you wish to add?
-      description: Please search labels and identify those related to your bug.
+      description: Please search labels and identify those related to your feature request.
       options:
-        - label: I have added the relevant labels to the bug report.
+        - label: I have added the relevant labels to the feature request.
           required: true
