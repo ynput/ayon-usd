@@ -1,6 +1,6 @@
 name: Proposal (Technical)
 description: 'Propose a new implementation, tool, system or feature. '
-title: "[Proposal]_Title"
+title: "[Pruposal]_Title"
 labels: ["enhancement"]
 body:
   - type: markdown
