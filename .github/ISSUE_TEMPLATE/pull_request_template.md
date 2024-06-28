@@ -29,7 +29,7 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] Test A
 - [ ] Test B
 
-### presitent Testing notes:
+### Persistent Testing notes:
 List all tests that have been added to the test to persist. (e.g. unit tests and other automated tests)
 
 - [ ] Test A
