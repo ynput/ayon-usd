@@ -50,11 +50,11 @@ body:
 
   - type: dropdown
     attributes:
-      label: Impact
-      description: Please specify the impact this PR has on your Operation
+      label: Severity
+      description: Please specify the Severity of this PR on your Operation
       multiple: true
       options:
-        - No Impact
+        - Not Severe
         - Low
         - Mid
         - High
