@@ -1,5 +1,5 @@
 name: Proposal (Technical)
-description: 'Propose a new implementation, tool, system or feature.'
+description: 'Propose a new implementation, tool, system, or feature.'
 title: "[Proposal]_Title"
 labels: ["enhancement"]
 body:
@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         # Description
-        
+
   - type: textarea
     attributes:
       label: Summary
@@ -16,28 +16,28 @@ body:
   - type: textarea
     attributes:
       label: Glossary of Terms
-      description: This section provides definitions and explanations of key terms used throughout the proposal. It ensures that all readers have a common understanding of important concepts and terminology. 
+      description: Provide definitions and explanations of key terms used throughout the proposal. This ensures all readers have a common understanding of important concepts and terminology.
 
   - type: textarea
     attributes:
       label: Description
-      description: A detailed description of the project or feature. Include background information, context, and the importance of the project.
+      description: A detailed description of the project or feature, including background information, context, and its importance.
       
   - type: textarea
     attributes:
       label: Approval
       description: >
-        What do you think is needed for this to get approved? 
+        What is needed for this to get approved?
 
-        - **Reviews**: Who should review this? If unsure, reviewers can be people who often commit to the repo-
-        - **Implementations**: Is this self-contained or does it affect externals? If this affects other libraries or tools, it might be necessary that they do a sample implementation to see if this works for them as well (e.g., if ToolA needs this for a new feature or to work on an existing one, consider creating a ticket/branch with a sample implementation).
-        - **Acknowledgements**: Does this need to be acknowledged by separate tooling or projects? (this should be a list of other tools and teams that need to ACK this proposal. If your impact is self contained, you can keep this empty)
-        - **Testing Progress**: What should the testing process look like? (are there any automated or manual tests that should be run ?)
+        - **Reviews**: Who should review this? If unsure, consider people who often commit to the repo.
+        - **Implementations**: Is this self-contained or does it affect external libraries/tools? If it affects others, consider creating a sample implementation.
+        - **Acknowledgements**: Does this need acknowledgment from other tools/projects? List them here.
+        - **Testing Progress**: What should the testing process look like? Include any automated or manual tests.
 
   - type: markdown
     attributes:
       value: |
-        # Story Time
+        # User Stories
 
   - type: textarea
     attributes:
@@ -45,8 +45,8 @@ body:
       description: |
         Describe scenarios illustrating how users are affected by the current problem and how the proposed solution will improve their experience. Example User Stories:
 
-        User Story 1: As a [type of user], I want [some goal] so that [some reason].
-        User Story 2: As a [type of user], I am facing [specific problem], which affects [aspect of the user's experience].
+        - User Story 1: As a [type of user], I want [some goal] so that [some reason].
+        - User Story 2: As a [type of user], I am facing [specific problem], which affects [aspect of the user's experience].
 
   - type: markdown
     attributes:
@@ -56,35 +56,35 @@ body:
   - type: dropdown
     attributes:
       label: Assumed Complexity
-      description: Please specify how complex you assume this will be
+      description: Specify the assumed complexity level.
       multiple: true
       options:
         - Hours
         - Days
         - Months
-        - more than 1/2 Year
+        - More than 1/2 Year
 
   - type: dropdown
     attributes:
       label: Impact Scale
-      description: Please specify how much other code/tools this might impact
+      description: Specify the impact scale on other code/tools.
       multiple: true
       options:
-        - no other tool
-        - one more tool 
-        - a few more tools
-        - an entire tool group
-        - might propagate to all tools
+        - No other tool
+        - One more tool 
+        - A few more tools
+        - An entire tool group
+        - Might propagate to all tools
         
   - type: textarea
     attributes:
-      label: Other tools that get touched
-      description: If you put the Impact Scale to anything but None, list all the tools / repos that get affected.
+      label: Other Tools Affected
+      description: If the impact scale is anything but "No other tool," list all the tools/repos affected.
 
   - type: markdown
     attributes:
       value: |
-        # Implementation and Details
+        # Implementation Details
 
   - type: textarea
     attributes:
@@ -94,27 +94,27 @@ body:
   - type: textarea
     attributes:
       label: High-Level Overview
-      description: Provide a brief and rough outline of the proposed implementation and its key components.
+      description: Provide a brief outline of the proposed implementation and its key components.
 
   - type: textarea
     attributes:
       label: Detailed Technical Plan
-      description: Describe the in-depth technical approach, including the specific steps, methodologies, tools, and options considered for implementation.
+      description: Describe the in-depth technical approach, including specific steps, methodologies, tools, and options considered for implementation.
 
   - type: textarea
     attributes:
       label: Unresolved Questions
-      description: List all the unresolved questions so that they can be debated and considered. 
+      description: List all unresolved questions for further debate and consideration.
 
   - type: markdown
     attributes:
       value: |
-        ## Steps and milestones
+        ## Steps and Milestones
       
   - type: textarea
     attributes:
       label: Milestones
-      description: Provide key milestones so that the work steps for this Proposal are clear.
+      description: Provide key milestones to clarify the work steps for this proposal.
 
   - type: markdown
     attributes:
@@ -125,11 +125,11 @@ body:
     attributes:
       value: |
         ### Problems
-        
+
   - type: textarea
     attributes:
       label: Potential Problems
-      description: Identify any potential issues or challenges that may arise during implementation.
+      description: Identify potential issues or challenges that may arise during implementation.
 
   - type: textarea
     attributes:
@@ -144,7 +144,7 @@ body:
   - type: textarea
     attributes:
       label: Impacting Branches
-      description: Detail any branches or repositories that the project will impact.
+      description: Detail any branches or repositories impacted by the project.
 
   - type: markdown
     attributes:
@@ -159,7 +159,7 @@ body:
   - type: textarea
     attributes:
       label: Outgoing Dependencies
-      description: List all the projects, branches, and issues that rely on this implementation.
+      description: List all projects, branches, and issues that rely on this implementation.
 
   - type: textarea
     attributes:
@@ -169,7 +169,7 @@ body:
   - type: textarea
     attributes:
       label: Dependent Branches
-      description: Detail any branches or repositories on which the project will depend.
+      description: Detail any branches or repositories on which the project depends.
 
   - type: textarea
     attributes:
@@ -183,18 +183,18 @@ body:
 
   - type: textarea
     attributes:
-      label: Non-persistent Tests (e.g., Development Time Tests)
-      description: Outline all tests that can be run while this Proposal is in development, e.g., automated tests and tests that a developer can run to know the validity of the implementation.
+      label: Non-persistent Tests
+      description: Outline tests that can be run during development, including automated tests.
 
   - type: textarea
     attributes:
-      label: Testing Plan (President Tests)
-      description: Outline the strategy for testing the project or feature, including unit, integration, and user acceptance tests.
+      label: Testing Plan
+      description: Outline the strategy for testing the project, including unit, integration, and user acceptance tests.
 
   - type: textarea
     attributes:
       label: Documentation
-      description: Describe the documentation that will be created or updated as part of this project.
+      description: Describe the documentation to be created or updated as part of this project.
 
   - type: markdown
     attributes:
@@ -204,31 +204,31 @@ body:
   - type: textarea
     attributes:
       label: Maintenance
-      description: Explain the plan for maintaining the project or feature after implementation.
+      description: Explain the plan for maintaining the project after implementation.
 
   - type: textarea
     attributes:
       label: Risk Management
-      description: Identify potential risks and provide a mitigation plan for each risk.
+      description: Identify potential risks and provide a mitigation plan for each.
 
   - type: textarea
     attributes:
       label: Appendices
-      description: Include any additional information, diagrams, or references that support the Proposal.
+      description: Include any additional information, diagrams, or references supporting the proposal.
 
   - type: checkboxes
     attributes:
-      label: Is there an existing issue with this?
+      label: Existing Issues
       description: >-
-        Please search to see if an issue with the bug you encountered already exists.
+        Please search to see if an issue with this proposal already exists.
       options:
         - label: I have searched the existing issues
           required: true
 
   - type: checkboxes
     attributes:
-      label: Are there any labels you wish to add?
-      description: Please search labels and identify those related to your bug.
+      label: Relevant Labels
+      description: Please add relevant labels to the proposal.
       options:
-        - label: I have added the relevant labels to the bug report.
+        - label: I have added the relevant labels to the proposal.
           required: true
