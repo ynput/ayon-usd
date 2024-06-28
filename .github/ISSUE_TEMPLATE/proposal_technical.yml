@@ -15,6 +15,11 @@ body:
 
   - type: textarea
     attributes:
+      label: Glossary of Terms
+      description: This section provides definitions and explanations of key terms used throughout the proposal. It ensures that all readers have a common understanding of important concepts and terminology. 
+
+  - type: textarea
+    attributes:
       label: Description
       description: A detailed description of the project or feature. Include background information, context, and the importance of the project.
 
@@ -29,18 +34,6 @@ body:
       value: |
         # Story Time
 
-
-  - type: textarea
-    attributes:
-      label: To Reproduce (if issue/bug/etc)
-      description: |
-        Steps to reproduce the behaviour:
-
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
-
   - type: textarea
     attributes:
       label: User Stories
@@ -54,19 +47,6 @@ body:
     attributes:
       value: |
         # impact assumptions
-
-  - type: dropdown
-    attributes:
-      label: Impact
-      description: Please specify the impact this PR has on your Operation
-      multiple: true
-      options:
-        - No Impact
-        - Low
-        - Mid
-        - High
-        - Critical
-        - Stopper
 
   - type: dropdown
     attributes:
@@ -106,20 +86,15 @@ body:
       label: How it Solves the Problem
       description: Explain how the proposed implementation addresses the initial problems.
 
-  - type: textarea
-    attributes:
-      label: Implementation Idea/Details
-      description: Provide a detailed plan for implementing the project or feature.
+- type: textarea
+  attributes:
+    label: High-Level Overview
+    description: Provide a brief and rough outline of the proposed implementation and its key components.
 
-  - type: textarea
-    attributes:
-      label: Technical Approach
-      description: Describe the technical steps, methodologies, and tools used.
-
-  - type: textarea
-    attributes:
-      label: Architecture
-      description: Outline the high-level architecture and design of the proposed solution.
+- type: textarea
+  attributes:
+    label: Detailed Technical Plan
+    Description: Describe the in-depth technical approach, including the specific steps, methodologies, tools, and options considered for implementation.
 
   - type: textarea
     attributes:
