@@ -179,12 +179,12 @@ body:
 
   - type: textarea
     attributes:
-      label: outgoing Dependencies
+      label: Outgoing Dependencies
       description: List all the projects, branches, and issues that rely on this implementation.
 
   - type: textarea
     attributes:
-      label: dependency Issues
+      label: Dependency Issues
       description: Identify any existing issues that might impact the project.
 
   - type: textarea
