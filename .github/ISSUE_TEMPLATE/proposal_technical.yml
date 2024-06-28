@@ -28,7 +28,6 @@ body:
       label: Approval
       description: Specify the approval process for the proposal, including key stakeholders and decision-makers.
 
-
   - type: markdown
     attributes:
       value: |
@@ -94,7 +93,7 @@ body:
 - type: textarea
   attributes:
     label: Detailed Technical Plan
-    Description: Describe the in-depth technical approach, including the specific steps, methodologies, tools, and options considered for implementation.
+    description: Describe the in-depth technical approach, including the specific steps, methodologies, tools, and options considered for implementation.
 
   - type: textarea
     attributes:
