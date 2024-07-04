@@ -43,7 +43,7 @@ class USDAddon(AYONAddon, ITrayModule):
             print(f"usd is allready downloaded")
             return
 
-        # TODO remove this ( this exists because for some reason there is a downloades.zip where the downloades folder should be and i dont know why it is there it dose not create a re download off the usd lib)
+        # this exists because for some reason there is a downloades.zip where the downloads folder should be. i don't know why it is there but leaving it means we cant download into the location
         if not os.path.exists(config.DOWNLOAD_DIR):
             os.makedirs(config.DOWNLOAD_DIR, exist_ok=True)
         if os.path.exists(str(config.DOWNLOAD_DIR) + ".zip"):
@@ -51,10 +51,11 @@ class USDAddon(AYONAddon, ITrayModule):
 
         settings = config.get_addon_settings()
         controller = worker.Controller()
+
         usd_download_work_item = controller.construct_work_item(
             func=config.get_global_lake_instance().clone_element,
             kwargs={
-                "lake_fs_object_uir": f"{settings['ayon_usd_lake_fs_server_repo']}{config.get_usd_lib_conf_from_lakefs()}",
+                "lake_fs_object_uir": f"{config.get_addon_settings_value(settings, config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}",
                 "dist_path": config.DOWNLOAD_DIR,
             },
             progress_title="Download UsdLib",

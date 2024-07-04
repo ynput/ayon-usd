@@ -70,7 +70,7 @@ def is_usd_download_needed() -> bool:
 def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str) -> str:
     """downloads an individual object based on the lake_fs_path and extracts the zip into the specific download_dir
 
-    Args:
+    Args
         resolver_lake_fs_path ():
         download_dir ():
 
@@ -105,31 +105,42 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     Returns: str: lakeFs object path to be used with lake_fs_py wrapper
 
     """
-
-    resolver_overwrite = next(
-        (
-            item
-            for item in settings["lake_fs_overwrites"]
-            if item["app_name"] == app_name and item["platform"] == sys.platform.lower()
-        ),
-        None,
+    resolver_overwrite_list = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES
     )
-    if resolver_overwrite:
-        return resolver_overwrite["lake_fs_path"]
+    if resolver_overwrite_list:
+        resolver_overwrite = next(
+            (
+                item
+                for item in resolver_overwrite_list
+                if item["app_name"] == app_name
+                and item["platform"] == sys.platform.lower()
+            ),
+            None,
+        )
+        if resolver_overwrite:
+            return resolver_overwrite["lake_fs_path"]
+
+    resolver_list = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_ASSET_RESOLVERS
+    )
+    if not resolver_list:
+        return ""
 
     resolver = next(
         (
             item
-            for item in settings["asset_resolvers"]
+            for item in resolver_list
             if item["app_name"] == app_name and item["platform"] == sys.platform.lower()
         ),
         None,
     )
-
     if not resolver:
         return ""
 
-    lake_base_path = settings["ayon_usd_lake_fs_server_repo"]
+    lake_base_path = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_LAKE_FS_REPO_URI
+    )
     resolver_lake_path = lake_base_path + resolver["lake_fs_path"]
     return resolver_lake_path
 
@@ -177,14 +188,28 @@ def get_resolver_setup_info(resolver_dir, settings, app_name: str, logger=None) 
     else:
         resolver_setup_info_dict["LD_LIBRARY_PATH"] = os.pathsep.join(ld_path)
 
-    resolver_setup_info_dict["TF_DEBUG"] = settings["usd_tf_debug"]
+    resolver_setup_info_dict["TF_DEBUG"] = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_USD_TF_DEBUG
+    )
 
-    resolver_setup_info_dict["AYONLOGGERLOGLVL"] = settings["ayon_log_lvl"]
-    resolver_setup_info_dict["AYONLOGGERSFILELOGGING"] = settings[
-        "ayon_file_logger_enabled"
-    ]
-    resolver_setup_info_dict["AYONLOGGERSFILEPOS"] = settings["file_logger_file_path"]
-    resolver_setup_info_dict["AYON_LOGGIN_LOGGIN_KEYS"] = settings[
-        "file_logger_file_path"
-    ]
+    resolver_setup_info_dict["AYONLOGGERLOGLVL"] = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_LVL
+    )
+
+    resolver_setup_info_dict["AYONLOGGERSFILELOGGING"] = (
+        config.get_addon_settings_value(
+            settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_ENABLED
+        )
+    )
+
+    resolver_setup_info_dict["AYONLOGGERSFILEPOS"] = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_FILE_PATH
+    )
+
+    resolver_setup_info_dict["AYON_LOGGIN_LOGGIN_KEYS"] = (
+        config.get_addon_settings_value(
+            settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_LOGGIN_KEYS
+        )
+    )
+
     return resolver_setup_info_dict

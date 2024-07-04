@@ -18,6 +18,37 @@ ADDON_VERSION: str = version.__version__
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Addon Settings
+# LakeFs
+ADDON_SETTINGS_LAKE_FS_URI = '["LakeFs_Settings"]["ayon_usd_lake_fs_server_uri"]'
+ADDON_SETTINGS_LAKE_FS_REPO_URI = '["LakeFs_Settings"]["ayon_usd_lake_fs_server_repo"]'
+ADDON_SETTINGS_LAKE_FS_KEY_ID = '["LakeFs_Settings"]["access_key_id"]'
+ADDON_SETTINGS_LAKE_FS_KEY = '["LakeFs_Settings"]["secret_access_key"]'
+# Resolver def
+ADDON_SETTINGS_ASSET_RESOLVERS = '["LakeFs_Settings"]["asset_resolvers"]'
+ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES = '["LakeFs_Settings"]["lake_fs_overwrites"]'
+# Usd settings
+ADDON_SETTINGS_USD_TF_DEBUG = '["Usd_Settings"]["usd_tf_debug"]'
+# Resolver Settings
+ADDON_SETTINGS_USD_RESOLVER_LOG_LVL = '["Ayon_UsdResolver_Settings"]["ayon_log_lvl"]'
+ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_ENABLED = (
+    '["Ayon_UsdResolver_Settings"]["ayon_file_logger_enabled"]'
+)
+ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_FILE_PATH = (
+    '["Ayon_UsdResolver_Settings"]["file_logger_file_path"]'
+)
+ADDON_SETTINGS_USD_RESOLVER_LOG_LOGGIN_KEYS = (
+    '["Ayon_UsdResolver_Settings"]["ayon_loggin_loggin_keys"]'
+)
+
+
+def get_addon_settings_value(settings, key_path):
+    try:
+        return eval(f"{settings}{key_path}")
+    except (KeyError, TypeError) as e:
+        print(f"Error accessing settings with key path {key_path}: {e}")
+        return None
+
 
 class SingletonFuncCache:
     _instance = None
@@ -85,17 +116,24 @@ def get_global_lake_instance():
         get_addon_settings()
     )  # the function is cached, but this reduces the call stack
     return wrapper.LakeCtl(
-        server_url=addon_settings["ayon_usd_lake_fs_server_uri"],
-        access_key_id=addon_settings["access_key_id"],
-        secret_access_key=addon_settings["secret_access_key"],
+        server_url=get_addon_settings_value(addon_settings, ADDON_SETTINGS_LAKE_FS_URI),
+        access_key_id=get_addon_settings_value(
+            addon_settings, ADDON_SETTINGS_LAKE_FS_KEY_ID
+        ),
+        secret_access_key=get_addon_settings_value(
+            addon_settings, ADDON_SETTINGS_LAKE_FS_KEY
+        ),
     )
 
 
 @SingletonFuncCache.cache
 def _get_lake_fs_repo_items() -> list:
-    return get_global_lake_instance().list_repo_objects(
-        get_addon_settings()["ayon_usd_lake_fs_server_repo"]
+    lake_repo_uri = get_addon_settings_value(
+        get_addon_settings(), ADDON_SETTINGS_LAKE_FS_REPO_URI
     )
+    if not lake_repo_uri:
+        return []
+    return get_global_lake_instance().list_repo_objects(lake_repo_uri)
 
 
 @SingletonFuncCache.cache
@@ -111,7 +149,7 @@ USD_ZIP_PATH = Path(
     os.path.join(
         DOWNLOAD_DIR,
         os.path.basename(
-            f"{get_addon_settings()['ayon_usd_lake_fs_server_repo']}{get_usd_lib_conf_from_lakefs()}"
+            f"{get_addon_settings_value(get_addon_settings(), ADDON_SETTINGS_LAKE_FS_REPO_URI)}{get_usd_lib_conf_from_lakefs()}"
         ),
     )
 )

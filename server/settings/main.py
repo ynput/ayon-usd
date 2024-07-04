@@ -145,9 +145,10 @@ class AppPlatformURIModel(BaseSettingsModel):
     )
 
 
-# TODO improve settings. (things that belong together should be together and collapsible. Currently just a mess)
-class USDSettings(BaseSettingsModel):
-    """USD settings."""
+class LakeFsSettings(BaseSettingsModel):
+    """LakeFs Settings / Download Settings ?"""
+
+    _layout = "collapsed"
 
     ayon_usd_lake_fs_server_uri: str = Field(
         "http://192.168.178.42:58000",
@@ -168,34 +169,6 @@ class USDSettings(BaseSettingsModel):
         "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
         title="Aycess Key",
         description="LakeFs Access Key",
-    )
-    ayon_log_lvl: str = Field(
-        "WARN",
-        title="AyonResolver Log Lvl",
-        enum_resolver=log_lvl_enum,
-        description="Allows you to set the Verbosity off the Logger in the AyonUsdResolver default is Warn",
-    )
-    ayon_file_logger_enabled: str = Field(
-        "OFF",
-        title="AyonResolver File Logger Enabled ",
-        enum_resolver=file_logger_enum,
-        description="Allows you to enable or disalbe the AyonUsdResolver file logger, default is Off",
-    )
-    ayon_loggin_loggin_keys: str = Field(
-        "",
-        title="AyonCppApi Logging Keys",
-        enum_resolver=logger_logging_keys_enum,
-        description="a list off extra logging options for the AyonCppApi",
-    )
-    file_logger_file_path: str = Field(
-        "",
-        title="AyonResolver File logger file path",
-        description="Allows you to set a custom location where the file logger will export to. can be relative and abselute path, default empty",
-    )
-    usd_tf_debug: str = Field(
-        "",
-        title="Tf Debug Varialbe for Debbuging Usd",
-        description="",
     )
     asset_resolvers: list[AppPlatformPathModel] = Field(
         title="Resolver Application LakeFs Paths",
@@ -288,3 +261,56 @@ class USDSettings(BaseSettingsModel):
         description="Allows an admin to define a specific Resolver Zip for a specific Application",
         default=[],
     )
+
+
+class AyonResolverSettings(BaseSettingsModel):
+    """LakeFs Settings / Download Settings ?"""
+
+    _layout = "collapsed"
+
+    ayon_log_lvl: str = Field(
+        "WARN",
+        title="AyonResolver Log Lvl",
+        enum_resolver=log_lvl_enum,
+        description="Allows you to set the Verbosity off the Logger in the AyonUsdResolver default is Warn",
+    )
+    ayon_file_logger_enabled: str = Field(
+        "OFF",
+        title="AyonResolver File Logger Enabled ",
+        enum_resolver=file_logger_enum,
+        description="Allows you to enable or disalbe the AyonUsdResolver file logger, default is Off",
+    )
+    ayon_loggin_loggin_keys: str = Field(
+        "",
+        title="AyonCppApi Logging Keys",
+        enum_resolver=logger_logging_keys_enum,
+        description="a list off extra logging options for the AyonCppApi",
+    )
+    file_logger_file_path: str = Field(
+        "",
+        title="AyonResolver File logger file path",
+        description="Allows you to set a custom location where the file logger will export to. can be relative and abselute path, default empty",
+    )
+
+
+class UsdSettings(BaseSettingsModel):
+    """LakeFs Settings / Download Settings ?"""
+
+    _layout = "collapsed"
+    usd_tf_debug: str = Field(
+        "",
+        title="Tf Debug Varialbe for Debbuging Usd",
+        description="",
+    )
+
+
+class USDSettings(BaseSettingsModel):
+    """USD settings."""
+
+    LakeFs_Settings: LakeFsSettings = Field(default_factory=LakeFsSettings)
+
+    Ayon_UsdResolver_Settings: AyonResolverSettings = Field(
+        default_factory=AyonResolverSettings
+    )
+
+    Usd_Settings: UsdSettings = Field(default_factory=UsdSettings)
