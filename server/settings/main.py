@@ -151,7 +151,7 @@ class LakeFsSettings(BaseSettingsModel):
     _layout = "collapsed"
 
     ayon_usd_lake_fs_server_uri: str = Field(
-        "http://192.168.178.42:58000",
+        "https://lake.ayon.cloud",
         title="LakeFs Server Uri",
         description="The url to your LakeFs server.",
     )
@@ -161,12 +161,12 @@ class LakeFsSettings(BaseSettingsModel):
         description="LakeFs Rpo Path",
     )
     access_key_id: str = Field(
-        "AKIAIOSFOLKFSSAMPLES",
+        "{Ayon_LakeFs_Key_Id}",
         title="Acess Key Id",
         description="LakeFs Acsess Key Id",
     )
     secret_access_key: str = Field(
-        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "{Ayon_LakeFs_Key}",
         title="Aycess Key",
         description="LakeFs Access Key",
     )
