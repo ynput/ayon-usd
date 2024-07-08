@@ -121,8 +121,9 @@ class AppPlatformPathModel(BaseSettingsModel):
         description="windows / linux / darwin",
     )
     lake_fs_path: str = Field(
-        title="LakeFs object Path",
-        description="the LakeFs internal path to the resolver zip (can be found in Object Information's) e.g: 	AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip",
+        title="LakeFs Object Path",
+        description="The LakeFs internal path to the resolver zip, e.g: `AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`\n"
+        "This information can be found on LakeFs server Object Information.",
     )
 
 
@@ -140,8 +141,8 @@ class AppPlatformURIModel(BaseSettingsModel):
         description="windows / linux / darwin",
     )
     uri: str = Field(
-        title="LakeFs object Uri",
-        description="Path to USD Asset Resolver plugin zip file on the lakeFs server e.g: lakefs://ayon-usd/V001/AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip",
+        title="LakeFs Object Uri",
+        description="Path to USD Asset Resolver plugin zip file on the LakeFs server, e.g: `lakefs://ayon-usd/V001/AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`",
     )
 
 
@@ -157,17 +158,17 @@ class LakeFsSettings(BaseSettingsModel):
     )
     ayon_usd_lake_fs_server_repo: str = Field(
         "lakefs://ayon-usd/main/",
-        title="LakeFs repo Uri",
-        description="LakeFs Rpo Path",
+        title="LakeFs Repository Uri",
+        description="The url to your LakeFs Repository Path",
     )
     access_key_id: str = Field(
         "{Ayon_LakeFs_Key_Id}",
-        title="Acess Key Id",
-        description="LakeFs Acsess Key Id",
+        title="Access Key Id",
+        description="LakeFs Access Key Id",
     )
     secret_access_key: str = Field(
         "{Ayon_LakeFs_Key}",
-        title="Aycess Key",
+        title="Access Key",
         description="LakeFs Access Key",
     )
     asset_resolvers: list[AppPlatformPathModel] = Field(
@@ -256,7 +257,7 @@ class LakeFsSettings(BaseSettingsModel):
             ),
         ],
     )
-    lake_fs_overwrites: list[AppPlatformURIModel] = Field(
+    lake_fs_overrides: list[AppPlatformURIModel] = Field(
         title="Resolver Application overwrites",
         description="Allows an admin to define a specific Resolver Zip for a specific Application",
         default=[],
@@ -272,7 +273,7 @@ class AyonResolverSettings(BaseSettingsModel):
         "WARN",
         title="AyonResolver Log Lvl",
         enum_resolver=log_lvl_enum,
-        description="Allows you to set the Verbosity off the Logger in the AyonUsdResolver default is Warn",
+        description="Allows you to set the Verbosity of the AyonUsdResolver logger",
     )
     ayon_file_logger_enabled: str = Field(
         "OFF",
@@ -280,16 +281,16 @@ class AyonResolverSettings(BaseSettingsModel):
         enum_resolver=file_logger_enum,
         description="Allows you to enable or disalbe the AyonUsdResolver file logger, default is Off",
     )
-    ayon_loggin_loggin_keys: str = Field(
+    ayon_logger_logging_keys: str = Field(
         "",
         title="AyonCppApi Logging Keys",
         enum_resolver=logger_logging_keys_enum,
-        description="a list off extra logging options for the AyonCppApi",
+        description="List of extra logging options for the AyonCppApi",
     )
     file_logger_file_path: str = Field(
         "",
         title="AyonResolver File logger file path",
-        description="Allows you to set a custom location where the file logger will export to. can be relative and abselute path, default empty",
+        description="Allows you to set a custom location where the file logger will export to. This can be a relative or absolute path. This is only used if `ayon_file_logger_enabled` is enabled.",
     )
 
 
@@ -299,7 +300,7 @@ class UsdSettings(BaseSettingsModel):
     _layout = "collapsed"
     usd_tf_debug: str = Field(
         "",
-        title="Tf Debug Varialbe for Debbuging Usd",
+        title="Tf Debug Variable for Debugging Usd",
         description="",
     )
 

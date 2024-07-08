@@ -100,9 +100,11 @@ def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str)
 @config.SingletonFuncCache.cache
 def get_resolver_to_download(settings, app_name: str) -> str:
     """
-    gets lakeFs path that can be used with copy element to download specific resolver, this will priorities lake_fs_overwrites over asset_resolvers entry's
+    Gets LakeFs path that can be used with copy element to download
+    specific resolver, this will prioritize `lake_fs_overrides` over
+    asset_resolvers entries.
 
-    Returns: str: lakeFs object path to be used with lake_fs_py wrapper
+    Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
     """
     resolver_overwrite_list = config.get_addon_settings_value(

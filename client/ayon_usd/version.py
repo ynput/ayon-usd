@@ -7,4 +7,4 @@ build system based on the content of package.py.
 Do not manually edit this file.
 """
 name = "ayon_usd"
-__version__ = "1.0.4-dev.3"
+__version__ = "1.0.4-dev.4"

@@ -26,7 +26,7 @@ ADDON_SETTINGS_LAKE_FS_KEY_ID = '["LakeFs_Settings"]["access_key_id"]'
 ADDON_SETTINGS_LAKE_FS_KEY = '["LakeFs_Settings"]["secret_access_key"]'
 # Resolver def
 ADDON_SETTINGS_ASSET_RESOLVERS = '["LakeFs_Settings"]["asset_resolvers"]'
-ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES = '["LakeFs_Settings"]["lake_fs_overwrites"]'
+ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES = '["LakeFs_Settings"]["lake_fs_overrides"]'
 # Usd settings
 ADDON_SETTINGS_USD_TF_DEBUG = '["Usd_Settings"]["usd_tf_debug"]'
 # Resolver Settings
@@ -38,7 +38,7 @@ ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_FILE_PATH = (
     '["Ayon_UsdResolver_Settings"]["file_logger_file_path"]'
 )
 ADDON_SETTINGS_USD_RESOLVER_LOG_LOGGIN_KEYS = (
-    '["Ayon_UsdResolver_Settings"]["ayon_loggin_loggin_keys"]'
+    '["Ayon_UsdResolver_Settings"]["ayon_logger_logging_keys"]'
 )
 
 
