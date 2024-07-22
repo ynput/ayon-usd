@@ -15,8 +15,8 @@ def is_uri(path: str) -> bool:
 resolver = Ar.GetResolver()
 
 
-def remove_root_from_dependecy_info(
-    dependecy_info: Dict[str, str], root_info: Dict[str, str]
+def remove_root_from_dependency_info(
+    dependency_info: Dict[str, str], root_info: Dict[str, str]
 ) -> Dict[str, str]:
     """Re-roots a path dict so that a Ayon_Usd_Resolver can use its own system for root replace to resolve a given path
 
