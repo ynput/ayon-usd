@@ -6,9 +6,9 @@ from pxr import UsdShade, Ar, Sdf
 from urllib.parse import urlparse
 
 
-def is_uri(path):
+def is_uri(path: str) -> bool:
     parsed = urlparse(path)
-    return parsed.scheme
+    return bool(parsed.scheme)
 
 
 # we do the assumption that the environment sets up the correct Default resolver (in AYON case this should be the AyonUsdResolver)
