@@ -18,7 +18,7 @@ resolver = Ar.GetResolver()
 def remove_root_from_dependecy_info(
     dependecy_info: Dict[str, str], root_info: Dict[str, str]
 ) -> Dict[str, str]:
-    """function that re_roots a path dict so that a Ayon_Usd_Resolver can use its own system for root replace to resolve a given path
+    """Re-roots a path dict so that a Ayon_Usd_Resolver can use its own system for root replace to resolve a given path
 
     Args:
         dependecy_info:
