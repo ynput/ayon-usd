@@ -75,7 +75,7 @@ def platform_enum():
 #     ]
 
 
-# FIX find a way to pull this info from AyonCppApi (Later AyonLogger)
+# TODO: find a way to pull this info from AyonCppApi (Later AyonLogger)
 def logger_logging_keys_enum():
     """Return enumerator for supported platforms."""
     return [
@@ -86,7 +86,7 @@ def logger_logging_keys_enum():
     ]
 
 
-# FIX find a way to pull this from AyonCppApi (later AyonLogger)
+# TODO: find a way to pull this from AyonCppApi (later AyonLogger)
 def log_lvl_enum():
     """Return enumerator for supported log lvls."""
     return [
@@ -98,7 +98,7 @@ def log_lvl_enum():
     ]
 
 
-# FIX find a way to pull this from AyonCppApi (later AyonLogger)
+# TODO: find a way to pull this from AyonCppApi (later AyonLogger)
 def file_logger_enum():
     """Return enumerator for supported log lvls."""
     return [
