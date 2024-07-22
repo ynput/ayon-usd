@@ -11,7 +11,7 @@ def is_uri(path: str) -> bool:
     return bool(parsed.scheme)
 
 
-# we do the assumption that the environment sets up the correct Default resolver (in AYON case this should be the AyonUsdResolver)
+# Assume that the environment sets up the correct default AyonUsdResolver
 resolver = Ar.GetResolver()
 
 
