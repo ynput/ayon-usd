@@ -85,6 +85,12 @@ def _traverse_prims(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[Sdf.PrimSpec]:
     return file_list
 
 
+def _remove_sdf_args(ref: str) -> str:
+    re.compile("")
+    uri = re.sub(re.compile(r":SDF_FORMAT_ARGS.*$"), "", ref)
+    return uri
+
+
 def _Resolve(ref: str, layer_path: str) -> Ar.ResolvedPath:
     if os.path.isabs(ref) or is_uri(ref):
         resolved_path = resolver.Resolve(ref)
@@ -112,8 +118,11 @@ def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
     return udim_data
 
 
+# TODO refactor so that this function has a gather block and a write block currently all individual blocks write to the identifier_to_path_dict and that makes sanitizing the data hard
 def get_asset_dependencies(layer_path: str) -> Dict[str, str]:
-
+    layer_path = _remove_sdf_args(layer_path)
+    if not layer_path:
+        return {}
     if isinstance(layer_path, Ar.ResolvedPath):
         layer_path = layer_path.GetPathString()
 
@@ -121,12 +130,14 @@ def get_asset_dependencies(layer_path: str) -> Dict[str, str]:
 
     resolved_layer_path = resolver.Resolve(layer_path)
     layer = Sdf.Layer.FindOrOpen(resolved_layer_path)
+    identifier_to_path_dict[layer_path] = resolved_layer_path.GetPathString()
 
     prim_spec_file_paths = _traverse_prims(layer.pseudoRoot, layer)
     for prim_spec in prim_spec_file_paths:
         prim_spec = str(prim_spec)
         if "<UDIM>" in prim_spec:
 
+            prim_spec = _remove_sdf_args(prim_spec)
             unresolved_udim_path = _Resolve(prim_spec, layer.realPath)
             identifier_to_path_dict[prim_spec] = unresolved_udim_path.GetPathString()
 
@@ -134,12 +145,15 @@ def get_asset_dependencies(layer_path: str) -> Dict[str, str]:
             identifier_to_path_dict.update(udim_data)
             continue
 
+        prim_spec = _remove_sdf_args(prim_spec)
         identifier_to_path_dict[prim_spec] = _Resolve(prim_spec, layer.realPath)
     asset_identifier_list = layer.GetCompositionAssetDependencies()
 
     for ref in asset_identifier_list:
 
-        resolved_path = _Resolve(ref, layer_path)
+        resolved_path = _Resolve(ref, resolved_layer_path.GetPathString())
+
+        ref = _remove_sdf_args(ref)
         identifier_to_path_dict[ref] = resolved_path.GetPathString()
 
         recursive_result = get_asset_dependencies(resolved_path.GetPathString())
@@ -230,6 +244,29 @@ def write_pinning_file(
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     with open(output_path, "w") as pinning_file:
-        write_data = {"ayon_resolver_pinning_data": pinning_data}
-        json.dump(write_data, pinning_file, indent=4, separators=(",", ": "))
+
+        wirte_data = {"ayon_resolver_pinning_data": pinning_data}
+        json.dump(wirte_data, pinning_file, indent=2)
     return True
+
+
+def generate_pinning_file(
+    entry_usd: str, root_info: Dict[str, str], pinning_file_path: str
+):
+
+    if not pinning_file_path.endswith(".json"):
+        raise RuntimeError(f"Pinning file path is not a json file {pinning_file_path}")
+
+    pinning_data = get_asset_dependencies(entry_usd)
+
+    root_less_pinning_file_data = remove_root_from_dependecy_info(
+        pinning_data, root_info
+    )
+
+    root_less_pinning_file_data["ayon_pinning_data_entry_sceene"] = _remove_sdf_args(
+        entry_usd
+    )
+    write_pinning_file(
+        os.path.join(pinning_file_path),
+        root_less_pinning_file_data,
+    )
