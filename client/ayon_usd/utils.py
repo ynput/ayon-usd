@@ -1,14 +1,16 @@
 """USD Addon utility functions."""
 
+import json
 import os
 import platform
 import pathlib
 import sys
-
+import datetime
 
 import ayon_api
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
+from ayon_usd.ayon_bin_client.ayon_bin_distro.lakectlpy import wrapper
 from ayon_usd import config
 
 
@@ -52,7 +54,7 @@ def get_downloaded_usd_root() -> str:
 
 
 @config.SingletonFuncCache.cache
-def is_usd_download_needed() -> bool:
+def is_usd_lib_download_needed() -> bool:
     """
     checks if the correct UsdLib is allready present in downloads.
     Args:
@@ -61,8 +63,28 @@ def is_usd_download_needed() -> bool:
     Returns:
 
     """
-    if os.path.exists(os.path.abspath(get_downloaded_usd_root())):
-        return False
+    from datetime import datetime, timedelta, timezone
+
+    usd_lib_dir = os.path.abspath(get_downloaded_usd_root())
+    if os.path.exists(usd_lib_dir):
+
+        ctl = config.get_global_lake_instance()
+        lake_fs_usd_lib_path = f"{config.get_addon_settings_value(config.get_addon_settings(),config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}"
+
+        with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
+            addon_data_json = json.load(data_json)
+        try:
+            usd_lib_lake_fs_time_stamp_local = addon_data_json[
+                "usd_lib_lake_fs_time_cest"
+            ]
+        except KeyError:
+            return True
+
+        if (
+            usd_lib_lake_fs_time_stamp_local
+            == ctl.get_element_info(lake_fs_usd_lib_path)["Modified Time"]
+        ):
+            return False
 
     return True
 

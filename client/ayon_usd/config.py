@@ -18,6 +18,9 @@ ADDON_VERSION: str = version.__version__
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
+ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
+
+
 # Addon Settings
 # LakeFs
 ADDON_SETTINGS_LAKE_FS_URI = '["LakeFs_Settings"]["ayon_usd_lake_fs_server_uri"]'
