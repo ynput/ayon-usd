@@ -27,7 +27,7 @@ def remove_root_from_dependency_info(
     Returns: the input dependecy_info dict with replaced root_info to obtain root-less paths,
     """
 
-    if not root_info or not dependecy_info:
+    if not root_info or not dependency_info:
         return {}
 
     replacements = {
@@ -46,7 +46,7 @@ def remove_root_from_dependency_info(
 
     root_less_dict = {}
 
-    for key, path in dependecy_info.items():
+    for key, path in dependency_info.items():
         new_path = pattern.sub(_replace_match, path)
         root_less_dict[key] = new_path
 
@@ -259,7 +259,7 @@ def generate_pinning_file(
 
     pinning_data = get_asset_dependencies(entry_usd)
 
-    root_less_pinning_file_data = remove_root_from_dependecy_info(
+    root_less_pinning_file_data = remove_root_from_dependency_info(
         pinning_data, root_info
     )
 
