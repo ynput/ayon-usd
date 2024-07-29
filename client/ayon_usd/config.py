@@ -15,7 +15,7 @@ DOWNLOAD_DIR: Path = CURRENT_DIR / "downloads"
 NOT_SET = type("NOT_SET", (), {"__bool__": lambda: False})()
 ADDON_NAME: str = version.name
 ADDON_VERSION: str = version.__version__
-
+AYON_BUNDLE_NAME = os.environ["AYON_BUNDLE_NAME"]
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
@@ -110,7 +110,11 @@ def print_cache():
 
 @SingletonFuncCache.cache
 def get_addon_settings():
-    return ayon_api.get_addon_settings(ADDON_NAME, ADDON_VERSION)
+    return ayon_api.get_addon_settings(
+        addon_name=ADDON_NAME,
+        addon_version=ADDON_VERSION,
+        variant=AYON_BUNDLE_NAME,
+    )
 
 
 @SingletonFuncCache.cache
