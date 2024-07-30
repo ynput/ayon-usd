@@ -132,6 +132,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     resolver_overwrite_list = config.get_addon_settings_value(
         settings, config.ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES
     )
+
     if resolver_overwrite_list:
         resolver_overwrite = next(
             (
