@@ -110,6 +110,7 @@ def print_cache():
 
 @SingletonFuncCache.cache
 def get_addon_settings():
+
     return ayon_api.get_addon_settings(
         addon_name=ADDON_NAME,
         addon_version=ADDON_VERSION,

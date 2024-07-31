@@ -30,7 +30,9 @@ class InitializeAssetResolver(PreLaunchHook):
         settings = utils.get_addon_settings()
         resolver_lake_fs_path = utils.get_resolver_to_download(settings, self.app_name)
         if not resolver_lake_fs_path:
-            return
+            raise RuntimeError(
+                "no Resolver could be found but AYON-Usd addon is activated"
+            )
 
         with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
             addon_data_json = json.load(data_json)
