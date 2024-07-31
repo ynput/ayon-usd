@@ -1,6 +1,7 @@
 """Pre-launch hook to initialize asset resolver for the application."""
 
 import json
+import os
 from ayon_applications import LaunchTypes, PreLaunchHook
 from ayon_usd import config, utils
 
@@ -53,6 +54,7 @@ class InitializeAssetResolver(PreLaunchHook):
         if (
             local_resolver_data
             and lake_fs_resolver_time_stamp == local_resolver_data[0]
+            and os.path.exists(local_resolver_data[1])
         ):
 
             self._setup_resolver(local_resolver_data[1], settings)

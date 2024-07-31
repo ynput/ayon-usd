@@ -25,6 +25,10 @@ def get_addon_settings() -> dict:
     return ayon_api.get_addon_settings(config.ADDON_NAME, config.ADDON_VERSION)
 
 
+def is_item_redownload_needed():
+    pass
+
+
 def get_download_dir(create_if_missing=True):
     """Dir path where files are downloaded.
 
@@ -55,15 +59,7 @@ def get_downloaded_usd_root() -> str:
 
 @config.SingletonFuncCache.cache
 def is_usd_lib_download_needed() -> bool:
-    """
-    checks if the correct UsdLib is allready present in downloads.
-    Args:
-        addon_settings ():
-
-    Returns:
-
-    """
-    from datetime import datetime, timedelta, timezone
+    # TODO redocument
 
     usd_lib_dir = os.path.abspath(get_downloaded_usd_root())
     if os.path.exists(usd_lib_dir):
