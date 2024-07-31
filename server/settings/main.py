@@ -228,7 +228,7 @@ class LakeFsSettings(BaseSettingsModel):
             AppPlatformPathModel(
                 app_name="houdini/20-0",
                 platform="windows",
-                lake_fs_path="AyonUsdResolverBin/HouLinux/Houdini20_Py310_Linux_Linux_x86_64.zip",
+                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini20_Py310_Win_Windows_AMD64.zip",
             ),
             AppPlatformPathModel(
                 app_name="houdini/20-0Py39",
