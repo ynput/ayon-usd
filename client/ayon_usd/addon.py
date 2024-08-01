@@ -56,7 +56,7 @@ class USDAddon(AYONAddon, ITrayModule):
                 )
 
         if not utils.is_usd_lib_download_needed():
-            print("usd is allready downloaded")
+            print("usd is already downloaded")
             return
 
         lake_fs_usd_lib_path = f"{config.get_addon_settings_value(config.get_addon_settings(),config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}"
