@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timezone
 
 from . import config, utils
+from .version import __version__
 from ayon_core.modules import AYONAddon, ITrayModule
 from ayon_core import style
 from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
@@ -22,6 +23,7 @@ class USDAddon(AYONAddon, ITrayModule):
     """
 
     name = "ayon_usd"
+    version = __version__
     _download_window = None
 
     def tray_init(self):
