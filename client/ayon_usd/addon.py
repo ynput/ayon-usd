@@ -104,6 +104,7 @@ class USDAddon(AYONAddon, ITrayModule):
             close_on_finish=True,
             auto_close_timeout=1,
             delet_progress_bar_on_finish=False,
+            title=f"{config.ADDON_NAME}-Addon [UsdLib Download]",
         )
         download_ui.setStyleSheet(style.load_stylesheet())
         download_ui.start()
