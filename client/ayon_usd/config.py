@@ -23,34 +23,43 @@ ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
 
 # Addon Settings
 # LakeFs
-ADDON_SETTINGS_LAKE_FS_URI = '["LakeFs_Settings"]["ayon_usd_lake_fs_server_uri"]'
-ADDON_SETTINGS_LAKE_FS_REPO_URI = '["LakeFs_Settings"]["ayon_usd_lake_fs_server_repo"]'
-ADDON_SETTINGS_LAKE_FS_KEY_ID = '["LakeFs_Settings"]["access_key_id"]'
-ADDON_SETTINGS_LAKE_FS_KEY = '["LakeFs_Settings"]["secret_access_key"]'
+ADDON_SETTINGS_LAKE_FS_URI = ("LakeFs_Settings", "ayon_usd_lake_fs_server_uri")
+ADDON_SETTINGS_LAKE_FS_REPO_URI = ("LakeFs_Settings", "ayon_usd_lake_fs_server_repo")
+ADDON_SETTINGS_LAKE_FS_KEY_ID = ("LakeFs_Settings", "access_key_id")
+ADDON_SETTINGS_LAKE_FS_KEY = ("LakeFs_Settings", "secret_access_key")
 # Resolver def
-ADDON_SETTINGS_ASSET_RESOLVERS = '["LakeFs_Settings"]["asset_resolvers"]'
-ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES = '["LakeFs_Settings"]["lake_fs_overrides"]'
+ADDON_SETTINGS_ASSET_RESOLVERS = ("LakeFs_Settings", "asset_resolvers")
+ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES = ("LakeFs_Settings", "lake_fs_overrides")
 # Usd settings
-ADDON_SETTINGS_USD_TF_DEBUG = '["Usd_Settings"]["usd_tf_debug"]'
+ADDON_SETTINGS_USD_TF_DEBUG = ("Usd_Settings", "usd_tf_debug")
 # Resolver Settings
-ADDON_SETTINGS_USD_RESOLVER_LOG_LVL = '["Ayon_UsdResolver_Settings"]["ayon_log_lvl"]'
+ADDON_SETTINGS_USD_RESOLVER_LOG_LVL = ("Ayon_UsdResolver_Settings", "ayon_log_lvl")
+
 ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_ENABLED = (
-    '["Ayon_UsdResolver_Settings"]["ayon_file_logger_enabled"]'
+    "Ayon_UsdResolver_Settings",
+    "ayon_file_logger_enabled",
 )
+
 ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_FILE_PATH = (
-    '["Ayon_UsdResolver_Settings"]["file_logger_file_path"]'
+    "Ayon_UsdResolver_Settings",
+    "file_logger_file_path",
 )
+
 ADDON_SETTINGS_USD_RESOLVER_LOG_LOGGIN_KEYS = (
-    '["Ayon_UsdResolver_Settings"]["ayon_logger_logging_keys"]'
+    "Ayon_UsdResolver_Settings",
+    "ayon_logger_logging_keys",
 )
 
 
-def get_addon_settings_value(settings, key_path):
+def get_addon_settings_value(settings: dict, key_path: tuple):
     try:
-        return eval(f"{settings}{key_path}")
+        selected_element = settings
+        for key in key_path:
+            selected_element = selected_element[key]
+
+        return selected_element
     except (KeyError, TypeError) as e:
-        print(f"Error accessing settings with key path {key_path}: {e}")
-        return None
+        raise KeyError(f"Error accessing settings with key path {key_path}: {e}")
 
 
 class SingletonFuncCache:
@@ -108,7 +117,6 @@ def print_cache():
     print(SingletonFuncCache().debug())
 
 
-@SingletonFuncCache.cache
 def get_addon_settings():
 
     return ayon_api.get_addon_settings(
@@ -124,20 +132,22 @@ def get_global_lake_instance():
         get_addon_settings()
     )  # the function is cached, but this reduces the call stack
     return wrapper.LakeCtl(
-        server_url=get_addon_settings_value(addon_settings, ADDON_SETTINGS_LAKE_FS_URI),
-        access_key_id=get_addon_settings_value(
-            addon_settings, ADDON_SETTINGS_LAKE_FS_KEY_ID
+        server_url=str(
+            get_addon_settings_value(addon_settings, ADDON_SETTINGS_LAKE_FS_URI)
         ),
-        secret_access_key=get_addon_settings_value(
-            addon_settings, ADDON_SETTINGS_LAKE_FS_KEY
+        access_key_id=str(
+            get_addon_settings_value(addon_settings, ADDON_SETTINGS_LAKE_FS_KEY_ID)
+        ),
+        secret_access_key=str(
+            get_addon_settings_value(addon_settings, ADDON_SETTINGS_LAKE_FS_KEY)
         ),
     )
 
 
 @SingletonFuncCache.cache
 def _get_lake_fs_repo_items() -> list:
-    lake_repo_uri = get_addon_settings_value(
-        get_addon_settings(), ADDON_SETTINGS_LAKE_FS_REPO_URI
+    lake_repo_uri = str(
+        get_addon_settings_value(get_addon_settings(), ADDON_SETTINGS_LAKE_FS_REPO_URI)
     )
     if not lake_repo_uri:
         return []

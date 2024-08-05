@@ -5,16 +5,13 @@ import os
 import platform
 import pathlib
 import sys
-import datetime
 
 import ayon_api
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
-from ayon_usd.ayon_bin_client.ayon_bin_distro.lakectlpy import wrapper
 from ayon_usd import config
 
 
-@config.SingletonFuncCache.cache
 def get_addon_settings() -> dict:
     """Get addon settings.
 
@@ -23,10 +20,6 @@ def get_addon_settings() -> dict:
 
     """
     return ayon_api.get_addon_settings(config.ADDON_NAME, config.ADDON_VERSION)
-
-
-def is_item_redownload_needed():
-    pass
 
 
 def get_download_dir(create_if_missing=True):
@@ -57,7 +50,6 @@ def get_downloaded_usd_root() -> str:
     return usd_lib_local_path
 
 
-@config.SingletonFuncCache.cache
 def is_usd_lib_download_needed() -> bool:
     # TODO redocument
 

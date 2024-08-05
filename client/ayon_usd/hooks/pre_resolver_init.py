@@ -28,11 +28,12 @@ class InitializeAssetResolver(PreLaunchHook):
         """Pre-launch hook entry method."""
 
         self.log.debug(self.app_group)
-        settings = utils.get_addon_settings()
+        settings = self.data["project_settings"][config.ADDON_NAME]
+
         resolver_lake_fs_path = utils.get_resolver_to_download(settings, self.app_name)
         if not resolver_lake_fs_path:
             raise RuntimeError(
-                "no Resolver could be found but AYON-Usd addon is activated"
+                f"no Resolver could be found but AYON-Usd addon is activated {self.app_name}"
             )
 
         with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
@@ -68,10 +69,17 @@ class InitializeAssetResolver(PreLaunchHook):
             return
 
         key = str(self.app_name).replace("/", "_")
+        resolver_time_stamp = (
+            config.get_global_lake_instance()
+            .get_element_info(resolver_lake_fs_path)
+            .get("Modified Time")
+        )
+        if not resolver_time_stamp:
+            raise ValueError(
+                f"could not find resolver time stamp on LakeFs server for {self.app_name}"
+            )
         addon_data_json[f"resolver_data_{key}"] = [
-            config.get_global_lake_instance().get_element_info(resolver_lake_fs_path)[
-                "Modified Time"
-            ],
+            resolver_time_stamp,
             local_resolver,
         ]
         with open(config.ADDON_DATA_JSON_PATH, "w") as addon_json:

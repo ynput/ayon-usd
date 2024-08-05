@@ -308,10 +308,14 @@ class UsdSettings(BaseSettingsModel):
 class USDSettings(BaseSettingsModel):
     """USD settings."""
 
-    LakeFs_Settings: LakeFsSettings = Field(default_factory=LakeFsSettings)
-
-    Ayon_UsdResolver_Settings: AyonResolverSettings = Field(
-        default_factory=AyonResolverSettings
+    LakeFs_Settings: LakeFsSettings = Field(
+        default_factory=LakeFsSettings, title="LakeFs Config"
     )
 
-    Usd_Settings: UsdSettings = Field(default_factory=UsdSettings)
+    Ayon_UsdResolver_Settings: AyonResolverSettings = Field(
+        default_factory=AyonResolverSettings, title="UsdResolver Config"
+    )
+
+    Usd_Settings: UsdSettings = Field(
+        default_factory=UsdSettings, title="UsdLib Config"
+    )

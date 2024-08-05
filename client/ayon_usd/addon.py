@@ -63,9 +63,13 @@ class USDAddon(AYONAddon, ITrayModule):
 
         lake_fs_usd_lib_path = f"{config.get_addon_settings_value(config.get_addon_settings(),config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}"
 
-        usd_lib_lake_fs_time_cest = config.get_global_lake_instance().get_element_info(
-            lake_fs_usd_lib_path
-        )["Modified Time"]
+        usd_lib_lake_fs_time_cest = (
+            config.get_global_lake_instance()
+            .get_element_info(lake_fs_usd_lib_path)
+            .get("Modified Time")
+        )
+        if not usd_lib_lake_fs_time_cest:
+            raise ValueError(f"could not find UsdLib time stamp on LakeFs server")
 
         with open(config.ADDON_DATA_JSON_PATH, "r+") as data_json:
             addon_data_json = json.load(data_json)
