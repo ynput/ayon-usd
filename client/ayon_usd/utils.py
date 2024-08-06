@@ -144,7 +144,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
         (
             item
             for item in resolver_list
-            if item["app_name"] == app_name
+            if (item["name"] == app_name or app_name in item["app_alias_list"])
             and item["platform"] == platform.system().lower()
         ),
         None,
