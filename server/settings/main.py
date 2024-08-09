@@ -45,15 +45,12 @@ def file_logger_enum():
 
 
 class AppPlatformPathModel(BaseSettingsModel):
-    # """Application platform URI model."""
 
     _layout = "collapsed"
     name: str = SettingsField(
         title="App Name", description="Application name, e.g. maya/2025"
     )
-    # app_name: str = SettingsField(
-    #     title="App Name", description="Application name, e.g. maya/2025"
-    # )
+
     app_alias_list: list[str] = SettingsField(
         title="Applicatoin Alias",
         description="Allows an admin to define a list of App Names that use the same resolver as the parent application",
