@@ -4,7 +4,8 @@ import json
 import os
 from datetime import datetime, timezone
 
-from ayon_core.modules import AYONAddon, ITrayModule
+from ayon_core.addon import AYONAddon, ITrayAddon 
+
 from ayon_core import style
 
 from . import config, utils
@@ -14,7 +15,7 @@ from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 
 
-class USDAddon(AYONAddon, ITrayModule):
+class USDAddon(AYONAddon, ITrayAddon):
     """Addon to add USD Support to AYON.
 
     Addon can also skip distribution of binaries from server and can
@@ -23,7 +24,7 @@ class USDAddon(AYONAddon, ITrayModule):
     Cares about supplying USD Framework.
     """
 
-    name = "ayon_usd"
+    name = config.ADDON_NAME
     version = config.ADDON_VERSION
     _download_window = None
 
