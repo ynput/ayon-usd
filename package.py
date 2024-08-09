@@ -2,7 +2,7 @@
 
 name = "ayon_usd"
 title = "Usd Addon"
-version = "1.0.4-dev.27"
+version = "1.0.4-dev.29"
 client_dir = "ayon_usd"
 
 services = {}
