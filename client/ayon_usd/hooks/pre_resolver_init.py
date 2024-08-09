@@ -16,7 +16,7 @@ class InitializeAssetResolver(PreLaunchHook):
     launch_types = {LaunchTypes.local}
 
     def _setup_resolver(self, local_resolver, settings):
-        self.log.info(f"Initializing USD asset resolver for [ {self.app_name} ] .")
+        self.log.info(f"Initializing USD asset resolver for application: {self.app_name}")
         env_var_dict = utils.get_resolver_setup_info(
             local_resolver, settings, self.app_name, self.log
         )
