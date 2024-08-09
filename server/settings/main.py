@@ -59,7 +59,7 @@ class AppPlatformPathModel(BaseSettingsModel):
     app_alias_list: list[str] = SettingsField(
         title="Applicatoin Alias",
         description="Allows an admin to define a list of App Names that use the same resolver as the parent application",
-        default=[],
+        default_factory=list,
     )
 
     # TODO: we need to take into account here different linux flavors
@@ -208,7 +208,7 @@ class LakeFsSettings(BaseSettingsModel):
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
         title="Resolver Application overwrites",
         description="Allows an admin to define a specific Resolver Zip for a specific Application",
-        default=[],
+        default_factory=list,
     )
 
 
@@ -249,7 +249,7 @@ class UsdSettings(BaseSettingsModel):
     usd_tf_debug: str = SettingsField(
         "",
         title="Tf Debug Variable for Debugging Usd",
-        description="",
+        description="Allows you to use USD internal Debugging Output",
     )
 
 
