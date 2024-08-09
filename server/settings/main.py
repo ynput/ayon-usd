@@ -2,8 +2,6 @@
 
 from ayon_server.settings import BaseSettingsModel, SettingsField
 
-# from pydantic import SettingsField
-
 
 def platform_enum():
     """Return enumerator for supported platforms."""
@@ -249,7 +247,7 @@ class UsdSettings(BaseSettingsModel):
     usd_tf_debug: str = SettingsField(
         "",
         title="Tf Debug Variable for Debugging Usd",
-        description="Allows you to use USD internal Debugging Output",
+        description="",
     )
 
 
