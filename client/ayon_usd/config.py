@@ -23,30 +23,30 @@ ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
 
 # Addon Settings
 # LakeFs
-ADDON_SETTINGS_LAKE_FS_URI = ("LakeFs_Settings", "ayon_usd_lake_fs_server_uri")
-ADDON_SETTINGS_LAKE_FS_REPO_URI = ("LakeFs_Settings", "ayon_usd_lake_fs_server_repo")
-ADDON_SETTINGS_LAKE_FS_KEY_ID = ("LakeFs_Settings", "access_key_id")
-ADDON_SETTINGS_LAKE_FS_KEY = ("LakeFs_Settings", "secret_access_key")
+ADDON_SETTINGS_LAKE_FS_URI = ("lakefs_settings", "ayon_usd_lake_fs_server_uri")
+ADDON_SETTINGS_LAKE_FS_REPO_URI = ("lakefs_settings", "ayon_usd_lake_fs_server_repo")
+ADDON_SETTINGS_LAKE_FS_KEY_ID = ("lakefs_settings", "access_key_id")
+ADDON_SETTINGS_LAKE_FS_KEY = ("lakefs_settings", "secret_access_key")
 # Resolver def
-ADDON_SETTINGS_ASSET_RESOLVERS = ("LakeFs_Settings", "asset_resolvers")
-ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES = ("LakeFs_Settings", "lake_fs_overrides")
+ADDON_SETTINGS_ASSET_RESOLVERS = ("lakefs_settings", "asset_resolvers")
+ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES = ("lakefs_settings", "lake_fs_overrides")
 # Usd settings
-ADDON_SETTINGS_USD_TF_DEBUG = ("Usd_Settings", "usd_tf_debug")
+ADDON_SETTINGS_USD_TF_DEBUG = ("usd_settings", "usd_tf_debug")
 # Resolver Settings
-ADDON_SETTINGS_USD_RESOLVER_LOG_LVL = ("Ayon_UsdResolver_Settings", "ayon_log_lvl")
+ADDON_SETTINGS_USD_RESOLVER_LOG_LVL = ("ayon_usd_resolver_settings", "ayon_log_lvl")
 
 ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_ENABLED = (
-    "Ayon_UsdResolver_Settings",
+    "ayon_usd_resolver_settings",
     "ayon_file_logger_enabled",
 )
 
 ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_FILE_PATH = (
-    "Ayon_UsdResolver_Settings",
+    "ayon_usd_resolver_settings",
     "file_logger_file_path",
 )
 
 ADDON_SETTINGS_USD_RESOLVER_LOG_LOGGIN_KEYS = (
-    "Ayon_UsdResolver_Settings",
+    "ayon_usd_resolver_settings",
     "ayon_logger_logging_keys",
 )
 

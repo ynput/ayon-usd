@@ -3,6 +3,7 @@
 from ayon_server.settings import BaseSettingsModel, MultiplatformPathListModel
 from pydantic import Field, validator
 
+
 def platform_enum():
     """Return enumerator for supported platforms."""
     return [
@@ -10,6 +11,7 @@ def platform_enum():
         {"label": "Linux", "value": "linux"},
         {"label": "MacOS", "value": "darwin"},
     ]
+
 
 # FIX find a way to pull this info from AyonCppApi (Later AyonLogger)
 def logger_logging_keys_enum():
@@ -47,16 +49,14 @@ class AppPlatformPathModel(BaseSettingsModel):
     # """Application platform URI model."""
 
     _layout = "collapsed"
-    name: str = Field(
-        title="App Name", description="Application name, e.g. maya/2025"
-    )
+    name: str = Field(title="App Name", description="Application name, e.g. maya/2025")
     # app_name: str = Field(
     #     title="App Name", description="Application name, e.g. maya/2025"
     # )
     app_alias_list: list[str] = Field(
         title="Applicatoin Alias",
         description="Allows an admin to define a list of App Names that use the same resolver as the parent application",
-        default=[]
+        default=[],
     )
 
     # TODO: we need to take into account here different linux flavors
@@ -70,8 +70,6 @@ class AppPlatformPathModel(BaseSettingsModel):
         description="The LakeFs internal path to the resolver zip, e.g: `AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`\n"
         "This information can be found on LakeFs server Object Information.",
     )
-
-
 
 
 class AppPlatformURIModel(BaseSettingsModel):
@@ -255,14 +253,14 @@ class UsdSettings(BaseSettingsModel):
 class USDSettings(BaseSettingsModel):
     """USD settings."""
 
-    LakeFs_Settings: LakeFsSettings = Field(
+    lakefs_settings: LakeFsSettings = Field(
         default_factory=LakeFsSettings, title="LakeFs Config"
     )
 
-    Ayon_UsdResolver_Settings: AyonResolverSettings = Field(
+    ayon_usd_resolver_settings: AyonResolverSettings = Field(
         default_factory=AyonResolverSettings, title="UsdResolver Config"
     )
 
-    Usd_Settings: UsdSettings = Field(
+    usd_settings: UsdSettings = Field(
         default_factory=UsdSettings, title="UsdLib Config"
     )
