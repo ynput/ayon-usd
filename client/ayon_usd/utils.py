@@ -37,7 +37,7 @@ def get_download_dir(create_if_missing=True):
     return config.DOWNLOAD_DIR
 
 
-@config.SingletonFuncCache.cache
+@config.SingletonFuncCache.func_io_cache
 def get_downloaded_usd_root() -> str:
     """Get downloaded USDLib os local root path."""
     target_usd_lib = config.get_usd_lib_conf_from_lakefs()
@@ -107,7 +107,7 @@ def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str)
     return str(extract_zip_item.func_return)
 
 
-@config.SingletonFuncCache.cache
+@config.SingletonFuncCache.func_io_cache
 def get_resolver_to_download(settings, app_name: str) -> str:
     """
     Gets LakeFs path that can be used with copy element to download
@@ -159,7 +159,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     return resolver_lake_path
 
 
-@config.SingletonFuncCache.cache
+@config.SingletonFuncCache.func_io_cache
 def get_resolver_setup_info(resolver_dir, settings, app_name: str, logger=None) -> dict:
     pxr_plugin_paths = []
     ld_path = []

@@ -4,10 +4,11 @@ import json
 import os
 from datetime import datetime, timezone
 
-from . import config, utils
-from .version import __version__
 from ayon_core.modules import AYONAddon, ITrayModule
 from ayon_core import style
+
+from . import config, utils
+
 from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
@@ -23,7 +24,7 @@ class USDAddon(AYONAddon, ITrayModule):
     """
 
     name = "ayon_usd"
-    version = __version__
+    version = config.ADDON_VERSION
     _download_window = None
 
     def tray_init(self):

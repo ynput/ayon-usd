@@ -20,6 +20,7 @@ class InitializeAssetResolver(PreLaunchHook):
         env_var_dict = utils.get_resolver_setup_info(
             local_resolver, settings, self.app_name, self.log
         )
+
         for key in env_var_dict:
             value = env_var_dict[key]
             self.launch_context.env[key] = value

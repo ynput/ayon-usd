@@ -6,9 +6,9 @@ import platform
 import json
 import hashlib
 from pathlib import Path
+import ayon_api
 from ayon_usd import version
 from ayon_usd.ayon_bin_client.ayon_bin_distro.lakectlpy import wrapper
-import ayon_api
 
 CURRENT_DIR: Path = Path(os.path.dirname(os.path.abspath(__file__)))
 DOWNLOAD_DIR: Path = CURRENT_DIR / "downloads"
@@ -72,7 +72,7 @@ class SingletonFuncCache:
         return cls._instance
 
     @classmethod
-    def cache(cls, func):
+    def func_io_cache(cls, func):
         @functools.wraps(func)
         def cache_func(*args, **kwargs):
 
@@ -126,7 +126,7 @@ def get_addon_settings():
     )
 
 
-@SingletonFuncCache.cache
+@SingletonFuncCache.func_io_cache
 def get_global_lake_instance():
     addon_settings = (
         get_addon_settings()
@@ -144,7 +144,7 @@ def get_global_lake_instance():
     )
 
 
-@SingletonFuncCache.cache
+@SingletonFuncCache.func_io_cache
 def _get_lake_fs_repo_items() -> list:
     lake_repo_uri = str(
         get_addon_settings_value(get_addon_settings(), ADDON_SETTINGS_LAKE_FS_REPO_URI)
@@ -154,7 +154,7 @@ def _get_lake_fs_repo_items() -> list:
     return get_global_lake_instance().list_repo_objects(lake_repo_uri)
 
 
-@SingletonFuncCache.cache
+@SingletonFuncCache.func_io_cache
 def get_usd_lib_conf_from_lakefs() -> str:
     usd_zip_lake_path = ""
     for item in _get_lake_fs_repo_items():
