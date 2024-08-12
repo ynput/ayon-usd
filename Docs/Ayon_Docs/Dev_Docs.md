@@ -36,15 +36,15 @@ def generate_pinning_file(
 Example Code:
 
 ```py
-from tests.Usd.Pinning import pinning_file_helper
+import os
 import ayon_api
+from ayon_usd.standalone.usd.pinning import pinning_file_helper
 
-in_usd_file = "path/to/usd/file.usd"
+
+in_usd_file = "/path/to/usd/file.usd"
 root_info = ayon_api.get_project_roots_for_site(os.environ.get("AYON_PROJECT_NAME"))
 
-pinning_file_helper.generate_pinning_file(
-    uri, root_info, "path/to/output_file.json")
-)
+pinning_file_helper.generate_pinning_file(in_usd_file, root_info, "/path/to/output_file.json")
 ```
 
 `in_usd_file` can be everything that the AyonUsdResolver can resolve including
