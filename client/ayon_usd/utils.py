@@ -1,10 +1,10 @@
 """USD Addon utility functions."""
 
+import json
 import os
 import platform
 import pathlib
 import sys
-
 
 import ayon_api
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
@@ -12,7 +12,6 @@ from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 from ayon_usd import config
 
 
-@config.SingletonFuncCache.cache
 def get_addon_settings() -> dict:
     """Get addon settings.
 
@@ -38,7 +37,7 @@ def get_download_dir(create_if_missing=True):
     return config.DOWNLOAD_DIR
 
 
-@config.SingletonFuncCache.cache
+@config.SingletonFuncCache.func_io_cache
 def get_downloaded_usd_root() -> str:
     """Get downloaded USDLib os local root path."""
     target_usd_lib = config.get_usd_lib_conf_from_lakefs()
@@ -51,18 +50,29 @@ def get_downloaded_usd_root() -> str:
     return usd_lib_local_path
 
 
-@config.SingletonFuncCache.cache
-def is_usd_download_needed() -> bool:
-    """
-    checks if the correct UsdLib is allready present in downloads.
-    Args:
-        addon_settings ():
+def is_usd_lib_download_needed() -> bool:
+    # TODO redocument
 
-    Returns:
+    usd_lib_dir = os.path.abspath(get_downloaded_usd_root())
+    if os.path.exists(usd_lib_dir):
 
-    """
-    if os.path.exists(os.path.abspath(get_downloaded_usd_root())):
-        return False
+        ctl = config.get_global_lake_instance()
+        lake_fs_usd_lib_path = f"{config.get_addon_settings_value(config.get_addon_settings(),config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}"
+
+        with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
+            addon_data_json = json.load(data_json)
+        try:
+            usd_lib_lake_fs_time_stamp_local = addon_data_json[
+                "usd_lib_lake_fs_time_cest"
+            ]
+        except KeyError:
+            return True
+
+        if (
+            usd_lib_lake_fs_time_stamp_local
+            == ctl.get_element_info(lake_fs_usd_lib_path)["Modified Time"]
+        ):
+            return False
 
     return True
 
@@ -97,7 +107,7 @@ def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str)
     return str(extract_zip_item.func_return)
 
 
-@config.SingletonFuncCache.cache
+@config.SingletonFuncCache.func_io_cache
 def get_resolver_to_download(settings, app_name: str) -> str:
     """
     Gets LakeFs path that can be used with copy element to download
@@ -110,6 +120,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     resolver_overwrite_list = config.get_addon_settings_value(
         settings, config.ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES
     )
+
     if resolver_overwrite_list:
         resolver_overwrite = next(
             (
@@ -133,7 +144,8 @@ def get_resolver_to_download(settings, app_name: str) -> str:
         (
             item
             for item in resolver_list
-            if item["app_name"] == app_name and item["platform"] == sys.platform.lower()
+            if (item["name"] == app_name or app_name in item["app_alias_list"])
+            and item["platform"] == platform.system().lower()
         ),
         None,
     )
@@ -147,7 +159,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     return resolver_lake_path
 
 
-@config.SingletonFuncCache.cache
+@config.SingletonFuncCache.func_io_cache
 def get_resolver_setup_info(resolver_dir, settings, app_name: str, logger=None) -> dict:
     pxr_plugin_paths = []
     ld_path = []
