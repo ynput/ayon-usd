@@ -251,6 +251,10 @@ class UsdSettings(BaseSettingsModel):
 class USDSettings(BaseSettingsModel):
     """USD settings."""
 
+    allow_addon_start: bool = SettingsField(
+        False, title="I Understand and Accept that this is an experimental feature"
+    )
+
     lakefs_settings: LakeFsSettings = SettingsField(
         default_factory=LakeFsSettings, title="LakeFs Config"
     )
