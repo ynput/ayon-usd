@@ -34,6 +34,10 @@ class USDAddon(AYONAddon, ITrayAddon):
 
     def initialize(self, module_settings):
         """Initialize USD Addon."""
+        if not module_settings["ayon_usd"]["allow_addon_start"]:
+            raise SystemError(
+                "The experimental AyonUsd addon is currently activated, but you haven't yet acknowledged the user agreement indicating your understanding that this feature is experimental. Please go to the Studio settings and check the agreement checkbox."
+            )
         self.enabled = True
         self._download_window = None
 
