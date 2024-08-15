@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-from ayon_core.addon import AYONAddon, ITrayAddon
+from ayon_core.addon import AYONAddon, ITrayAddon, IPluginPaths
 
 from ayon_core import style
 
@@ -14,8 +14,10 @@ from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 
+USD_ADDON_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-class USDAddon(AYONAddon, ITrayAddon):
+
+class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
     """Addon to add USD Support to AYON.
 
     Addon can also skip distribution of binaries from server and can
@@ -131,3 +133,18 @@ class USDAddon(AYONAddon, ITrayAddon):
     def get_launch_hook_paths(self):
         """Get paths to launch hooks."""
         return [os.path.join(config.USD_ADDON_DIR, "hooks")]
+
+    def get_plugin_paths(self):
+        """Deadline plugin paths."""
+        # Note: We are not returning `publish` key because we have overridden
+        # `get_publish_plugin_paths` to return paths host-specific. However,
+        # `get_plugin_paths` still needs to be implemented because it's
+        # abstract on the parent class
+        return {}
+
+    def get_publish_plugin_paths(self, host_name=None):
+        publish_dir = os.path.join(USD_ADDON_ROOT, "plugins", "publish")
+        paths = [os.path.join(publish_dir, "global")]
+        if host_name:
+            paths.append(os.path.join(publish_dir, host_name))
+        return paths
