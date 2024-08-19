@@ -34,6 +34,8 @@ class Dumb(pyblish.api.InstancePlugin):
     families = ["usdrop"]
     hosts = ["houdini"]
 
+    enabled = True
+
     def process(self, instance):
 
         publish_dir = instance.data["publishDir"]

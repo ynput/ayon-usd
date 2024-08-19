@@ -54,4 +54,7 @@ in other words: if you use an uri to generate the pinning file you need to open
 the stage with the same uri, if you use an file path you will need to do the
 same.\
 it is generally advised to use an URI as they will never have any system
-specific data in them.
+specific data in them.\
+The generated pinning file also has a key that will tell you what entry point as
+used to generate the pinning file. you can simply read out this key and use it
+to open a stage with the pinning file `ayon_pinning_data_entry_sceene`
