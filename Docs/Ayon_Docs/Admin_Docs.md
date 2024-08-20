@@ -21,7 +21,7 @@ integrated Teams and a more artist centric Workflow as artists can open the same
 scene in different applications and work with the tools that serve them the
 best.
 
-Goal of this addon is to extend the Contirbution workflow by automaticly
+Goal of this addon is to extend the Contribution workflow by automatically
 distributing Usd and Ayon Libs:
 
 - USD-Lib build for supported platforms.
