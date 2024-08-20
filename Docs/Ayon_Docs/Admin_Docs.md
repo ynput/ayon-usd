@@ -35,9 +35,9 @@ distributing Usd and Ayon Libs:
 
 ## Configuration
 
-there is a list of things that you can configure in the server settings to
+There is a list of things that you can configure in the server settings to
 achieve the optimal setup for your studio. In most cases you will probably not
-need to touch them tho.
+need to touch them though.
 
 #### LakeFs Config
 
