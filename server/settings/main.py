@@ -13,7 +13,7 @@ def platform_enum():
 
 
 def logger_logging_keys_enum():
-    """Return enumerator for supported platforms."""
+    """Return enumerator for AyonCpp Logging Keys."""
     return [
         {"label": "Off", "value": ""},
         {"label": "Api Debug", "value": "AyonApi/"},
@@ -36,7 +36,7 @@ def log_lvl_enum():
 
 # TODO: find a way to pull this from AyonCppApi (later AyonLogger)
 def file_logger_enum():
-    """Return enumerator for supported log lvls."""
+    """Return enumerator to enable or disable the file logger."""
     return [
         {"label": "Off", "value": "OFF"},
         {"label": "On", "value": "ON"},
