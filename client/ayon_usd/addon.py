@@ -135,7 +135,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
         return [os.path.join(config.USD_ADDON_DIR, "hooks")]
 
     def get_plugin_paths(self):
-        """Deadline plugin paths."""
+        """Ayon Usd plugin paths."""
         # Note: We are not returning `publish` key because we have overridden
         # `get_publish_plugin_paths` to return paths host-specific. However,
         # `get_plugin_paths` still needs to be implemented because it's
