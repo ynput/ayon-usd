@@ -257,8 +257,8 @@ def write_pinning_file(
 
     with open(output_path, "w") as pinning_file:
 
-        wirte_data = {"ayon_resolver_pinning_data": pinning_data}
-        json.dump(wirte_data, pinning_file, indent=2)
+        write_data = {"ayon_resolver_pinning_data": pinning_data}
+        json.dump(write_data, pinning_file, indent=2)
     return True
 
 
