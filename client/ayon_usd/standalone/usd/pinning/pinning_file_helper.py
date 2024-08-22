@@ -55,10 +55,10 @@ def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
     for prop in prim.properties:
         if not isinstance(prop, Sdf.AttributeSpec):
             continue
-            
+
         if prop.typeName != Sdf.ValueTypeNames.Asset:
             continue
-            
+
         default_val = prop.default
         if default_val:
             if hasattr(default_val, "__iter__"):
@@ -74,11 +74,13 @@ def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
     return prop_data
 
 
-def _traverse_prim_specs(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
+def _get_prim_spec_hierarchy_external_refs(
+    prim: Sdf.PrimSpec, layer: Sdf.Layer
+) -> List[str]:
     file_list: List[str] = _get_prim_prop_data(prim, layer)
 
     for child_prim in prim.nameChildren:
-        file_list.extend(_traverse_prims(child_prim, layer))
+        file_list.extend(_get_prim_spec_hierarchy_external_refs(child_prim, layer))
     return file_list
 
 
@@ -137,7 +139,9 @@ def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, 
     layer = Sdf.Layer.FindOrOpen(resolved_layer_path)
     identifier_to_path_dict[layer_path] = resolved_layer_path.GetPathString()
 
-    prim_spec_file_paths = _traverse_prims(layer.pseudoRoot, layer)
+    prim_spec_file_paths = _get_prim_spec_hierarchy_external_refs(
+        layer.pseudoRoot, layer
+    )
     for prim_spec in prim_spec_file_paths:
         prim_spec = str(prim_spec)
         if "<UDIM>" in prim_spec:
