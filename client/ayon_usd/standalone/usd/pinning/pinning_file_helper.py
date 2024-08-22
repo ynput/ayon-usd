@@ -85,7 +85,6 @@ def _get_prim_spec_hierarchy_external_refs(
 
 
 def _remove_sdf_args(ref: str) -> str:
-    re.compile("")
     uri = re.sub(re.compile(r":SDF_FORMAT_ARGS.*$"), "", ref)
     return uri
 
