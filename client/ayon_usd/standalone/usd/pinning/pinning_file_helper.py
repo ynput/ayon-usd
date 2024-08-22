@@ -238,7 +238,7 @@ def write_pinning_file(
     Returns: bool Ture on successful write
 
     """
-    # data validatoin
+    # data validation
     if not isinstance(pinning_data, dict):
         print(f"pinning data is not a dict")
         return False
