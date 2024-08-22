@@ -249,7 +249,7 @@ def write_pinning_file(
 
     # file creatoin
     if os.path.exists(output_path) and not overwrite_ok:
-        print(f"Output path does Exist {output_path}")
+        print(f"Destination filepath already exists: {output_path}")
         return False
 
     if create_missing_dirs:
