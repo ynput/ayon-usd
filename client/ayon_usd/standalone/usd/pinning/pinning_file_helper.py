@@ -271,7 +271,7 @@ def generate_pinning_file(
         pinning_data, root_info
     )
 
-    root_less_pinning_file_data["ayon_pinning_data_entry_sceene"] = _remove_sdf_args(
+    root_less_pinning_file_data["ayon_pinning_data_entry_scene"] = _remove_sdf_args(
         entry_usd
     )
     write_pinning_file(
