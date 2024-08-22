@@ -71,13 +71,6 @@ App_Names in your Applications, you might want to add an App Alias. For example,
 if you have "hou19.5.xxx" set up as a variant for Houdini, you can then set it
 as an alias for the Hou19.5 entry because they share the same resolver.
 
-I made the following changes:
-
-- Added headings and separators to make the text easier to read
-- Changed the formatting of the URI links to make them more readable
-- Reformatted some of the sentences to improve clarity
-- Added a few words here and there to help explain what each setting does
-
 #### Usd Resolver Config
 
 `ayon+settings://ayon_usd/Ayon_UsdResolver_Settings`
