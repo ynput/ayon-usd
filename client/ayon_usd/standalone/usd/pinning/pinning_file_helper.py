@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import Dict, List
+from typing import Dict, List, Any
 from pxr import UsdShade, Ar, Sdf
 from urllib.parse import urlparse
 
@@ -74,10 +74,8 @@ def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
     return prop_data
 
 
-def _traverse_prims(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[Sdf.PrimSpec]:
-    file_list = []
-
-    file_list.extend(_get_prim_prop_data(prim, layer))
+def _traverse_prim_specs(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
+    file_list: List[str] = _get_prim_prop_data(prim, layer)
 
     for child_prim in prim.nameChildren:
         file_list.extend(_traverse_prims(child_prim, layer))
