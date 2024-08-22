@@ -178,7 +178,7 @@ run_codespell () {
 
 build () {
   echo -e "${BIGreen}>>>${RST} Building the addon ..."
-  python ./create_package.py 
+  python ./create_package.py
 }
 
 main () {
