@@ -20,7 +20,7 @@ import os
 import pyblish.api
 import ayon_api
 from ayon_core.pipeline.publish import KnownPublishError
-from ayon_usd.standalone.usd.pinning import pinning_file_helper
+from ayon_usd.standalone.usd import pinning
 
 
 root_info = ayon_api.get_project_roots_for_site(os.environ.get("AYON_PROJECT_NAME"))
@@ -47,9 +47,7 @@ class Dumb(pyblish.api.InstancePlugin):
             self.log.error(f"Usd file missing {publish_usd_file}")
             raise KnownPublishError(f"Usd File Missing {publish_usd_file}")
 
-        pinning_file_helper.generate_pinning_file(
-            publish_usd_file, root_info, pinning_file_path
-        )
+        pinning.generate_pinning_file(publish_usd_file, root_info, pinning_file_path)
         self.log.debug(
             f"Saving Pinning File for Usd Render Locatoin:{pinning_file_path}, for usd file {publish_usd_file}"
         )
