@@ -53,21 +53,23 @@ def remove_root_from_dependency_info(
 def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
     prop_data = []
     for prop in prim.properties:
-        if isinstance(prop, Sdf.AttributeSpec):
-            if prop.typeName == Sdf.ValueTypeNames.Asset:
-
-                default_val = prop.default
-                if default_val:
-                    if hasattr(default_val, "__iter__"):
-                        prop_data.extend(default_val)
-                    else:
-                        prop_data.append(default_val.path)
-                    continue  # No need to check for time samples if default val is populated
-
-                time_samples = layer.ListTimeSamplesForPath(prop.path)
-                for time in time_samples:
-                    value = layer.QueryTimeSample(prop.path, time)
-                    prop_data.append(value.path)
+        if not isinstance(prop, Sdf.AttributeSpec):
+            continue
+            
+        if prop.typeName != Sdf.ValueTypeNames.Asset:
+            continue
+            
+        default_val = prop.default
+        if default_val:
+            if hasattr(default_val, "__iter__"):
+                prop_data.extend(default_val)
+            else:
+                prop_data.append(default_val.path)
+        else:
+            time_samples = layer.ListTimeSamplesForPath(prop.path)
+            for time in time_samples:
+                value = layer.QueryTimeSample(prop.path, time)
+                prop_data.append(value.path)
 
     return prop_data
 
