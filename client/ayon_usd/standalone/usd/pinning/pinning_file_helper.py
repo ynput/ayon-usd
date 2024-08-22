@@ -118,7 +118,10 @@ def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
 
 # TODO refactor so that this function has a gather block and a write block currently all individual blocks write to the identifier_to_path_dict and that makes sanitizing the data hard
 def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, str]:
-    """recursively traverse Usd layers and get all external asset dependency's as key value pair
+    """Return mapping from all used asset identifiers to the resolved filepaths.
+    
+    Recursively traverse `Sdf.Layer` and get all their asset dependencies.
+    For each asset identifier map it to its resolved filepath.
 
     Args:
         layer_path: Usd layer path to be taken as the root layer
