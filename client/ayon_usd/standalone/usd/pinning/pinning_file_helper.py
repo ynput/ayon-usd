@@ -123,7 +123,7 @@ def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, 
     Args:
         layer_path: Usd layer path to be taken as the root layer
 
-    Returns: kay: value pair dict that maps to asset identifier: resolved path
+    Returns: Mapping from asset identifier to their resolved paths
 
     """
     layer_path = _remove_sdf_args(layer_path)
