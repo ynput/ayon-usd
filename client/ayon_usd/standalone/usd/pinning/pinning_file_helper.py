@@ -11,10 +11,6 @@ def is_uri(path: str) -> bool:
     return bool(parsed.scheme)
 
 
-# Assume that the environment sets up the correct default AyonUsdResolver
-resolver = Ar.GetResolver()
-
-
 def remove_root_from_dependency_info(
     dependency_info: Dict[str, str], root_info: Dict[str, str]
 ) -> Dict[str, str]:
@@ -91,7 +87,7 @@ def _remove_sdf_args(ref: str) -> str:
     return uri
 
 
-def _Resolve(ref: str, layer_path: str) -> Ar.ResolvedPath:
+def _Resolve(ref: str, layer_path: str, resolver: Ar.Resolver) -> Ar.ResolvedPath:
     if os.path.isabs(ref) or is_uri(ref):
         resolved_path = resolver.Resolve(ref)
     else:
@@ -119,7 +115,7 @@ def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
 
 
 # TODO refactor so that this function has a gather block and a write block currently all individual blocks write to the identifier_to_path_dict and that makes sanitizing the data hard
-def get_asset_dependencies(layer_path: str) -> Dict[str, str]:
+def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, str]:
     """recursively traverse Usd layers and get all external asset dependency's as key value pair
 
     Args:
@@ -146,7 +142,7 @@ def get_asset_dependencies(layer_path: str) -> Dict[str, str]:
         if "<UDIM>" in prim_spec:
 
             prim_spec = _remove_sdf_args(prim_spec)
-            unresolved_udim_path = _Resolve(prim_spec, layer.realPath)
+            unresolved_udim_path = _Resolve(prim_spec, layer.realPath, resolver)
             identifier_to_path_dict[prim_spec] = unresolved_udim_path.GetPathString()
 
             udim_data = _resolve_udim(prim_spec, layer)
@@ -154,17 +150,21 @@ def get_asset_dependencies(layer_path: str) -> Dict[str, str]:
             continue
 
         prim_spec = _remove_sdf_args(prim_spec)
-        identifier_to_path_dict[prim_spec] = _Resolve(prim_spec, layer.realPath)
+        identifier_to_path_dict[prim_spec] = _Resolve(
+            prim_spec, layer.realPath, resolver
+        )
     asset_identifier_list = layer.GetCompositionAssetDependencies()
 
     for ref in asset_identifier_list:
 
-        resolved_path = _Resolve(ref, resolved_layer_path.GetPathString())
+        resolved_path = _Resolve(ref, resolved_layer_path.GetPathString(), resolver)
 
         ref = _remove_sdf_args(ref)
         identifier_to_path_dict[ref] = resolved_path.GetPathString()
 
-        recursive_result = get_asset_dependencies(resolved_path.GetPathString())
+        recursive_result = get_asset_dependencies(
+            resolved_path.GetPathString(), resolver
+        )
         identifier_to_path_dict.update(recursive_result)
 
     return identifier_to_path_dict
@@ -265,7 +265,9 @@ def generate_pinning_file(
     if not pinning_file_path.endswith(".json"):
         raise RuntimeError(f"Pinning file path is not a json file {pinning_file_path}")
 
-    pinning_data = get_asset_dependencies(entry_usd)
+    # Assume that the environment sets up the correct default AyonUsdResolver
+    resolver = Ar.GetResolver()
+    pinning_data = get_asset_dependencies(entry_usd, resolver)
 
     root_less_pinning_file_data = remove_root_from_dependency_info(
         pinning_data, root_info
