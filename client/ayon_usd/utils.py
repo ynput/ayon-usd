@@ -1,47 +1,25 @@
 """USD Addon utility functions."""
-import copy
-import datetime
-import hashlib
+
 import json
 import os
 import platform
-import subprocess
-import zipfile
-from pathlib import Path
-from typing import Union
+import pathlib
+import sys
 
 import ayon_api
-from ayon_core.lib.local_settings import get_ayon_appdirs
-from ayon_usd import version
-
-CURRENT_DIR: Path = Path(os.path.dirname(os.path.abspath(__file__)))
-DOWNLOAD_DIR: Path = CURRENT_DIR / "downloads"
-NOT_SET = type("NOT_SET", (), {"__bool__": lambda: False})()
-ADDON_NAME: str = version.name
-ADDON_VERSION: str = version.__version__
+from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
+from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
+from ayon_usd import config
 
 
-class _USDOptions:
-    download_needed = None
-    downloaded_root = NOT_SET
-
-
-class _USDCache:
-    addon_settings = NOT_SET
-
-
-def get_addon_settings():
+def get_addon_settings() -> dict:
     """Get addon settings.
 
     Return:
         dict: Addon settings.
 
     """
-    if _USDCache.addon_settings is NOT_SET:
-        _USDCache.addon_settings = ayon_api.get_addon_settings(
-            ADDON_NAME, ADDON_VERSION
-        )
-    return copy.deepcopy(_USDCache.addon_settings)
+    return ayon_api.get_addon_settings(config.ADDON_NAME, config.ADDON_VERSION)
 
 
 def get_download_dir(create_if_missing=True):
@@ -54,277 +32,198 @@ def get_download_dir(create_if_missing=True):
         str: Path to download dir.
 
     """
-    if create_if_missing and not os.path.exists(DOWNLOAD_DIR):
-        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-    return DOWNLOAD_DIR
+    if create_if_missing and not os.path.exists(config.DOWNLOAD_DIR):
+        os.makedirs(config.DOWNLOAD_DIR, exist_ok=True)
+    return config.DOWNLOAD_DIR
 
 
-def _check_args_returncode(args):
-    try:
-        kwargs = {}
-        if platform.system().lower() == "windows":
-            kwargs["creationflags"] = (
-                subprocess.CREATE_NEW_PROCESS_GROUP
-                | getattr(subprocess, "DETACHED_PROCESS", 0)
-                | getattr(subprocess, "CREATE_NO_WINDOW", 0)
-            )
-
-        if hasattr(subprocess, "DEVNULL"):
-            proc = subprocess.Popen(
-                args,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                **kwargs
-            )
-            proc.wait()
-        else:
-            with open(os.devnull, "w") as devnull:
-                proc = subprocess.Popen(
-                    args, stdout=devnull, stderr=devnull, **kwargs
-                )
-                proc.wait()
-
-    except Exception:
-        return False
-    return proc.returncode == 0
-
-
-def _get_addon_endpoint():
-    return f"addons/{ADDON_NAME}/{ADDON_VERSION}"
-
-
-def _get_info_path(name):
-    return get_ayon_appdirs("addons", f"{ADDON_NAME}-{name}.json")
-
-
-def _filter_file_info(name):
-    filepath = _get_info_path(name)
-
-    if os.path.exists(filepath):
-        with open(filepath, "r") as stream:
-            return json.load(stream)
-    return []
-
-
-def _store_file_info(name, info):
-    """Store info to file."""
-    filepath = _get_info_path(name)
-    root, filename = os.path.split(filepath)
-    if not os.path.exists(root):
-        os.makedirs(root, exist_ok=True)
-    with open(filepath, "w") as stream:
-        json.dump(info, stream)
-
-
-def get_downloaded_usd_info():
-    """Get USD info from file."""
-    return _filter_file_info("usd")
-
-
-def store_downloaded_usd_info(usd_info):
-    """Store USD info to file.
-
-    Args:
-        usd_info (list[dict[str, str]]): USD info to store.
-
-    """
-    _store_file_info("usd", usd_info)
-
-
-def get_server_files_info():
-    """Receive zip file info from server.
-
-    Information must contain at least 'filename' and 'hash' with md5 zip
-    file hash.
-
-    Returns:
-        list[dict[str, str]]: Information about files on server.
-
-    """
-    response = ayon_api.get(f"{_get_addon_endpoint()}/files_info")
-    response.raise_for_status()
-    return response.data
-
-
-def _find_file_info(name, files_info):
-    """Find file info by name.
-
-    Args:
-        name (str): Name of file to find.
-        files_info (list[dict[str, str]]): List of file info dicts.
-
-    Returns:
-        Union[dict[str, str], None]: File info data.
-
-    """
-    platform_name = platform.system().lower()
-    return next(
-        (
-            file_info
-            for file_info in files_info
-            if (
-                file_info["name"] == name
-                and file_info["platform"] == platform_name
-            )
+@config.SingletonFuncCache.func_io_cache
+def get_downloaded_usd_root() -> str:
+    """Get downloaded USDLib os local root path."""
+    target_usd_lib = config.get_usd_lib_conf_from_lakefs()
+    usd_lib_local_path = os.path.join(
+        config.DOWNLOAD_DIR,
+        os.path.basename(target_usd_lib).replace(
+            f".{target_usd_lib.split('.')[-1]}", ""
         ),
-        None
     )
+    return usd_lib_local_path
 
 
-def get_downloaded_usd_root() -> Union[str, None]:
-    """Get downloaded USD binary root path."""
-    if _USDOptions.downloaded_root is not NOT_SET:
-        return _USDOptions.downloaded_root
+def is_usd_lib_download_needed() -> bool:
+    # TODO redocument
 
-    server_usd_info = _find_file_info(
-        "ayon_usd", get_server_files_info())
-    if not server_usd_info:
-        return None
+    usd_lib_dir = os.path.abspath(get_downloaded_usd_root())
+    if os.path.exists(usd_lib_dir):
 
-    root = None
-    for existing_info in get_downloaded_usd_info():
-        if existing_info["checksum"] != server_usd_info["checksum"]:
-            continue
-        found_root = existing_info["root"]
-        if os.path.exists(found_root):
-            root = found_root
-            break
+        ctl = config.get_global_lake_instance()
+        lake_fs_usd_lib_path = f"{config.get_addon_settings_value(config.get_addon_settings(),config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}"
 
-    _USDOptions.downloaded_root = root
-    return _USDOptions.downloaded_root
+        with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
+            addon_data_json = json.load(data_json)
+        try:
+            usd_lib_lake_fs_time_stamp_local = addon_data_json[
+                "usd_lib_lake_fs_time_cest"
+            ]
+        except KeyError:
+            return True
 
-
-def is_usd_download_needed(addon_settings=None):
-    """Check if is download needed.
-
-    Returns:
-        bool: Should be config downloaded.
-
-    """
-    if _USDOptions.download_needed is not None:
-        return _USDOptions.download_needed
-
-    if addon_settings is None:
-        addon_settings = get_addon_settings()
-    download_needed = False
-    if addon_settings["use_downloaded"]:
-        # Check what is required by server
-        usd_root = get_downloaded_usd_root()
-        download_needed = not bool(usd_root)
-
-    _USDOptions.download_needed = download_needed
-    return _USDOptions.download_needed
-
-
-def validate_file_checksum(filename: str, checksum: str, hash_function: str):
-    """Generate checksum for file based on hash function (MD5 or SHA256).
-
-    Args:
-        filename (str): Path to file that will have the checksum generated.
-        checksum (str): Checksum to compare with the generated checksum.
-        hash_function (str):  Hash function name - supports MD5 or SHA256
-
-    Returns:
-        bool: True if checksums match, False otherwise.
-
-    Raises:
-        Exception: Invalid hash function is entered.
-
-    """
-    hash_function = hash_function.lower()
-
-    with open(filename, "rb") as f:
-        data = f.read()  # read file as bytes
-        if hash_function == "md5":
-            readable_hash = hashlib.md5(data).hexdigest()
-        elif hash_function == "sha256":
-            readable_hash = hashlib.sha256(data).hexdigest()
-        else:
-            raise ValueError(
-                f"{hash_function} is an invalid hash function."
-                f"Please Enter MD5 or SHA256")
-
-    return readable_hash == checksum
-
-
-def extract_zip_file(zip_file_path: str, dest_dir: str):
-    """Extract a zip file to a destination directory.
-
-    Args:
-        zip_file_path (str): The path to the zip file.
-        dest_dir (str): The directory where the zip file should be extracted.
-
-    """
-    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-        zip_ref.extractall(dest_dir)
-
-
-def _download_file(file_info, dirpath, progress=None):
-    filename = file_info["filename"]
-    checksum = file_info["checksum"]
-    checksum_algorithm = file_info["checksum_algorithm"]
-
-    zip_filepath = ayon_api.download_addon_private_file(
-        ADDON_NAME,
-        ADDON_VERSION,
-        filename,
-        dirpath,
-        progress=progress
-    )
-
-    try:
-        if not validate_file_checksum(
-            zip_filepath, checksum, checksum_algorithm
+        if (
+            usd_lib_lake_fs_time_stamp_local
+            == ctl.get_element_info(lake_fs_usd_lib_path)["Modified Time"]
         ):
-            raise ValueError(
-                f"Downloaded file hash ({checksum_algorithm}) does not "
-                f"match expected hash for file '{filename}'."
-            )
-        extract_zip_file(zip_filepath, dirpath)
+            return False
 
-    finally:
-        os.remove(zip_filepath)
+    return True
 
 
-def download_usd(progress=None):
-    """Download usd from server.
+def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str) -> str:
+    """downloads an individual object based on the lake_fs_path and extracts the zip into the specific download_dir
 
-    Todo:
-        Add safeguard to avoid downloading of the file from multiple
-            processes at once.
+    Args
+        resolver_lake_fs_path ():
+        download_dir ():
 
-    Args:
-        progress (ayon_api.TransferProgress): Keep track about download.
+    Returns:
 
     """
-    dir_path = os.path.join(get_download_dir(), "ayon_usd")
+    controller = worker.Controller()
+    download_item = controller.construct_work_item(
+        func=config.get_global_lake_instance().clone_element,
+        args=[resolver_lake_fs_path, download_dir],
+    )
 
-    files_info = get_server_files_info()
-    file_info = _find_file_info("ayon_usd", files_info)
-    if file_info is None:
-        raise ValueError(f"Can't find USD binary zip for the platform '{platform.system()}'")
+    extract_zip_item = controller.construct_work_item(
+        func=zip.extract_zip_file,
+        args=[
+            download_item.connect_func_return,
+            download_dir,
+        ],
+        dependency_id=[download_item.get_uuid()],
+    )
 
-    _download_file(file_info, dir_path, progress=progress)
+    controller.start()
 
-    usd_info = get_downloaded_usd_info()
-    existing_item = next(
+    return str(extract_zip_item.func_return)
+
+
+@config.SingletonFuncCache.func_io_cache
+def get_resolver_to_download(settings, app_name: str) -> str:
+    """
+    Gets LakeFs path that can be used with copy element to download
+    specific resolver, this will prioritize `lake_fs_overrides` over
+    asset_resolvers entries.
+
+    Returns: str: LakeFs object path to be used with lake_fs_py wrapper
+
+    """
+    resolver_overwrite_list = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES
+    )
+
+    if resolver_overwrite_list:
+        resolver_overwrite = next(
+            (
+                item
+                for item in resolver_overwrite_list
+                if item["app_name"] == app_name
+                and item["platform"] == sys.platform.lower()
+            ),
+            None,
+        )
+        if resolver_overwrite:
+            return resolver_overwrite["lake_fs_path"]
+
+    resolver_list = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_ASSET_RESOLVERS
+    )
+    if not resolver_list:
+        return ""
+
+    resolver = next(
         (
             item
-            for item in usd_info
-            if item["root"] == dir_path
+            for item in resolver_list
+            if (item["name"] == app_name or app_name in item["app_alias_list"])
+            and item["platform"] == platform.system().lower()
         ),
-        None
+        None,
     )
-    if existing_item is None:
-        existing_item = {}
-        usd_info.append(existing_item)
-    existing_item.update({
-        "root": dir_path,
-        "checksum": file_info["checksum"],
-        "checksum_algorithm": file_info["checksum_algorithm"],
-        "downloaded": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    })
-    store_downloaded_usd_info(usd_info)
+    if not resolver:
+        return ""
 
-    _USDOptions.download_needed = False
-    _USDOptions.downloaded_root = NOT_SET
+    lake_base_path = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_LAKE_FS_REPO_URI
+    )
+    resolver_lake_path = lake_base_path + resolver["lake_fs_path"]
+    return resolver_lake_path
+
+
+@config.SingletonFuncCache.func_io_cache
+def get_resolver_setup_info(resolver_dir, settings, app_name: str, logger=None) -> dict:
+    pxr_plugin_paths = []
+    ld_path = []
+    python_path = []
+
+    if val := os.getenv("PXR_PLUGINPATH_NAME"):
+        pxr_plugin_paths.extend(val.split(os.pathsep))
+    if val := os.getenv("LD_LIBRARY_PATH"):
+        ld_path.extend(val.split(os.pathsep))
+    if val := os.getenv("PYTHONPATH"):
+        python_path.extend(val.split(os.pathsep))
+
+    resolver_plugin_info_path = os.path.join(
+        resolver_dir, "ayonUsdResolver", "resources", "plugInfo.json"
+    )
+    resolver_ld_path = os.path.join(resolver_dir, "ayonUsdResolver", "lib")
+    resolver_python_path = os.path.join(
+        resolver_dir, "ayonUsdResolver", "lib", "python"
+    )
+
+    if (
+        not os.path.exists(resolver_python_path)
+        or not os.path.exists(resolver_ld_path)
+        or not os.path.exists(resolver_python_path)
+    ):
+        raise RuntimeError(
+            f"Cant start Resolver missing path resolver_python_path: {resolver_python_path}, resolver_ld_path: {resolver_ld_path}, resolver_python_path: {resolver_python_path}"
+        )
+    pxr_plugin_paths.append(pathlib.Path(resolver_plugin_info_path).as_posix())
+    ld_path.append(pathlib.Path(resolver_ld_path).as_posix())
+    python_path.append(pathlib.Path(resolver_python_path).as_posix())
+
+    if logger:
+        logger.info(f"Asset resolver {app_name} initiated.")
+    resolver_setup_info_dict = {}
+    resolver_setup_info_dict["PXR_PLUGINPATH_NAME"] = os.pathsep.join(pxr_plugin_paths)
+    resolver_setup_info_dict["PYTHONPATH"] = os.pathsep.join(python_path)
+    if platform.system().lower() == "windows":
+        resolver_setup_info_dict["PATH"] = os.pathsep.join(ld_path)
+    else:
+        resolver_setup_info_dict["LD_LIBRARY_PATH"] = os.pathsep.join(ld_path)
+
+    resolver_setup_info_dict["TF_DEBUG"] = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_USD_TF_DEBUG
+    )
+
+    resolver_setup_info_dict["AYONLOGGERLOGLVL"] = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_LVL
+    )
+
+    resolver_setup_info_dict["AYONLOGGERSFILELOGGING"] = (
+        config.get_addon_settings_value(
+            settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_ENABLED
+        )
+    )
+
+    resolver_setup_info_dict["AYONLOGGERSFILEPOS"] = config.get_addon_settings_value(
+        settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_FILE_PATH
+    )
+
+    resolver_setup_info_dict["AYON_LOGGIN_LOGGIN_KEYS"] = (
+        config.get_addon_settings_value(
+            settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_LOGGIN_KEYS
+        )
+    )
+
+    return resolver_setup_info_dict
