@@ -132,46 +132,45 @@ def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, 
     if isinstance(layer_path, Ar.ResolvedPath):
         layer_path = layer_path.GetPathString()
 
-    identifier_to_path_dict = {}
+    identifier_to_path: Dict[str, str] = {}
 
-    resolved_layer_path = resolver.Resolve(layer_path)
-    layer = Sdf.Layer.FindOrOpen(resolved_layer_path)
-    identifier_to_path_dict[layer_path] = resolved_layer_path.GetPathString()
+    resolved_layer_path: Ar.ResolvedPath = resolver.Resolve(layer_path)
+    layer: Sdf.Layer = Sdf.Layer.FindOrOpen(resolved_layer_path)
+    identifier_to_path[layer_path] = resolved_layer_path.GetPathString()
 
-    prim_spec_file_paths = _get_prim_spec_hierarchy_external_refs(
+    prim_spec_file_paths: List[str] = _get_prim_spec_hierarchy_external_refs(
         layer.pseudoRoot, layer
     )
     for prim_spec in prim_spec_file_paths:
-        prim_spec = str(prim_spec)
         if "<UDIM>" in prim_spec:
 
             prim_spec = _remove_sdf_args(prim_spec)
             unresolved_udim_path = _Resolve(prim_spec, layer.realPath, resolver)
-            identifier_to_path_dict[prim_spec] = unresolved_udim_path.GetPathString()
+            identifier_to_path[prim_spec] = unresolved_udim_path.GetPathString()
 
             udim_data = _resolve_udim(prim_spec, layer)
-            identifier_to_path_dict.update(udim_data)
+            identifier_to_path.update(udim_data)
             continue
 
         prim_spec = _remove_sdf_args(prim_spec)
-        identifier_to_path_dict[prim_spec] = _Resolve(
+        identifier_to_path[prim_spec] = _Resolve(
             prim_spec, layer.realPath, resolver
-        )
-    asset_identifier_list = layer.GetCompositionAssetDependencies()
+        ).GetPathString()
+    asset_identifier_list: List[str] = layer.GetCompositionAssetDependencies()
 
     for ref in asset_identifier_list:
 
         resolved_path = _Resolve(ref, resolved_layer_path.GetPathString(), resolver)
 
         ref = _remove_sdf_args(ref)
-        identifier_to_path_dict[ref] = resolved_path.GetPathString()
+        identifier_to_path[ref] = resolved_path.GetPathString()
 
         recursive_result = get_asset_dependencies(
             resolved_path.GetPathString(), resolver
         )
-        identifier_to_path_dict.update(recursive_result)
+        identifier_to_path.update(recursive_result)
 
-    return identifier_to_path_dict
+    return identifier_to_path
 
 
 # this function would work but in some UsdLib versions it will output <UDIM> tag and in some versions it will resolve ot 1001-1100. This function also dose not handle UDIM resolution at the moment
