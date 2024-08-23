@@ -95,13 +95,12 @@ def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
         str(udim_identifier), layer
     )
 
-    for resolved_udim_path in resolved_udims:
+    for path, tile in resolved_udims:
         udim_replaced_identifier = udim_identifier.replace(
             "<UDIM>",
-            resolved_udim_path[1],
+            tile,
         )
-
-        udim_data[udim_replaced_identifier] = resolved_udim_path[0]
+        udim_data[udim_replaced_identifier] = path
     return udim_data
 
 
