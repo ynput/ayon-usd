@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import Dict, List
+from typing import Dict, List, Optional
 from pxr import UsdShade, Ar, Sdf
 from urllib.parse import urlparse
 
@@ -107,7 +107,7 @@ def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
 
 # TODO refactor so that this function has a gather block and a write block currently all individual blocks write to the identifier_to_path_dict and that makes sanitizing the data hard
 def get_asset_dependencies(
-    layer_path: str, resolver: Ar.Resolver, processed_layers: List[str] = []
+    layer_path: str, resolver: Ar.Resolver, processed_layers: Optional[List[str]] = None
 ) -> Dict[str, str]:
     """Return mapping from all used asset identifiers to the resolved filepaths.
 
@@ -130,9 +130,14 @@ def get_asset_dependencies(
 
     resolved_layer_path: Ar.ResolvedPath = resolver.Resolve(layer_path)
 
-    if resolved_layer_path.GetPathString() in processed_layers:
+    if not processed_layers:
+        processed_layers = [resolved_layer_path.GetPathString()]
+
+    elif resolved_layer_path.GetPathString() in processed_layers:
         return {}
-    processed_layers.append(resolved_layer_path.GetPathString())
+
+    else:
+        processed_layers.append(resolved_layer_path.GetPathString())
 
     layer: Sdf.Layer = Sdf.Layer.FindOrOpen(resolved_layer_path)
     identifier_to_path[layer_path] = resolved_layer_path.GetPathString()
@@ -169,7 +174,9 @@ def get_asset_dependencies(
         identifier_to_path[ref] = resolved_path.GetPathString()
 
         recursive_result = get_asset_dependencies(
-            resolved_path.GetPathString(), resolver
+            resolved_path.GetPathString(),
+            resolver,
+            processed_layers,
         )
         identifier_to_path.update(recursive_result)
 
