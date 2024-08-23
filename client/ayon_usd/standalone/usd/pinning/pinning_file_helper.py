@@ -91,17 +91,16 @@ def _remove_sdf_args(ref: str) -> str:
 
 def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
     udim_data = {}
-    udim_regx = re.compile(r"<UDIM>")
     resolved_udims = UsdShade.UdimUtils.ResolveUdimTilePaths(
         str(udim_identifier), layer
     )
 
     for resolved_udim_path in resolved_udims:
-        udim_replaced_identifier = re.sub(
-            udim_regx,
+        udim_replaced_identifier = udim_identifier.replace(
+            "<UDIM>",
             resolved_udim_path[1],
-            udim_identifier,
         )
+
         udim_data[udim_replaced_identifier] = resolved_udim_path[0]
     return udim_data
 
@@ -109,7 +108,7 @@ def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
 # TODO refactor so that this function has a gather block and a write block currently all individual blocks write to the identifier_to_path_dict and that makes sanitizing the data hard
 def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, str]:
     """Return mapping from all used asset identifiers to the resolved filepaths.
-    
+
     Recursively traverse `Sdf.Layer` and get all their asset dependencies.
     For each asset identifier map it to its resolved filepath.
 
@@ -236,11 +235,11 @@ def write_pinning_file(
     """
     # data validation
     if not isinstance(pinning_data, dict):
-        print(f"pinning data is not a dict")
+        print("pinning data is not a dict")
         return False
 
     if not output_path.endswith(".json"):
-        print(f"output_path is not a json")
+        print("output_path is not a json")
         return False
 
     # file creatoin
