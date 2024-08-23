@@ -14,8 +14,6 @@ from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 
-USD_ADDON_ROOT = os.path.dirname(os.path.abspath(__file__))
-
 
 class USDAddon(AYONAddon, ITrayAddon):
     """Addon to add USD Support to AYON.
