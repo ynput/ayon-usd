@@ -77,7 +77,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
             .get("Modified Time")
         )
         if not usd_lib_lake_fs_time_cest:
-            raise ValueError(f"could not find UsdLib time stamp on LakeFs server")
+            raise ValueError("could not find UsdLib time stamp on LakeFs server")
 
         with open(config.ADDON_DATA_JSON_PATH, "r+") as data_json:
             addon_data_json = json.load(data_json)
