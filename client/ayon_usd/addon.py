@@ -143,13 +143,5 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
         return {}
 
     def get_publish_plugin_paths(self, host_name=None):
-        publish_dir = os.path.join(USD_ADDON_ROOT, "plugins", "publish")
-        paths = [os.path.join(publish_dir, "global")]
-        if not host_name:
-            return paths
 
-        host_publish_path = os.path.join(publish_dir, host_name)
-        if os.path.exists(host_publish_path):
-            paths.append(host_publish_path)
-
-        return paths
+        return []
