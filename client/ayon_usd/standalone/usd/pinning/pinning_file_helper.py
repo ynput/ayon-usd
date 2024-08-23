@@ -145,24 +145,17 @@ def get_asset_dependencies(
     prim_spec_file_paths: List[str] = _get_prim_spec_hierarchy_external_refs(
         layer.pseudoRoot, layer
     )
-    for prim_spec in prim_spec_file_paths:
-        if "<UDIM>" in prim_spec:
-
-            prim_spec = _remove_sdf_args(prim_spec)
-            unresolved_udim_path = resolver.Resolve(
-                layer.ComputeAbsolutePath(prim_spec)
-            )
-            identifier_to_path[prim_spec] = unresolved_udim_path.GetPathString()
-
-            udim_data = _resolve_udim(prim_spec, layer)
+    for identifier in prim_spec_file_paths:
+        identifier = _remove_sdf_args(identifier)
+        resolved_path = resolver.Resolve(
+            layer.ComputeAbsolutePath(identifier)
+        )
+        identifier_to_path[identifier] = resolved_path.GetPathString()
+        
+        if "<UDIM>" in filepath:
+            # Include all tiles/paths of the UDIM
+            udim_data = _resolve_udim(identifier, layer)
             identifier_to_path.update(udim_data)
-            continue
-
-        prim_spec = _remove_sdf_args(prim_spec)
-
-        identifier_to_path[prim_spec] = resolver.Resolve(
-            layer.ComputeAbsolutePath(prim_spec)
-        ).GetPathString()
 
     asset_identifier_list: List[str] = layer.GetCompositionAssetDependencies()
 
