@@ -57,6 +57,6 @@ same.\
 :::
 it is generally advised to use an URI as they will never have any system
 specific data in them.\
-The generated pinning file also has a key that will tell you what entry point as
-used to generate the pinning file. you can simply read out this key and use it
-to open a stage with the pinning file `ayon_pinning_data_entry_sceene`
+The generated pinning file also has a key that will tell you what entry point was
+used to generate the pinning file. You can simply read out this key and use it
+to open a stage with the pinning file `ayon_pinning_data_entry_scene`.
