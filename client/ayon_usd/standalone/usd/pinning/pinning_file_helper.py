@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import Dict, List, Any
+from typing import Dict, List
 from pxr import UsdShade, Ar, Sdf
 from urllib.parse import urlparse
 
@@ -89,16 +89,6 @@ def _remove_sdf_args(ref: str) -> str:
     return uri
 
 
-def _Resolve(ref: str, layer_path: str, resolver: Ar.Resolver) -> Ar.ResolvedPath:
-    if os.path.isabs(ref) or is_uri(ref):
-        resolved_path = resolver.Resolve(ref)
-    else:
-        parent_file_dir_name = os.path.dirname(layer_path)
-        abs_path = os.path.normpath(os.path.join(parent_file_dir_name, ref))
-        resolved_path = resolver.Resolve(abs_path)
-    return resolved_path
-
-
 def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
     udim_data = {}
     udim_regx = re.compile(r"<UDIM>")
@@ -148,7 +138,9 @@ def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, 
         if "<UDIM>" in prim_spec:
 
             prim_spec = _remove_sdf_args(prim_spec)
-            unresolved_udim_path = _Resolve(prim_spec, layer.realPath, resolver)
+            unresolved_udim_path = resolver.Resolve(
+                layer.ComputeAbsolutePath(prim_spec)
+            )
             identifier_to_path[prim_spec] = unresolved_udim_path.GetPathString()
 
             udim_data = _resolve_udim(prim_spec, layer)
@@ -156,14 +148,16 @@ def get_asset_dependencies(layer_path: str, resolver: Ar.Resolver) -> Dict[str, 
             continue
 
         prim_spec = _remove_sdf_args(prim_spec)
-        identifier_to_path[prim_spec] = _Resolve(
-            prim_spec, layer.realPath, resolver
+
+        identifier_to_path[prim_spec] = resolver.Resolve(
+            layer.ComputeAbsolutePath(prim_spec)
         ).GetPathString()
+
     asset_identifier_list: List[str] = layer.GetCompositionAssetDependencies()
 
     for ref in asset_identifier_list:
 
-        resolved_path = _Resolve(ref, resolved_layer_path.GetPathString(), resolver)
+        resolved_path = resolver.Resolve(layer.ComputeAbsolutePath(ref))
 
         ref = _remove_sdf_args(ref)
         identifier_to_path[ref] = resolved_path.GetPathString()
