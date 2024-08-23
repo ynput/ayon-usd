@@ -147,12 +147,11 @@ def get_asset_dependencies(
     )
     for identifier in prim_spec_file_paths:
         identifier = _remove_sdf_args(identifier)
-        resolved_path = resolver.Resolve(
-            layer.ComputeAbsolutePath(identifier)
-        )
-        identifier_to_path[identifier] = resolved_path.GetPathString()
-        
-        if "<UDIM>" in filepath:
+        resolved_path = resolver.Resolve(layer.ComputeAbsolutePath(identifier))
+        resolved_path_str = resolved_path.GetPathString()
+        identifier_to_path[identifier] = resolved_path_str
+
+        if "<UDIM>" in resolved_path_str:
             # Include all tiles/paths of the UDIM
             udim_data = _resolve_udim(identifier, layer)
             identifier_to_path.update(udim_data)
