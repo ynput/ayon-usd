@@ -253,7 +253,6 @@ def write_pinning_file(
         overwrite_ok (bool): Whether to overwrite the pinning file if it already
             exists.
 
-
     Raises:
         TypeError: raised if pinning_data is not a dict or output_path is not a JSON
         FileExistsError: raised if output_path exists and overwrite_ok is False
