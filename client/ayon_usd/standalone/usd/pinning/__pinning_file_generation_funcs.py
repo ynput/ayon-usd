@@ -58,7 +58,7 @@ def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
         prim: Sdf.PrimSpec to get data from
         layer: Sdf.Layer parent layer of the Sdf.PrimSpec instance
 
-    Returns:
+    Returns: flat list of AttributeSpec values
 
     """
     prop_data = []
@@ -79,7 +79,11 @@ def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
             time_samples = layer.ListTimeSamplesForPath(prop.path)
             for time in time_samples:
                 value = layer.QueryTimeSample(prop.path, time)
-                prop_data.append(value.path)
+                if value:
+                    if hasattr(value, "__iter__"):
+                        prop_data.extend(value)
+                    else:
+                        prop_data.append(value.path)
 
     return prop_data
 
@@ -91,6 +95,7 @@ def _get_prim_spec_hierarchy_external_refs(
 
     for child_prim in prim.nameChildren:
         file_list.extend(_get_prim_spec_hierarchy_external_refs(child_prim, layer))
+    print(file_list)
     return file_list
 
 
