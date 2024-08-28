@@ -52,7 +52,7 @@ def remove_root_from_dependency_info(
 
 
 def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
-    """get all Sdf.AttributeSpec data including time sample data fomr a given Sdf.PrimSpec
+    """get all Sdf.AttributeSpec data including time sample data from a given Sdf.PrimSpec
 
     Args:
         prim: Sdf.PrimSpec to get data from
