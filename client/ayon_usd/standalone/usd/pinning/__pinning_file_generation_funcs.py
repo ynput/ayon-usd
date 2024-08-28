@@ -21,7 +21,7 @@ def remove_root_from_dependency_info(
         root_info: a flat dict containing str: root identifier {root[work]}, str: associated root path /path/to/root.
         can be optained from Ayon server `Get Project Roots Overrides`
 
-    Returns: a dependency_info dict that holds key: Usd assetIdentifiers val: rootles paths as they would be returned
+    Returns: a dependency_info dict that holds key: Usd assetIdentifiers val: rootless paths as they would be returned
     from Ayon server /resolve endpoint ('Resolve Uris' in the server Docs).
     """
 
