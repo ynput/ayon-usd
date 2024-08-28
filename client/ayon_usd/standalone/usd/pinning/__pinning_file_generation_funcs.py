@@ -226,7 +226,7 @@ def write_pinning_file(
     pinning_data: Dict[str, str],
     create_missing_dirs: bool = True,
     overwrite_ok: bool = True,
-) -> bool:
+):
     """writes out a pinning file to disk in the appropriate format
 
     Args:
@@ -235,22 +235,22 @@ def write_pinning_file(
         create_missing_dirs: bool
         overwrite_ok: bool
 
-    Returns: bool Ture on successful write
 
+    Raises:
+        TypeError: raised if pinning_data is not a dict or output_path is not a JSON
+        FileExistsError: raised if output_path exists and overwrite_ok is False
     """
+
     # data validation
     if not isinstance(pinning_data, dict):
-        print("pinning data is not a dict")
-        return False
+        raise TypeError("pinning data is not a dict")
 
     if not output_path.endswith(".json"):
-        print("output_path is not a json")
-        return False
+        raise TypeError("output_path is not a json")
 
     # file creatoin
     if os.path.exists(output_path) and not overwrite_ok:
-        print(f"Destination filepath already exists: {output_path}")
-        return False
+        raise FileExistsError(f"Destination filepath already exists: {output_path}")
 
     if create_missing_dirs:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -259,7 +259,6 @@ def write_pinning_file(
 
         write_data = {"ayon_resolver_pinning_data": pinning_data}
         json.dump(write_data, pinning_file, indent=2)
-    return True
 
 
 def generate_pinning_file(
