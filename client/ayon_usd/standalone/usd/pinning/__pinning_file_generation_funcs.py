@@ -265,7 +265,7 @@ def write_pinning_file(
     if not output_path.endswith(".json"):
         raise TypeError("output_path is not a json")
 
-    # file creatoin
+    # file creation
     if os.path.exists(output_path) and not overwrite_ok:
         raise FileExistsError(f"Destination filepath already exists: {output_path}")
 
