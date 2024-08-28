@@ -297,6 +297,6 @@ def generate_pinning_file(
         entry_usd
     )
     write_pinning_file(
-        os.path.join(pinning_file_path),
+        pinning_file_path,
         root_less_pinning_file_data,
     )
