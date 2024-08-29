@@ -26,29 +26,31 @@ def remove_root_from_dependency_info(
     """
 
     if not root_info or not dependency_info:
-        return {}
+        raise ValueError(
+            f"both root_info and dependency_info need to be present and an instance of Dict (root_info: {root_info}, dependency_info: {dependency_info})"
+        )
 
-    replacements = {
-        re.escape(path_portion): replacer
-        for replacer, path_portion in root_info.items()
-    }
+    replacements = {path: replacer for replacer, path in root_info.items()}
 
-    pattern = re.compile("|".join(f"({pat})" for pat in replacements))
+    pattern = "|".join(f"({pat})" for pat in replacements)
+    regx = re.compile(pattern)
 
+    # TODO test if there are possibility's where we have more than one match.group
     def _replace_match(match: re.Match):
-        for _, group in enumerate(match.groups(), start=1):
-            if group:
-                replacment = "{root[" + replacements[re.escape(group)] + "]}"
-                return replacment
-        return match.group(0)
+        match_grp_zero = match.group(0)
+        match_replacment = replacements.get(re.escape(match_grp_zero))
+        if not match_replacment:
+            return match_grp_zero
 
-    root_less_dict = {}
+        replacment = "{root[" + match_replacment + "]}"
+        return replacment
 
+    rootless_dependency_info = {}
     for key, path in dependency_info.items():
-        new_path = pattern.sub(_replace_match, path)
-        root_less_dict[key] = new_path
+        new_path = regx.sub(_replace_match, path)
+        rootless_dependency_info[key] = new_path
 
-    return root_less_dict
+    return rootless_dependency_info
 
 
 def _get_prim_prop_data(prim: Sdf.PrimSpec, layer: Sdf.Layer) -> List[str]:
@@ -175,10 +177,11 @@ def get_asset_dependencies(
         resolved_path = resolver.Resolve(layer.ComputeAbsolutePath(ref))
 
         ref = _remove_sdf_args(ref)
-        identifier_to_path[ref] = resolved_path.GetPathString()
+        resolved_path_str = resolved_path.GetPathString()
+        identifier_to_path[ref] = resolved_path_str
 
         recursive_result = get_asset_dependencies(
-            resolved_path.GetPathString(),
+            resolved_path_str,
             resolver,
             processed_layers,
         )

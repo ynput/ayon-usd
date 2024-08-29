@@ -47,16 +47,15 @@ root_info = ayon_api.get_project_roots_for_site(os.environ.get("AYON_PROJECT_NAM
 pinning_file_helper.generate_pinning_file(in_usd_file, root_info, "/path/to/output_file.json")
 ```
 
-:::warning USD file entrypoint URI versus filepath
-The `in_usd_file` can be anything that the AyonUsdResolver can resolve, including
-an AYON URI. However, it is important to know that whatever you use as the input must be
-the input when you load the usd.\
+:::warning USD file entrypoint URI versus filepath The `in_usd_file` can be
+anything that the AyonUsdResolver can resolve, including an AYON URI. However,
+it is important to know that whatever you use as the input must be the input
+when you load the usd.\
 In other words: if you use an URI to generate the pinning file you need to open
-the stage with the same URI, whereas if you use an file path you will need to do the
-same.\
-:::
-it is generally advised to use an URI as they will never have any system
+the stage with the same URI, whereas if you use an file path you will need to do
+the same.\
+::: it is generally advised to use an URI as they will never have any system
 specific data in them.\
-The generated pinning file also has a key that will tell you what entry point was
-used to generate the pinning file. You can simply read out this key and use it
-to open a stage with the pinning file `ayon_pinning_data_entry_scene`.
+The generated pinning file also has a key that will tell you what entry point
+was used to generate the pinning file. You can simply read out this key and use
+it to open a stage with the pinning file `ayon_pinning_data_entry_scene`.
