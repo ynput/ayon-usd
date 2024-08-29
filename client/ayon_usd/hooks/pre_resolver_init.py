@@ -16,7 +16,9 @@ class InitializeAssetResolver(PreLaunchHook):
     launch_types = {LaunchTypes.local}
 
     def _setup_resolver(self, local_resolver, settings):
-        self.log.info(f"Initializing USD asset resolver for application: {self.app_name}")
+        self.log.info(
+            f"Initializing USD asset resolver for application: {self.app_name}"
+        )
         env_var_dict = utils.get_resolver_setup_info(
             local_resolver, settings, self.app_name, self.log
         )
@@ -48,10 +50,14 @@ class InitializeAssetResolver(PreLaunchHook):
             local_resolver_data = None
 
         lake_fs_resolver_time_stamp = (
-            config.get_global_lake_instance().get_element_info(resolver_lake_fs_path)[
-                "Modified Time"
-            ]
+            config.get_global_lake_instance()
+            .get_element_info(resolver_lake_fs_path)
+            .get("Modified Time")
         )
+        if not lake_fs_resolver_time_stamp:
+            raise ValueError(
+                f"could not find resolver time stamp on LakeFs server for {self.app_name}"
+            )
 
         if (
             local_resolver_data
