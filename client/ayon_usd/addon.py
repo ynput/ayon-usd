@@ -7,8 +7,10 @@ from datetime import datetime, timezone
 from ayon_core.addon import AYONAddon, ITrayAddon
 
 from ayon_core import style
+from ayon_core.settings import get_studio_settings
 
 from . import config, utils
+from .version import __version__
 
 from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
@@ -24,8 +26,8 @@ class USDAddon(AYONAddon, ITrayAddon):
     Cares about supplying USD Framework.
     """
 
-    name = config.ADDON_NAME
-    version = config.ADDON_VERSION
+    name = "ayon_usd"
+    version = __version__
     _download_window = None
 
     def tray_init(self):
@@ -36,7 +38,11 @@ class USDAddon(AYONAddon, ITrayAddon):
         """Initialize USD Addon."""
         if not module_settings["ayon_usd"]["allow_addon_start"]:
             raise SystemError(
-                "The experimental AyonUsd addon is currently activated, but you haven't yet acknowledged the user agreement indicating your understanding that this feature is experimental. Please go to the Studio settings and check the agreement checkbox."
+                "The experimental AyonUsd addon is currently activated, "
+                "but you haven't yet acknowledged the user agreement "
+                "indicating your understanding that this feature is "
+                "experimental. Please go to the Studio Settings and "
+                "check the agreement checkbox."
             )
         self.enabled = True
         self._download_window = None
@@ -46,52 +52,57 @@ class USDAddon(AYONAddon, ITrayAddon):
 
         Download USD if needed.
         """
-        super(USDAddon, self).tray_start()
 
-        if not os.path.exists(config.DOWNLOAD_DIR):
-            os.makedirs(config.DOWNLOAD_DIR, exist_ok=True)
-        if os.path.exists(str(config.DOWNLOAD_DIR) + ".zip"):
-            os.remove(str(config.DOWNLOAD_DIR) + ".zip")
+        download_dir = str(config.DOWNLOAD_DIR)
+        os.makedirs(download_dir, exist_ok=True)
+
+        if os.path.exists(download_dir + ".zip"):
+            os.remove(download_dir + ".zip")
+
         if not os.path.exists(config.ADDON_DATA_JSON_PATH):
-            with open(config.ADDON_DATA_JSON_PATH, "w+") as data_json:
-                init_data = {}
-                init_data["ayon_usd_addon_first_init_utc"] = str(
-                    datetime.now().astimezone(timezone.utc)
-                )
-                json.dump(
-                    init_data,
-                    data_json,
-                )
+            now = datetime.now().astimezone(timezone.utc)
+            with open(config.ADDON_DATA_JSON_PATH, "w+") as json_file:
+                init_data = {
+                    "ayon_usd_addon_first_init_utc": str(now)
+                }
+                json.dump(init_data, json_file)
 
-        if not utils.is_usd_lib_download_needed():
+        settings = get_studio_settings()
+        lake_fs_repo_uri = settings["ayon_usd"]["lake_fs"]["server_repo"]
+        if not utils.is_usd_lib_download_needed(lake_fs_repo_uri):
             print("usd is already downloaded")
             return
 
-        lake_fs_usd_lib_path = f"{config.get_addon_settings_value(config.get_addon_settings(),config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}"
+        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
 
+        # Get modified time on LakeFS
+        lake_fs = config.get_global_lake_instance()
         usd_lib_lake_fs_time_cest = (
-            config.get_global_lake_instance()
+            lake_fs
             .get_element_info(lake_fs_usd_lib_path)
             .get("Modified Time")
         )
         if not usd_lib_lake_fs_time_cest:
-            raise ValueError(f"could not find UsdLib time stamp on LakeFs server")
+            raise ValueError(
+                "Unable to find UsdLib date modified timestamp on "
+                f"LakeFs server: {lake_fs_usd_lib_path}"
+            )
 
-        with open(config.ADDON_DATA_JSON_PATH, "r+") as data_json:
-            addon_data_json = json.load(data_json)
+        with open(config.ADDON_DATA_JSON_PATH, "r+") as json_file:
+            addon_data_json = json.load(json_file)
             addon_data_json["usd_lib_lake_fs_time_cest"] = usd_lib_lake_fs_time_cest
 
-            data_json.seek(0)
+            json_file.seek(0)
             json.dump(
                 addon_data_json,
-                data_json,
+                json_file,
             )
-            data_json.truncate()
+            json_file.truncate()
 
         controller = worker.Controller()
 
         usd_download_work_item = controller.construct_work_item(
-            func=config.get_global_lake_instance().clone_element,
+            func=lake_fs.clone_element,
             kwargs={
                 "lake_fs_object_uir": lake_fs_usd_lib_path,
                 "dist_path": config.DOWNLOAD_DIR,
@@ -99,11 +110,16 @@ class USDAddon(AYONAddon, ITrayAddon):
             progress_title="Download UsdLib",
         )
 
+        usd_zip_path = os.path.join(
+            config.DOWNLOAD_DIR,
+            os.path.basename(config.get_lakefs_usdlib_path(settings))
+        )
+        usd_lib_path = os.path.splitext(usd_zip_path)[0]
         controller.construct_work_item(
             func=zip.extract_zip_file,
             kwargs={
-                "zip_file_path": config.USD_ZIP_PATH,
-                "dest_dir": config.USD_LIB_PATH,
+                "zip_file_path": usd_zip_path,
+                "dest_dir": usd_lib_path,
             },
             progress_title="Unzip UsdLib",
             dependency_id=[usd_download_work_item.get_uuid()],
@@ -114,7 +130,7 @@ class USDAddon(AYONAddon, ITrayAddon):
             close_on_finish=True,
             auto_close_timeout=1,
             delet_progress_bar_on_finish=False,
-            title=f"{config.ADDON_NAME}-Addon [UsdLib Download]",
+            title=f"ayon_usd-Addon [UsdLib Download]",
         )
         download_ui.setStyleSheet(style.load_stylesheet())
         download_ui.start()

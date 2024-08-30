@@ -5,8 +5,8 @@
 > LakeFs keys (LakeFs is the data server we use to distribute Bin data) you can
 > get those Keys on our Discord server just ask one of the Ynput staff for them.
 > the settings are the following:
-> `ayon+settings://ayon_usd/LakeFs_Settings/access_key_id` and
-> `ayon+settings://ayon_usd/LakeFs_Settings/secret_access_key`
+> `ayon+settings://ayon_usd/lakefs/access_key_id` and
+> `ayon+settings://ayon_usd/lakefs/secret_access_key`
 
 USD is a modern, open-source, scene description and file format developed by
 Pixar Animation Studios. Its an Extensive and extendable C++Lib that is used in
@@ -41,22 +41,22 @@ need to touch them tho.
 
 #### LakeFs Config
 
-**LakeFs Settings:** `ayon+settings://ayon_usd/LakeFs_Settings`\
+**LakeFs Settings:** `ayon+settings://ayon_usd/lakefs`\
 LakeFs is the backend of our bin distribution system the addon will use the
 specified server to download the resolvers and AyonUsdLibs from LakeFs.
 
 **LakeFs Server Uri:**
-`ayon+settings://ayon_usd/LakeFs_Settings/ayon_usd_lake_fs_server_repo`\
+`ayon+settings://ayon_usd/lakefs/server_repo`\
 this is the Uri used to host the LakeFs server. the Ynput server can be found at
 `https://lake.ayon.cloud`
 
 **LakeFs Repository Uri:**
-`ayon+settings://ayon_usd/LakeFs_Settings/ayon_usd_lake_fs_server_repo`\
+`ayon+settings://ayon_usd/lakefs/server_repo`\
 this is a LakeFs internal link that also specifies the branch your downloading
 from.\
 this can be great if you want to pin your pipeline to a specific release.
 
-**Asset Resolvers:** `ayon+settings://ayon_usd/LakeFs_Settings/asset_resolvers`\
+**Asset Resolvers:** `ayon+settings://ayon_usd/lakefs/asset_resolvers`\
 allows you to associate a specific Application name with a specific resolver.\
 we always setup all the resolvers we compile but if you have special App_Names
 in your Applications then you might want to add an App Alias.\
@@ -88,9 +88,9 @@ path to a folder.
 
 #### UsdLib Config:
 
-`ayon+settings://ayon_usd/Usd_Settings`
+`ayon+settings://ayon_usd/usd`
 
-**Tf_Debug** `ayon+settings://ayon_usd/Usd_Settings/usd_tf_debug`\
+**Tf_Debug** `ayon+settings://ayon_usd/usd/usd_tf_debug`\
 this allows you to set the UsdTfDebug env variable to get extra debug info from
 the UsdLib.\
 [Usd Survival Guide (Luca Sheller)](https://lucascheller.github.io/VFX-UsdSurvivalGuide/core/profiling/debug.html)\

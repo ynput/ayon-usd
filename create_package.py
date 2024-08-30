@@ -52,7 +52,6 @@ CLIENT_ROOT: str = os.path.join(CURRENT_ROOT, "client")
 
 VERSION_PY_CONTENT = f'''# -*- coding: utf-8 -*-
 """Package declaring AYON addon '{ADDON_NAME}' version."""
-name = "{ADDON_NAME}"
 __version__ = "{ADDON_VERSION}"
 '''
 

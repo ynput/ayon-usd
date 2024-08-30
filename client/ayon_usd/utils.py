@@ -6,20 +6,9 @@ import platform
 import pathlib
 import sys
 
-import ayon_api
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 from ayon_usd import config
-
-
-def get_addon_settings() -> dict:
-    """Get addon settings.
-
-    Return:
-        dict: Addon settings.
-
-    """
-    return ayon_api.get_addon_settings(config.ADDON_NAME, config.ADDON_VERSION)
 
 
 def get_download_dir(create_if_missing=True):
@@ -37,54 +26,50 @@ def get_download_dir(create_if_missing=True):
     return config.DOWNLOAD_DIR
 
 
-@config.SingletonFuncCache.func_io_cache
-def get_downloaded_usd_root() -> str:
+def get_downloaded_usd_root(lake_fs_repo_uri) -> str:
     """Get downloaded USDLib os local root path."""
-    target_usd_lib = config.get_usd_lib_conf_from_lakefs()
-    usd_lib_local_path = os.path.join(
-        config.DOWNLOAD_DIR,
-        os.path.basename(target_usd_lib).replace(
-            f".{target_usd_lib.split('.')[-1]}", ""
-        ),
-    )
-    return usd_lib_local_path
+    target_usd_lib = config.get_usd_lib_conf_from_lakefs(lake_fs_repo_uri)
+    filename_no_ext = os.path.splitext(os.path.basename(target_usd_lib))[0]
+    return os.path.join(config.DOWNLOAD_DIR, filename_no_ext)
 
 
-def is_usd_lib_download_needed() -> bool:
+def is_usd_lib_download_needed(lake_fs_repo_uri: str) -> bool:
     # TODO redocument
 
-    usd_lib_dir = os.path.abspath(get_downloaded_usd_root())
-    if os.path.exists(usd_lib_dir):
+    usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo_uri))
+    if not os.path.exists(usd_lib_dir):
+        return True
 
-        ctl = config.get_global_lake_instance()
-        lake_fs_usd_lib_path = f"{config.get_addon_settings_value(config.get_addon_settings(),config.ADDON_SETTINGS_LAKE_FS_REPO_URI)}{config.get_usd_lib_conf_from_lakefs()}"
+    with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
+        addon_data_json = json.load(data_json)
+    try:
+        usd_lib_lake_fs_time_stamp_local = addon_data_json[
+            "usd_lib_lake_fs_time_cest"
+        ]
+    except KeyError:
+        return True
 
-        with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
-            addon_data_json = json.load(data_json)
-        try:
-            usd_lib_lake_fs_time_stamp_local = addon_data_json[
-                "usd_lib_lake_fs_time_cest"
-            ]
-        except KeyError:
-            return True
-
-        if (
-            usd_lib_lake_fs_time_stamp_local
-            == ctl.get_element_info(lake_fs_usd_lib_path)["Modified Time"]
-        ):
-            return False
-
-    return True
+    lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
+    ctl = config.get_global_lake_instance()
+    if (
+        usd_lib_lake_fs_time_stamp_local
+        != ctl.get_element_info(lake_fs_usd_lib_path)["Modified Time"]
+    ):
+        return True
+    return False
 
 
-def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str) -> str:
-    """downloads an individual object based on the lake_fs_path and extracts the zip into the specific download_dir
+def lakefs_download_and_extract(resolver_lake_fs_path: str,
+                                download_dir: str) -> str:
+    """Download individual object based on the lake_fs_path and extracts
+    the zip into the specific download_dir.
 
     Args
-        resolver_lake_fs_path ():
-        download_dir ():
+        resolver_lake_fs_path (str): Lake FS Path for the resolver
+        download_dir (str): Directory to download and unzip to.
 
     Returns:
+        str: Result from the ZIP file extraction.
 
     """
     controller = worker.Controller()
@@ -107,7 +92,6 @@ def download_and_extract_resolver(resolver_lake_fs_path: str, download_dir: str)
     return str(extract_zip_item.func_return)
 
 
-@config.SingletonFuncCache.func_io_cache
 def get_resolver_to_download(settings, app_name: str) -> str:
     """
     Gets LakeFs path that can be used with copy element to download
@@ -117,10 +101,8 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
     """
-    resolver_overwrite_list = config.get_addon_settings_value(
-        settings, config.ADDON_SETTINGS_ASSET_RESOLVERS_OVERWRITES
-    )
-
+    lakefs = settings["ayon_usd"]["lakefs"]
+    resolver_overwrite_list = lakefs["lake_fs_overrides"]
     if resolver_overwrite_list:
         resolver_overwrite = next(
             (
@@ -134,9 +116,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
         if resolver_overwrite:
             return resolver_overwrite["lake_fs_path"]
 
-    resolver_list = config.get_addon_settings_value(
-        settings, config.ADDON_SETTINGS_ASSET_RESOLVERS
-    )
+    resolver_list = lakefs["asset_resolvers"]
     if not resolver_list:
         return ""
 
@@ -152,78 +132,60 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     if not resolver:
         return ""
 
-    lake_base_path = config.get_addon_settings_value(
-        settings, config.ADDON_SETTINGS_LAKE_FS_REPO_URI
-    )
-    resolver_lake_path = lake_base_path + resolver["lake_fs_path"]
+    lake_fs_repo_uri = lakefs["server_repo"]
+    resolver_lake_path = lake_fs_repo_uri + resolver["lake_fs_path"]
     return resolver_lake_path
 
 
-@config.SingletonFuncCache.func_io_cache
-def get_resolver_setup_info(resolver_dir, settings, app_name: str, logger=None) -> dict:
-    pxr_plugin_paths = []
-    ld_path = []
-    python_path = []
-
-    if val := os.getenv("PXR_PLUGINPATH_NAME"):
-        pxr_plugin_paths.extend(val.split(os.pathsep))
-    if val := os.getenv("LD_LIBRARY_PATH"):
-        ld_path.extend(val.split(os.pathsep))
-    if val := os.getenv("PYTHONPATH"):
-        python_path.extend(val.split(os.pathsep))
-
-    resolver_plugin_info_path = os.path.join(
-        resolver_dir, "ayonUsdResolver", "resources", "plugInfo.json"
-    )
-    resolver_ld_path = os.path.join(resolver_dir, "ayonUsdResolver", "lib")
-    resolver_python_path = os.path.join(
-        resolver_dir, "ayonUsdResolver", "lib", "python"
-    )
+def get_resolver_setup_info(
+        resolver_dir,
+        settings: dict,
+        env: dict = None) -> dict:
+    
+    resolver_root = pathlib.Path(resolver_dir) / "ayonUsdResolver"
+    resolver_plugin_info_path = resolver_root / "resources" / "plugInfo.json"
+    resolver_ld_path = resolver_root / "lib"
+    resolver_python_path = resolver_root / "lib" / "python"
 
     if (
         not os.path.exists(resolver_python_path)
         or not os.path.exists(resolver_ld_path)
-        or not os.path.exists(resolver_python_path)
     ):
         raise RuntimeError(
-            f"Cant start Resolver missing path resolver_python_path: {resolver_python_path}, resolver_ld_path: {resolver_ld_path}, resolver_python_path: {resolver_python_path}"
+            f"Cant start Resolver missing path "
+            f"resolver_python_path: {resolver_python_path}, "
+            f"resolver_ld_path: {resolver_ld_path}"
         )
-    pxr_plugin_paths.append(pathlib.Path(resolver_plugin_info_path).as_posix())
-    ld_path.append(pathlib.Path(resolver_ld_path).as_posix())
-    python_path.append(pathlib.Path(resolver_python_path).as_posix())
 
-    if logger:
-        logger.info(f"Asset resolver {app_name} initiated.")
-    resolver_setup_info_dict = {}
-    resolver_setup_info_dict["PXR_PLUGINPATH_NAME"] = os.pathsep.join(pxr_plugin_paths)
-    resolver_setup_info_dict["PYTHONPATH"] = os.pathsep.join(python_path)
+    def _append(_env: dict, key: str, path: str):
+        """Add path to key in env"""
+        current: str = _env.get(key)
+        if current:
+            return os.pathsep.join([current, path])
+        return path
+
+    ld_path_key = "LD_LIBRARY_PATH"
     if platform.system().lower() == "windows":
-        resolver_setup_info_dict["PATH"] = os.pathsep.join(ld_path)
-    else:
-        resolver_setup_info_dict["LD_LIBRARY_PATH"] = os.pathsep.join(ld_path)
+        ld_path_key = "PATH"
 
-    resolver_setup_info_dict["TF_DEBUG"] = config.get_addon_settings_value(
-        settings, config.ADDON_SETTINGS_USD_TF_DEBUG
+    pxr_pluginpath_name = _append(
+        env, "PXR_PLUGINPATH_NAME", resolver_plugin_info_path.as_posix()
+    )
+    ld_library_path = _append(
+        env, ld_path_key, resolver_ld_path.as_posix()
+    )
+    python_path = _append(
+        env, "PYTHONPATH", resolver_python_path.as_posix()
     )
 
-    resolver_setup_info_dict["AYONLOGGERLOGLVL"] = config.get_addon_settings_value(
-        settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_LVL
-    )
-
-    resolver_setup_info_dict["AYONLOGGERSFILELOGGING"] = (
-        config.get_addon_settings_value(
-            settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_ENABLED
-        )
-    )
-
-    resolver_setup_info_dict["AYONLOGGERSFILEPOS"] = config.get_addon_settings_value(
-        settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_FILLE_LOOGER_FILE_PATH
-    )
-
-    resolver_setup_info_dict["AYON_LOGGIN_LOGGIN_KEYS"] = (
-        config.get_addon_settings_value(
-            settings, config.ADDON_SETTINGS_USD_RESOLVER_LOG_LOGGIN_KEYS
-        )
-    )
-
-    return resolver_setup_info_dict
+    resolver_settings = settings["ayon_usd"]["ayon_usd_resolver"]
+    return {
+        "TF_DEBUG": settings["ayon_usd"]["usd"]["usd_tf_debug"],
+        "AYONLOGGERLOGLVL": resolver_settings["ayon_log_lvl"],
+        "AYONLOGGERSFILELOGGING": resolver_settings["ayon_file_logger_enabled"],  # noqa
+        "AYONLOGGERSFILEPOS": resolver_settings["file_logger_file_path"],
+        "AYON_LOGGIN_LOGGIN_KEYS": resolver_settings["ayon_logger_logging_keys"],  # noqa
+        "PXR_PLUGINPATH_NAME": pxr_pluginpath_name,
+        "PYTHONPATH": python_path,
+        ld_path_key: ld_library_path
+    }

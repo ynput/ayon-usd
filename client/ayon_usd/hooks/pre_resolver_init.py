@@ -16,7 +16,9 @@ class InitializeAssetResolver(PreLaunchHook):
     launch_types = {LaunchTypes.local}
 
     def _setup_resolver(self, local_resolver, settings):
-        self.log.info(f"Initializing USD asset resolver for application: {self.app_name}")
+        self.log.info(
+            f"Initializing USD asset resolver for application: {self.app_name}"
+        )
         env_var_dict = utils.get_resolver_setup_info(
             local_resolver, settings, self.app_name, self.log
         )
@@ -27,23 +29,21 @@ class InitializeAssetResolver(PreLaunchHook):
 
     def execute(self):
         """Pre-launch hook entry method."""
-
-        self.log.debug(self.app_group)
-        settings = self.data["project_settings"][config.ADDON_NAME]
-
-        resolver_lake_fs_path = utils.get_resolver_to_download(settings, self.app_name)
+        settings = self.data["project_settings"]["ayon_usd"]
+        resolver_lake_fs_path = utils.get_resolver_to_download(settings,
+                                                               self.app_name)
         if not resolver_lake_fs_path:
             raise RuntimeError(
-                f"no Resolver could be found but AYON-Usd addon is activated {self.app_name}"
+                "No USD Resolver could be found but "
+                f"AYON-Usd addon is activated {self.app_name}"
             )
 
         with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
             addon_data_json = json.load(data_json)
 
+        key = str(self.app_name).replace("/", "_")
         try:
-            key = str(self.app_name).replace("/", "_")
             local_resolver_data = addon_data_json[f"resolver_data_{key}"]
-
         except KeyError:
             local_resolver_data = None
 
@@ -62,7 +62,7 @@ class InitializeAssetResolver(PreLaunchHook):
             self._setup_resolver(local_resolver_data[1], settings)
             return
 
-        local_resolver = utils.download_and_extract_resolver(
+        local_resolver = utils.lakefs_download_and_extract(
             resolver_lake_fs_path, str(utils.get_download_dir())
         )
 
@@ -77,7 +77,7 @@ class InitializeAssetResolver(PreLaunchHook):
         )
         if not resolver_time_stamp:
             raise ValueError(
-                f"could not find resolver time stamp on LakeFs server for {self.app_name}"
+                f"Could not find resolver time stamp on LakeFs server for {self.app_name}"
             )
         addon_data_json[f"resolver_data_{key}"] = [
             resolver_time_stamp,
