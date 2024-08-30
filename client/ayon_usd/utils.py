@@ -160,16 +160,36 @@ def get_resolver_to_download(settings, app_name: str) -> str:
 
 
 @config.SingletonFuncCache.func_io_cache
-def get_resolver_setup_info(resolver_dir, settings, app_name: str, logger=None) -> dict:
+def get_resolver_setup_info(
+        resolver_dir,
+        settings,
+        app_name: str,
+        logger=None,
+        env=None) -> dict:
+    """Get the environment variables to load AYON USD setup.
+
+    Arguments:
+        resolver_dir: Directory of the resolver.
+        settings: Studio settings.
+        app_name: Application name to configure for.
+        logger: Logger to log messages to.
+        env: Source environment to build on.
+
+    Returns:
+        dict[str, str]: The environment needed to load AYON USD correctly.
+    """
     pxr_plugin_paths = []
     ld_path = []
     python_path = []
 
-    if val := os.getenv("PXR_PLUGINPATH_NAME"):
+    if env is None:
+        env = dict(os.environ)
+
+    if val := env.get("PXR_PLUGINPATH_NAME"):
         pxr_plugin_paths.extend(val.split(os.pathsep))
-    if val := os.getenv("LD_LIBRARY_PATH"):
+    if val := env.get("LD_LIBRARY_PATH"):
         ld_path.extend(val.split(os.pathsep))
-    if val := os.getenv("PYTHONPATH"):
+    if val := env.get("PYTHONPATH"):
         python_path.extend(val.split(os.pathsep))
 
     resolver_plugin_info_path = os.path.join(
