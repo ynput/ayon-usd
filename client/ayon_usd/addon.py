@@ -10,15 +10,12 @@ from ayon_core import style
 from ayon_core.settings import get_studio_settings
 
 from . import config, utils
+from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR, USD_ADDON_ROOT_DIR
 from .version import __version__
 
 from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
-
-USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
-ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
 
 
 class USDAddon(AYONAddon, ITrayAddon):
@@ -72,15 +69,14 @@ class USDAddon(AYONAddon, ITrayAddon):
                 json.dump(init_data, json_file)
 
         settings = get_studio_settings()
-        lake_fs_repo_uri = settings["ayon_usd"]["lake_fs"]["server_repo"]
-        if not utils.is_usd_lib_download_needed(lake_fs_repo_uri):
+        if not utils.is_usd_lib_download_needed(settings):
             print("usd is already downloaded")
             return
 
         lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
 
         # Get modified time on LakeFS
-        lake_fs = config.get_global_lake_instance()
+        lake_fs = config.get_global_lake_instance(settings)
         usd_lib_lake_fs_time_cest = (
             lake_fs
             .get_element_info(lake_fs_usd_lib_path)

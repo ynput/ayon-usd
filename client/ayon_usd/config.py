@@ -36,24 +36,27 @@ def get_global_lake_instance(settings=None):
     )
 
 
-def _get_lakefs_repo_items(lake_fs_repo_uri: str) -> list:
+def _get_lakefs_repo_items(lake_fs_repo: str) -> list:
     """Return all repo object names in the LakeFS repository"""
-    if not lake_fs_repo_uri:
+    if not lake_fs_repo:
         return []
-    return get_global_lake_instance().list_repo_objects(lake_fs_repo_uri)
+    return get_global_lake_instance().list_repo_objects(lake_fs_repo)
 
 
-def get_lakefs_usdlib_name(lake_fs_repo_uri: str) -> str:
+def get_lakefs_usdlib_name(lake_fs_repo: str) -> str:
     """Return AyonUsdBin/usd LakeFS repo object name for current platform."""
-    usd_zip_lake_path = ""
-    for item in _get_lakefs_repo_items(lake_fs_repo_uri):
-        if "AyonUsdBin/usd" in item and platform.system().lower() in item:
-            usd_zip_lake_path = item
-    return usd_zip_lake_path
+    platform_name = platform.system().lower()
+    for item in _get_lakefs_repo_items(lake_fs_repo):
+        if "AyonUsdBin/usd" in item and platform_name in item:
+            return item
+
+    raise RuntimeError(
+        "No AyonUsdBin/usd item found for current platform "
+        f"'{platform_name}' on LakeFS server: {lake_fs_repo}")
 
 
 def get_lakefs_usdlib_path(settings: dict) -> str:
     """Return AyonUsdBin/usd LakeFS full url for current platform. """
-    lake_fs_repo_uri = settings["ayon_usd"]["lakefs"]["server_uri"]
-    usd_lib_conf = get_lakefs_usdlib_name(lake_fs_repo_uri)
-    return f"{lake_fs_repo_uri}{usd_lib_conf}"
+    lake_fs_repo = settings["ayon_usd"]["lakefs"]["server_repo"]
+    usd_lib_conf = get_lakefs_usdlib_name(lake_fs_repo)
+    return f"{lake_fs_repo}{usd_lib_conf}"

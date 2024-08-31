@@ -10,7 +10,9 @@ from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 from ayon_usd import config
 
-from ayon_usd.addon import DOWNLOAD_DIR
+USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
+ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
 
 
 def get_download_dir(create_if_missing=True):
@@ -35,14 +37,26 @@ def get_downloaded_usd_root(lake_fs_repo_uri) -> str:
     return os.path.join(DOWNLOAD_DIR, filename_no_ext)
 
 
-def is_usd_lib_download_needed(lake_fs_repo_uri: str) -> bool:
-    # TODO redocument
+def is_usd_lib_download_needed(settings: dict) -> bool:
+    """Return whether a USD libraries need (re-)download from the Lake FS
+    repository.
 
-    usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo_uri))
+    This will be the case if it's the first time syncing, the timestamp on the
+    server is newer or the local files have been removed.
+
+    Arguments:
+        settings (dict): Studio or Project settings.
+
+    Returns:
+        bool: When true, a new download is required.
+
+    """
+    lake_fs_repo = settings["ayon_usd"]["lakefs"]["server_repo"]
+    usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo))
     if not os.path.exists(usd_lib_dir):
         return True
 
-    with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
+    with open(ADDON_DATA_JSON_PATH, "r") as data_json:
         addon_data_json = json.load(data_json)
     try:
         usd_lib_lake_fs_time_stamp_local = addon_data_json[
@@ -52,10 +66,12 @@ def is_usd_lib_download_needed(lake_fs_repo_uri: str) -> bool:
         return True
 
     lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
-    ctl = config.get_global_lake_instance()
+    lake_fs = config.get_global_lake_instance(settings)
+    lake_fs_timestamp = lake_fs.get_element_info(
+        lake_fs_usd_lib_path).get("Modified Time")
     if (
-        usd_lib_lake_fs_time_stamp_local
-        != ctl.get_element_info(lake_fs_usd_lib_path)["Modified Time"]
+        not lake_fs_timestamp
+        or usd_lib_lake_fs_time_stamp_local != lake_fs_timestamp
     ):
         return True
     return False
