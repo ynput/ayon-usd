@@ -141,9 +141,19 @@ def get_resolver_to_download(settings, app_name: str) -> str:
 
 def get_resolver_setup_info(
         resolver_dir,
-        settings: dict,
-        env: dict = None) -> dict:
-    
+        settings,
+        env=None) -> dict:
+    """Get the environment variables to load AYON USD setup.
+
+    Arguments:
+        resolver_dir (str): Directory of the resolver.
+        settings (dict[str, Any]): Studio settings.
+        env (dict[str, str]): Source environment to build on.
+
+    Returns:
+        dict[str, str]: The environment needed to load AYON USD correctly.
+    """
+
     resolver_root = pathlib.Path(resolver_dir) / "ayonUsdResolver"
     resolver_plugin_info_path = resolver_root / "resources" / "plugInfo.json"
     resolver_ld_path = resolver_root / "lib"

@@ -20,13 +20,12 @@ class InitializeAssetResolver(PreLaunchHook):
         self.log.info(
             f"Initializing USD asset resolver for application: {self.app_name}"
         )
-        env_var_dict = utils.get_resolver_setup_info(
-            local_resolver, settings, self.app_name, self.log
-        )
 
-        for key in env_var_dict:
-            value = env_var_dict[key]
-            self.launch_context.env[key] = value
+        updated_env = utils.get_resolver_setup_info(
+            local_resolver, settings, self.app_name, self.log,
+            env=self.launch_context.env
+        )
+        self.launch_context.env.update(updated_env)
 
     def execute(self):
         """Pre-launch hook entry method."""
