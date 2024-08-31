@@ -37,6 +37,7 @@ class InitializeAssetResolver(PreLaunchHook):
                 f"AYON-Usd addon is activated {self.app_name}"
             )
 
+        self.log.info(f"Using resolver from LakeFS: {resolver_lake_fs_path}")
         lake_fs = config.get_global_lake_instance()
         lake_fs_resolver_time_stamp = (
             lake_fs.get_element_info(resolver_lake_fs_path).get(
