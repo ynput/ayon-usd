@@ -28,9 +28,9 @@ class InitializeAssetResolver(PreLaunchHook):
 
     def execute(self):
         """Pre-launch hook entry method."""
-        settings = self.data["project_settings"]["ayon_usd"]
-        resolver_lake_fs_path = utils.get_resolver_to_download(settings,
-                                                               self.app_name)
+        project_settings = self.data["project_settings"]
+        resolver_lake_fs_path = utils.get_resolver_to_download(
+            project_settings, self.app_name)
         if not resolver_lake_fs_path:
             raise RuntimeError(
                 "No USD Resolver could be found but "
@@ -64,7 +64,7 @@ class InitializeAssetResolver(PreLaunchHook):
             and lake_fs_resolver_time_stamp == local_resolver_timestamp
             and os.path.exists(local_resolver)
         ):
-            self._setup_resolver(local_resolver, settings)
+            self._setup_resolver(local_resolver, project_settings)
             return
 
         # If no existing match, download the resolver
@@ -81,4 +81,4 @@ class InitializeAssetResolver(PreLaunchHook):
         with open(ADDON_DATA_JSON_PATH, "w") as addon_json:
             json.dump(addon_data_json, addon_json)
 
-        self._setup_resolver(local_resolver, settings)
+        self._setup_resolver(local_resolver, project_settings)
