@@ -16,6 +16,10 @@ from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 
+USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
+ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
+
 
 class USDAddon(AYONAddon, ITrayAddon):
     """Addon to add USD Support to AYON.
@@ -53,15 +57,15 @@ class USDAddon(AYONAddon, ITrayAddon):
         Download USD if needed.
         """
 
-        download_dir = str(config.DOWNLOAD_DIR)
+        download_dir = str(DOWNLOAD_DIR)
         os.makedirs(download_dir, exist_ok=True)
 
         if os.path.exists(download_dir + ".zip"):
             os.remove(download_dir + ".zip")
 
-        if not os.path.exists(config.ADDON_DATA_JSON_PATH):
+        if not os.path.exists(ADDON_DATA_JSON_PATH):
             now = datetime.now().astimezone(timezone.utc)
-            with open(config.ADDON_DATA_JSON_PATH, "w+") as json_file:
+            with open(ADDON_DATA_JSON_PATH, "w+") as json_file:
                 init_data = {
                     "ayon_usd_addon_first_init_utc": str(now)
                 }
@@ -88,7 +92,7 @@ class USDAddon(AYONAddon, ITrayAddon):
                 f"LakeFs server: {lake_fs_usd_lib_path}"
             )
 
-        with open(config.ADDON_DATA_JSON_PATH, "r+") as json_file:
+        with open(ADDON_DATA_JSON_PATH, "r+") as json_file:
             addon_data_json = json.load(json_file)
             addon_data_json["usd_lib_lake_fs_time_cest"] = usd_lib_lake_fs_time_cest
 
@@ -105,13 +109,13 @@ class USDAddon(AYONAddon, ITrayAddon):
             func=lake_fs.clone_element,
             kwargs={
                 "lake_fs_object_uir": lake_fs_usd_lib_path,
-                "dist_path": config.DOWNLOAD_DIR,
+                "dist_path": DOWNLOAD_DIR,
             },
             progress_title="Download UsdLib",
         )
 
         usd_zip_path = os.path.join(
-            config.DOWNLOAD_DIR,
+            DOWNLOAD_DIR,
             os.path.basename(config.get_lakefs_usdlib_path(settings))
         )
         usd_lib_path = os.path.splitext(usd_zip_path)[0]
@@ -146,4 +150,4 @@ class USDAddon(AYONAddon, ITrayAddon):
 
     def get_launch_hook_paths(self):
         """Get paths to launch hooks."""
-        return [os.path.join(config.USD_ADDON_DIR, "hooks")]
+        return [os.path.join(USD_ADDON_ROOT_DIR, "hooks")]

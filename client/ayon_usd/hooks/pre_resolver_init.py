@@ -4,6 +4,7 @@ import json
 import os
 from ayon_applications import LaunchTypes, PreLaunchHook
 from ayon_usd import config, utils
+from ayon_usd.addon import ADDON_DATA_JSON_PATH
 
 
 class InitializeAssetResolver(PreLaunchHook):
@@ -38,52 +39,48 @@ class InitializeAssetResolver(PreLaunchHook):
                 f"AYON-Usd addon is activated {self.app_name}"
             )
 
-        with open(config.ADDON_DATA_JSON_PATH, "r") as data_json:
+        lake_fs = config.get_global_lake_instance()
+        lake_fs_resolver_time_stamp = (
+            lake_fs.get_element_info(resolver_lake_fs_path).get(
+                "Modified Time"
+            )
+        )
+        if not lake_fs_resolver_time_stamp:
+            raise ValueError(
+                "Could not find resolver timestamp on LakeFs server "
+                f"for application: {self.app_name}"
+            )
+
+        # Check for existing local resolver that matches the lakefs timestamp
+        with open(ADDON_DATA_JSON_PATH, "r") as data_json:
             addon_data_json = json.load(data_json)
 
         key = str(self.app_name).replace("/", "_")
-        try:
-            local_resolver_data = addon_data_json[f"resolver_data_{key}"]
-        except KeyError:
-            local_resolver_data = None
-
-        lake_fs_resolver_time_stamp = (
-            config.get_global_lake_instance().get_element_info(resolver_lake_fs_path)[
-                "Modified Time"
-            ]
+        local_resolver_key = f"resolver_data_{key}"
+        local_resolver_timestamp, local_resolver = (
+            addon_data_json.get(local_resolver_key, [None, None])
         )
 
         if (
-            local_resolver_data
-            and lake_fs_resolver_time_stamp == local_resolver_data[0]
-            and os.path.exists(local_resolver_data[1])
+            local_resolver
+            and lake_fs_resolver_time_stamp == local_resolver_timestamp
+            and os.path.exists(local_resolver)
         ):
-
-            self._setup_resolver(local_resolver_data[1], settings)
+            self._setup_resolver(local_resolver, settings)
             return
 
+        # If no existing match, download the resolver
         local_resolver = utils.lakefs_download_and_extract(
             resolver_lake_fs_path, str(utils.get_download_dir())
         )
-
         if not local_resolver:
             return
 
-        key = str(self.app_name).replace("/", "_")
-        resolver_time_stamp = (
-            config.get_global_lake_instance()
-            .get_element_info(resolver_lake_fs_path)
-            .get("Modified Time")
-        )
-        if not resolver_time_stamp:
-            raise ValueError(
-                f"Could not find resolver time stamp on LakeFs server for {self.app_name}"
-            )
-        addon_data_json[f"resolver_data_{key}"] = [
-            resolver_time_stamp,
+        addon_data_json[local_resolver_key] = [
+            lake_fs_resolver_time_stamp,
             local_resolver,
         ]
-        with open(config.ADDON_DATA_JSON_PATH, "w") as addon_json:
+        with open(ADDON_DATA_JSON_PATH, "w") as addon_json:
             json.dump(addon_data_json, addon_json)
 
         self._setup_resolver(local_resolver, settings)

@@ -10,6 +10,8 @@ from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 from ayon_usd import config
 
+from ayon_usd.addon import DOWNLOAD_DIR
+
 
 def get_download_dir(create_if_missing=True):
     """Dir path where files are downloaded.
@@ -21,16 +23,16 @@ def get_download_dir(create_if_missing=True):
         str: Path to download dir.
 
     """
-    if create_if_missing and not os.path.exists(config.DOWNLOAD_DIR):
-        os.makedirs(config.DOWNLOAD_DIR, exist_ok=True)
-    return config.DOWNLOAD_DIR
+    if create_if_missing and not os.path.exists(DOWNLOAD_DIR):
+        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+    return DOWNLOAD_DIR
 
 
 def get_downloaded_usd_root(lake_fs_repo_uri) -> str:
     """Get downloaded USDLib os local root path."""
-    target_usd_lib = config.get_usd_lib_conf_from_lakefs(lake_fs_repo_uri)
+    target_usd_lib = config.get_lakefs_usdlib_name(lake_fs_repo_uri)
     filename_no_ext = os.path.splitext(os.path.basename(target_usd_lib))[0]
-    return os.path.join(config.DOWNLOAD_DIR, filename_no_ext)
+    return os.path.join(DOWNLOAD_DIR, filename_no_ext)
 
 
 def is_usd_lib_download_needed(lake_fs_repo_uri: str) -> bool:

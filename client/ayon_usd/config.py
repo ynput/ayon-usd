@@ -1,18 +1,7 @@
-"""USD Addon utility functions."""
-
-import os
 import platform
-
-from pathlib import Path
 
 from ayon_usd.ayon_bin_client.ayon_bin_distro.lakectlpy import wrapper
 from ayon_core.settings import get_studio_settings
-
-
-CURRENT_DIR: Path = Path(os.path.dirname(os.path.abspath(__file__)))
-DOWNLOAD_DIR: Path = CURRENT_DIR / "downloads"
-USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
-ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
 
 
 class _LocalCache:
@@ -47,21 +36,24 @@ def get_global_lake_instance(settings=None):
     )
 
 
-def _get_lake_fs_repo_items(lake_fs_repo_uri: str) -> list:
+def _get_lakefs_repo_items(lake_fs_repo_uri: str) -> list:
+    """Return all repo object names in the LakeFS repository"""
     if not lake_fs_repo_uri:
         return []
     return get_global_lake_instance().list_repo_objects(lake_fs_repo_uri)
 
 
-def get_usd_lib_conf_from_lakefs(lake_fs_repo_uri: str) -> str:
+def get_lakefs_usdlib_name(lake_fs_repo_uri: str) -> str:
+    """Return AyonUsdBin/usd LakeFS repo object name for current platform."""
     usd_zip_lake_path = ""
-    for item in _get_lake_fs_repo_items(lake_fs_repo_uri):
+    for item in _get_lakefs_repo_items(lake_fs_repo_uri):
         if "AyonUsdBin/usd" in item and platform.system().lower() in item:
             usd_zip_lake_path = item
     return usd_zip_lake_path
 
 
 def get_lakefs_usdlib_path(settings: dict) -> str:
+    """Return AyonUsdBin/usd LakeFS full url for current platform. """
     lake_fs_repo_uri = settings["ayon_usd"]["lakefs"]["server_uri"]
-    usd_lib_conf = get_usd_lib_conf_from_lakefs(lake_fs_repo_uri)
+    usd_lib_conf = get_lakefs_usdlib_name(lake_fs_repo_uri)
     return f"{lake_fs_repo_uri}{usd_lib_conf}"
