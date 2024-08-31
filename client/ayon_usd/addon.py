@@ -57,9 +57,6 @@ class USDAddon(AYONAddon, ITrayAddon):
         download_dir = str(DOWNLOAD_DIR)
         os.makedirs(download_dir, exist_ok=True)
 
-        if os.path.exists(download_dir + ".zip"):
-            os.remove(download_dir + ".zip")
-
         if not os.path.exists(ADDON_DATA_JSON_PATH):
             now = datetime.now().astimezone(timezone.utc)
             with open(ADDON_DATA_JSON_PATH, "w+") as json_file:
