@@ -54,8 +54,7 @@ class USDAddon(AYONAddon, ITrayAddon):
         Download USD if needed.
         """
 
-        download_dir = str(DOWNLOAD_DIR)
-        os.makedirs(download_dir, exist_ok=True)
+        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
         if not os.path.exists(ADDON_DATA_JSON_PATH):
             now = datetime.now().astimezone(timezone.utc)
