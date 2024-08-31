@@ -22,8 +22,7 @@ class InitializeAssetResolver(PreLaunchHook):
         )
 
         updated_env = utils.get_resolver_setup_info(
-            local_resolver, settings, self.app_name, self.log,
-            env=self.launch_context.env
+            local_resolver, settings, env=self.launch_context.env
         )
         self.launch_context.env.update(updated_env)
 
