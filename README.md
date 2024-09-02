@@ -11,7 +11,7 @@ You can find Admin and Developer docs under Docs/Ayon_Docs/
 
 ### Clone the Repo
 
-> **_IMOPRTANT_**\
+> **_IMPORTANT_**\
 > This repository uses Git-Submodules. Make sure to use the correct `git clone`\
 > commands accordingly.\
 > `git clone --recurse-submodules https://github.com/ynput/ayon-usd.git`\
