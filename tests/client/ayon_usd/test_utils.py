@@ -1,6 +1,5 @@
 # test_utils.py
 import hashlib
-import zipfile
 from client.ayon_usd import utils
 
 
