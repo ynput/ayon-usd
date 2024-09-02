@@ -1,7 +1,7 @@
 ## Introduction
 
 > **_NOTE_**\
-> this addon is currently in its Alpha stage and you will need to set some
+> This addon is currently in its Alpha stage, and you will need to set some
 > LakeFs keys (LakeFs is the data server we use to distribute Bin data) you can
 > get those Keys on our Discord server just ask one of the Ynput staff for them.
 > the settings are the following:
@@ -9,11 +9,12 @@
 > `ayon+settings://ayon_usd/LakeFs_Settings/secret_access_key`
 
 USD is a modern, open-source, scene description and file format developed by
-Pixar Animation Studios. Its an Extensive and extendable C++Lib that is used in
-3D, 2D and Games Graphics in order to allow for eficient work with Sceene data.
+Pixar Animation Studios. It's an Extensive and extendable C++Lib that is used 
+in 3D, 2D and Games Graphics in order to allow for efficient work with scene 
+data.
 
-Many might know it from SideFs Houdini Solaris or Nvidia Omniverse but it is by
-now included in most other Vfx software packages.
+Many might know it from SideFx Houdini Solaris or Nvidia Omniverse, but by now 
+it is included in most other VFX software packages.
 
 In AYON we use it in our New **Contribution workflow** as the data backend to
 allow cross Platform and Application workflows. This allows for better
@@ -21,7 +22,7 @@ integrated Teams and a more artist centric Workflow as artists can open the same
 scene in different applications and work with the tools that serve them the
 best.
 
-Goal of this addon is to extend the Contirbution workflow by automaticly
+Goal of this addon is to extend the Contribution workflow by automatically
 distributing Usd and Ayon Libs:
 
 - USD-Lib build for supported platforms.
@@ -58,10 +59,10 @@ this can be great if you want to pin your pipeline to a specific release.
 
 **Asset Resolvers:** `ayon+settings://ayon_usd/LakeFs_Settings/asset_resolvers`\
 allows you to associate a specific Application name with a specific resolver.\
-we always setup all the resolvers we compile but if you have special App_Names
+we always set up all the resolvers we compile but if you have special App_Names
 in your Applications then you might want to add an App Alias.\
-e.g if you have hou19.5.xxx setup as an variant for Houdini you can then set it
-as an alias for the Hou19.5 entry because they share the same resolver.
+e.g. if you have hou19.5.xxx setup as a variant for Houdini you can then set 
+it as an alias for the Hou19.5 entry because they share the same resolver.
 
 #### Usd Resolver Config
 

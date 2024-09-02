@@ -25,7 +25,7 @@ def logger_logging_keys_enum():
 
 # FIX find a way to pull this from AyonCppApi (later AyonLogger)
 def log_lvl_enum():
-    """Return enumerator for supported log lvls."""
+    """Return enumerator for supported log levels."""
     return [
         {"label": "Info", "value": "INFO"},
         {"label": "Error", "value": "ERROR"},
@@ -37,7 +37,7 @@ def log_lvl_enum():
 
 # FIX find a way to pull this from AyonCppApi (later AyonLogger)
 def file_logger_enum():
-    """Return enumerator for supported log lvls."""
+    """Return enumerator for supported log levels."""
     return [
         {"label": "Off", "value": "OFF"},
         {"label": "On", "value": "ON"},
@@ -52,7 +52,7 @@ class AppPlatformPathModel(BaseSettingsModel):
     )
 
     app_alias_list: list[str] = SettingsField(
-        title="Applicatoin Alias",
+        title="Application Alias",
         description="Allows an admin to define a list of App Names that use the same resolver as the parent application",
         default_factory=list,
     )
@@ -222,7 +222,7 @@ class AyonResolverSettings(BaseSettingsModel):
         "OFF",
         title="AyonResolver File Logger Enabled ",
         enum_resolver=file_logger_enum,
-        description="Allows you to enable or disalbe the AyonUsdResolver file logger, default is Off",
+        description="Allows you to enable or disable the AyonUsdResolver file logger, default is Off",
     )
     ayon_logger_logging_keys: str = SettingsField(
         "",
