@@ -25,7 +25,7 @@ def logger_logging_keys_enum():
 
 # FIX find a way to pull this from AyonCppApi (later AyonLogger)
 def log_lvl_enum():
-    """Return enumerator for supported log lvls."""
+    """Return enumerator for supported log levels."""
     return [
         {"label": "Info", "value": "INFO"},
         {"label": "Error", "value": "ERROR"},
@@ -37,7 +37,7 @@ def log_lvl_enum():
 
 # FIX find a way to pull this from AyonCppApi (later AyonLogger)
 def file_logger_enum():
-    """Return enumerator for supported log lvls."""
+    """Return enumerator for supported log levels."""
     return [
         {"label": "Off", "value": "OFF"},
         {"label": "On", "value": "ON"},
