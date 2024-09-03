@@ -13,7 +13,7 @@ class InitializeAssetResolver(PreLaunchHook):
     Asset resolver is used to resolve assets in the application.
     """
 
-    app_groups = {"maya", "nuke", "nukestudio", "houdini", "blender", "unreal"}
+    app_groups = {"maya", "houdini", "unreal"}
     launch_types = {LaunchTypes.local}
 
     def _setup_resolver(self, local_resolver, settings):
