@@ -1,9 +1,12 @@
+import logging
 import json
 import os
 import re
 from typing import Dict, List, Optional, Set
 from pxr import UsdShade, Ar, Sdf
 from urllib.parse import urlparse
+
+log = logging.getLogger(__name__)
 
 
 def is_uri(path: str) -> bool:
@@ -155,6 +158,10 @@ def get_asset_dependencies(
         processed_layers.add(resolved_layer_path.GetPathString())
 
     layer: Sdf.Layer = Sdf.Layer.FindOrOpen(resolved_layer_path)
+    if not layer:
+        log.warning(f"Unable to open layer: %s", resolved_layer_path)
+        return {}
+
     identifier_to_path[layer_path] = resolved_layer_path.GetPathString()
     prim_spec_file_paths: List[str] = _get_prim_spec_hierarchy_external_refs(
         layer.pseudoRoot, layer
