@@ -4,18 +4,18 @@ import json
 import os
 from datetime import datetime, timezone
 
-from ayon_core.addon import AYONAddon, ITrayAddon
-
 from ayon_core import style
+from ayon_core.addon import AYONAddon, IPluginPaths, ITrayAddon
 
 from . import config, utils
-
 from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
-from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
+from .ayon_bin_client.ayon_bin_distro.work_handler import worker
+
+USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class USDAddon(AYONAddon, ITrayAddon):
+class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
     """Addon to add USD Support to AYON.
 
     Addon can also skip distribution of binaries from server and can
@@ -131,3 +131,10 @@ class USDAddon(AYONAddon, ITrayAddon):
     def get_launch_hook_paths(self):
         """Get paths to launch hooks."""
         return [os.path.join(config.USD_ADDON_DIR, "hooks")]
+
+    def get_plugin_paths(self):
+        return {
+            "publish": [
+                os.path.join(config.USD_ADDON_DIR, "plugins", "publish")
+            ]
+        }

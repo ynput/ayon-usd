@@ -1,0 +1,65 @@
+"""Extract Skeleton Pinning JSON file.
+
+This extractor creates a simple placeholder JSON file that is filled by
+Integrator plugin (Integrate Pinning File). This way, publishing process
+is much more simple and doesn't require any hacks.
+
+Side effects:
+    - Creates a JSON file with skeleton pinning data that doesn't contain
+      any real data, it's just a placeholder. If, for whatever reason, the
+      publishing process is interrupted, the placeholder file will be
+      still there even if the real data is not present.
+
+    - Adds a timestamp to the JSON file. This timestamp can be later used
+      to check if the processed data is up-to-date.
+
+"""
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import ClassVar
+
+import pyblish.api
+
+
+class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin):
+    """Extract Skeleton Pinning JSON file.
+
+    Extracted JSON file doesn't contain any data, it's just a placeholder
+    that is filled by Integrator plugin (Integrate Pinning File).
+    """
+
+    label = "Extract Skeleton Pinning JSON"
+    order = pyblish.api.ExtractorOrder + 0.49
+    families: ClassVar = ["usd"]
+
+    @staticmethod
+    def _has_usd_representation(representations: list) -> bool:
+        return any(
+            representation.get("name") == "usd"
+            for representation in representations
+        )
+
+    def process(self, instance: pyblish.api.Instance) -> None:
+        """Process the plugin."""
+        if not self._has_usd_representation(instance.data["representations"]):
+            self.log.info("No USD representation found, skipping.")
+            return
+
+        staging_dir = Path(instance.data["stagingDir"])
+        pin_file = f"{staging_dir.stem}_pin.json"
+        pin_file_path = staging_dir.joinpath(pin_file)
+        pin_representation = {
+            "name": "usd_pinning",
+            "ext": "json",
+            "files": pin_file_path.name,
+            "stagingDir": instance.data["stagingDir"],
+        }
+        current_timestamp = datetime.now().timestamp()
+        skeleton_pinning_data = {
+            "timestamp": current_timestamp,
+        }
+        with open(pin_file_path, "w") as f:
+            json.dump(skeleton_pinning_data, f, indent=4)
+
+        instance.data["representations"].append(pin_representation)
