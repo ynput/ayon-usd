@@ -17,7 +17,6 @@ import pyblish.api
 from ayon_core.lib import StringTemplate, TemplateUnsolved
 from ayon_core.pipeline import (
     Anatomy,
-    OptionalPyblishPluginMixin,
     get_current_project_name,
 )
 from ayon_core.pipeline.publish import KnownPublishError
@@ -494,18 +493,17 @@ def get_last_publish(
         folder_path=instance.data["folderPath"],
         product_name=instance.data["productName"],
         version_name="latest",
-        representation_name=representation
+        representation_name=representation,
     )
 
 # </dup> ------------------------
 
 
-class IntegrateUsdPinningFile(pyblish.api.InstancePlugin,
-                              OptionalPyblishPluginMixin):
+class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
     """Extract pinning file from USD file as a json file."""
 
     order = pyblish.api.IntegratorOrder + 0.01
-    label = "Extract USD Pinning File"
+    label = "Integrate data into USD pinning file"
     optional = True
     families: ClassVar = ["usd"]
 
@@ -525,16 +523,18 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin,
         ayon_api.get_representation_by_name(
             get_current_project_name(),
             representation_name="usd_pinning",
-            version_id=instance.data["version_entity"]["id"])
+            version_id=instance.data["versionEntity"]["id"])
 
         published_repres = instance.data.get("published_representations")
         usd_file_rootless_path = None
         usd_pinning_rootless_file_path = None
-        for rep in published_repres:
-            if "usd" in rep["name"]:
+        for repre_info in published_repres.values():
+            rep = repre_info["representation"]
+
+            if rep["name"] == "usd":
                 usd_file_rootless_path = rep["attrib"]["path"]
                 continue
-            if "usd_pinning" in rep["name"]:
+            if rep["name"] == "usd_pinning":
                 usd_pinning_rootless_file_path = rep["attrib"]["path"]
                 continue
 

@@ -20,9 +20,11 @@ from pathlib import Path
 from typing import ClassVar
 
 import pyblish.api
+from ayon_core.pipeline import OptionalPyblishPluginMixin
 
 
-class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin):
+class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
+                                 OptionalPyblishPluginMixin):
     """Extract Skeleton Pinning JSON file.
 
     Extracted JSON file doesn't contain any data, it's just a placeholder
@@ -42,6 +44,9 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin):
 
     def process(self, instance: pyblish.api.Instance) -> None:
         """Process the plugin."""
+        if not self.is_active(instance.data):
+            return
+
         if not self._has_usd_representation(instance.data["representations"]):
             self.log.info("No USD representation found, skipping.")
             return
