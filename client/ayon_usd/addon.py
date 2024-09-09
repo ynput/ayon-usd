@@ -47,6 +47,7 @@ class USDAddon(AYONAddon, ITrayAddon):
             )
         self.enabled = True
         self._download_window = None
+        print(DOWNLOAD_DIR)
 
     def tray_start(self):
         """Start tray module.

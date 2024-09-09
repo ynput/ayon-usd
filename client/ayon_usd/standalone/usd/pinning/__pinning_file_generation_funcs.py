@@ -51,7 +51,9 @@ def remove_root_from_dependency_info(
     rootless_dependency_info = {}
     for key, path in dependency_info.items():
         new_path = regx.sub(_replace_match, path)
-        rootless_dependency_info[key] = new_path
+        new_key = regx.sub(_replace_match, key)
+
+        rootless_dependency_info[new_key] = new_path
 
     return rootless_dependency_info
 
@@ -180,20 +182,27 @@ def get_asset_dependencies(
     asset_identifier_list: List[str] = layer.GetCompositionAssetDependencies()
 
     for ref in asset_identifier_list:
-
         resolved_path = resolver.Resolve(layer.ComputeAbsolutePath(ref))
-
         ref = _remove_sdf_args(ref)
+
         resolved_path_str = resolved_path.GetPathString()
-        identifier_to_path[ref] = resolved_path_str
+        search_path_string = ""
+        if is_uri(ref):
+            search_path_string = ref
+        else:
+            search_path_string = resolved_path_str
+
+
+        identifier_to_path[search_path_string] = resolved_path_str
+    
 
         recursive_result = get_asset_dependencies(
-            resolved_path_str,
+            search_path_string,
             resolver,
             processed_layers,
         )
         identifier_to_path.update(recursive_result)
-
+   
     return identifier_to_path
 
 
