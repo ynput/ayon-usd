@@ -161,7 +161,7 @@ def get_asset_dependencies(
 
     layer: Sdf.Layer = Sdf.Layer.FindOrOpen(resolved_layer_path)
     if not layer:
-        log.warning(f"Unable to open layer: %s", resolved_layer_path)
+        log.warning(f"Unable to open layer: {resolved_layer_path}")
         return {}
 
     identifier_to_path[layer_path] = resolved_layer_path.GetPathString()
