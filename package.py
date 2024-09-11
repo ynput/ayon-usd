@@ -2,7 +2,7 @@
 
 name = "ayon_usd"
 title = "Usd Addon"
-version = "0.1.0-alpha"
+version = "0.1.0-alpha-dev-pinning01"
 client_dir = "ayon_usd"
 
 services = {}

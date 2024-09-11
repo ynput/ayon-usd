@@ -123,13 +123,13 @@ def _resolve_udim(udim_identifier: str, layer: Sdf.Layer) -> Dict[str, str]:
     resolved_udims = UsdShade.UdimUtils.ResolveUdimTilePaths(
         str(udim_identifier), layer
     )
-
     for path, tile in resolved_udims:
         udim_replaced_identifier = udim_identifier.replace(
             "<UDIM>",
             tile,
         )
-        udim_data[udim_replaced_identifier] = path
+        udim_data[layer.ComputeAbsolutePath(udim_replaced_identifier)] = path
+    
     return udim_data
 
 
@@ -184,7 +184,7 @@ def get_asset_dependencies(
         identifier = _remove_sdf_args(identifier)
         resolved_path = resolver.Resolve(layer.ComputeAbsolutePath(identifier))
         resolved_path_str = resolved_path.GetPathString()
-        identifier_to_path[identifier] = resolved_path_str
+        identifier_to_path[layer.ComputeAbsolutePath(identifier)] = resolved_path_str
 
         if "<UDIM>" in resolved_path_str:
             # Include all tiles/paths of the UDIM
@@ -324,6 +324,7 @@ def generate_pinning_file(
         pinning_file_path: The destination path to write the pinning file to.
 
     """
+
 
     if not pinning_file_path.endswith(".json"):
         raise RuntimeError(
