@@ -227,3 +227,38 @@ def get_resolver_setup_info(resolver_dir, settings, app_name: str, logger=None) 
     )
 
     return resolver_setup_info_dict
+
+
+def get_usd_pinning_envs(published_repres: dict) -> dict:
+    """Get USD pinning file path from published representations.
+
+    This sets the rootless path to the USD pinning file and enables
+    the static global cache. It is not setting ``PROJECT_ROOTS`` because
+    they are platform dependent and on farm they need to be set on
+    task level.
+
+    Args:
+        published_repres (dict): Published representations.
+
+    Returns:
+        dict: environment variables needed for USD pinning.
+
+    """
+    usd_pinning_rootless_file_path = None
+    for repre_info in published_repres.values():
+        rep = repre_info["representation"]
+
+        if rep["name"] == "usd_pinning":
+            usd_pinning_rootless_file_path = rep["attrib"]["path"]
+            continue
+
+        # skip the rest if usd_pinning_rootless_file_path is found
+        if usd_pinning_rootless_file_path:
+            break
+
+    if not usd_pinning_rootless_file_path:
+        return {}
+    return {
+        "PINNING_FILE_PATH": usd_pinning_rootless_file_path,
+        "ENABLE_STATIC_GLOBAL_CACHE": "1",
+    }
