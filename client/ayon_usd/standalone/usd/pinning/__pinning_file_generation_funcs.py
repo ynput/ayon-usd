@@ -1,6 +1,7 @@
 import logging
 import json
 import os
+import sys
 import re
 from typing import Dict, List, Optional, Set
 from pxr import UsdShade, Ar, Sdf
@@ -8,6 +9,12 @@ from urllib.parse import urlparse
 
 log = logging.getLogger(__name__)
 
+def _normalize_path(path):
+    if sys.platform.startswith('win'):
+        if len(path) > 1 and path[1] == ':':
+            path = path[0].lower() + path[1:]
+    
+    return os.path.normpath(path)
 
 def is_uri(path: str) -> bool:
     parsed = urlparse(path)
@@ -333,6 +340,13 @@ def generate_pinning_file(
     # Assume that the environment sets up the correct default AyonUsdResolver
     resolver = Ar.GetResolver()
     pinning_data = get_asset_dependencies(entry_usd, resolver)
+    
+    # for windows we need to make the drive letter lower case.
+    if sys.platform.startswith('win'):
+        for key, val in pinning_data.items():
+            pinning_data.pop(key)
+            pinning_data[_normalize_path(key)] = _normalize_path(val)
+
 
     rootless_pinning_data = remove_root_from_dependency_info(
         pinning_data, root_info
