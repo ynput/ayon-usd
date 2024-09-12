@@ -4,7 +4,7 @@
 # TODO ayon_api has a check for headless mode. we need to see if that system covers all fronts 
 HEADLESS_MODE = True 
 try:
-    import qtpy
+    import qtpy # noqa: F401
     HEADLESS_MODE = False
 except ImportError:
     print("qt.py or a Qt binding is not installed.")
