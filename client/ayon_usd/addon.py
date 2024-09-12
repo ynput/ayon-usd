@@ -4,8 +4,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-from ayon_core.lib import is_headless_mode_enabled
-
+from ayon_usd import IS_GUI_MODE
 from ayon_core.addon import AYONAddon, ITrayAddon
 from ayon_core import style
 from ayon_core.settings import get_studio_settings
@@ -14,12 +13,11 @@ from . import config, utils
 from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR, USD_ADDON_ROOT_DIR
 from .version import __version__
 
-if not is_headless_mode_enabled():
+if IS_GUI_MODE:
     from qtpy import QtWidgets
     from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
-
 
 
 class USDAddon(AYONAddon, ITrayAddon):
@@ -41,9 +39,13 @@ class USDAddon(AYONAddon, ITrayAddon):
 
     def initialize(self, module_settings):
         """Initialize USD Addon."""
+
+        self.enabled = True
         if not module_settings["ayon_usd"]["allow_addon_start"]:
-            if not is_headless_mode_enabled():
-                utils.info_popup("Ayon Usd Addon", "The experimental AyonUsd addon is currently activated, "
+            self.enabled = False
+            if IS_GUI_MODE:
+                utils.info_popup("Ayon Usd Addon", 
+                    "The experimental AyonUsd addon is currently activated, "
                     "but you haven't yet acknowledged the user agreement "
                     "indicating your understanding that this feature is "
                     "experimental. Please go to the Studio Settings and "
@@ -55,7 +57,6 @@ class USDAddon(AYONAddon, ITrayAddon):
                 "experimental. Please go to the Studio Settings and "
                 "check the agreement checkbox."
             )
-        self.enabled = True
         self._download_window = None
 
     def tray_start(self):
@@ -131,7 +132,7 @@ class USDAddon(AYONAddon, ITrayAddon):
             dependency_id=[usd_download_work_item.get_uuid()],
         )
 
-        if not is_headless_mode_enabled():
+        if IS_GUI_MODE:
             download_ui = progress_ui.ProgressDialog(
                 controller,
                 close_on_finish=True,

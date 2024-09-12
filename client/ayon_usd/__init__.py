@@ -1,5 +1,18 @@
 """USD Addon for AYON - client part."""
 
+
+from ayon_core.lib import is_headless_mode_enabled # noqa: F401 
+
+IS_GUI_MODE = False
+if not is_headless_mode_enabled():
+    try:
+        import qtpy  # noqa: F401
+        IS_GUI_MODE = True
+    except ImportError:
+        pass
+    except Exception as e: 
+        raise RuntimeError(f"An error occurred while checking for Qt: {e}")
+
 from .addon import USDAddon  # noqa: F401
 from .utils import (  # noqa: F401
     get_download_dir

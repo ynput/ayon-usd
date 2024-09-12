@@ -6,8 +6,8 @@ import platform
 import pathlib
 import sys
 
-from ayon_core.lib import is_headless_mode_enabled 
-if not is_headless_mode_enabled():
+from ayon_usd import IS_GUI_MODE
+if IS_GUI_MODE:
     from qtpy import QtWidgets
 
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
@@ -17,6 +17,7 @@ from ayon_usd import config
 USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
 ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
+
 
 def info_popup(title: str, message: str):
     """ creates a pop up in a QApplication to display a message with an okay button. 
