@@ -5,6 +5,7 @@ import os
 import platform
 import pathlib
 import sys
+import multiprocessing
 
 from ayon_usd import IS_GUI_MODE
 if IS_GUI_MODE:
@@ -28,21 +29,27 @@ def info_popup(title: str, message: str):
         title (str): window title
         message (str): Popup Message
     """
-    app = QtWidgets.QApplication()   
-    msg = QtWidgets.QMessageBox()
-    msg.setWindowTitle(title)
-    msg.setText(message)
-    msg.setIcon(QtWidgets.QMessageBox.Information)
-    
-    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    msg.setDefaultButton(QtWidgets.QMessageBox.Ok)
-    
-    if hasattr(msg, 'exec'):
-        msg.exec() 
-    else:
-        msg.exec_() 
-    
-    app.exit() 
+
+    def _run(title: str, message: str): 
+        app = QtWidgets.QApplication()   
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setDefaultButton(QtWidgets.QMessageBox.Ok)
+        
+        if hasattr(msg, 'exec'):
+            msg.exec() 
+        else:
+            msg.exec_() 
+        
+        app.exit()
+
+    p = multiprocessing.Process(target=_run, args=(title, message))
+    p.start()
+    p.join()
 
 def get_download_dir(create_if_missing=True):
     """Dir path where files are downloaded.
