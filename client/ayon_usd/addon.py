@@ -17,6 +17,8 @@ from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 
+from qtpy import QtWidgets
+
 
 class USDAddon(AYONAddon, ITrayAddon):
     """Addon to add USD Support to AYON.
@@ -38,6 +40,11 @@ class USDAddon(AYONAddon, ITrayAddon):
     def initialize(self, module_settings):
         """Initialize USD Addon."""
         if not module_settings["ayon_usd"]["allow_addon_start"]:
+            utils.info_popup("Ayon Usd Addon", "The experimental AyonUsd addon is currently activated, "
+                "but you haven't yet acknowledged the user agreement "
+                "indicating your understanding that this feature is "
+                "experimental. Please go to the Studio Settings and "
+                "check the agreement checkbox.")
             raise SystemError(
                 "The experimental AyonUsd addon is currently activated, "
                 "but you haven't yet acknowledged the user agreement "
