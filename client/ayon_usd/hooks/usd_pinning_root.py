@@ -7,8 +7,8 @@ from ayon_applications import LaunchTypes, PreLaunchHook
 class UsdPinningRoot(PreLaunchHook):
     """Pre-launch hook to set USD_ROOT environment variable."""
 
-    app_groups: ClassVar = {"maya", "houdini"}
-    launch_types: ClassVar = {LaunchTypes.farm}
+    app_groups: ClassVar = {"maya", "houdini", "blender", "unreal"}
+    launch_types: ClassVar = {LaunchTypes.farm_render}
 
     def execute(self) -> None:
         """Set environments necessary for pinning."""
