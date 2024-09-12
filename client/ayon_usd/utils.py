@@ -8,11 +8,26 @@ import sys
 
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
-from ayon_usd import config
+from ayon_usd import config, HEADLESS_MODE
+
+if not HEADLESS_MODE:
+    from qtpy import QtCore, QtGui, QtWidgets
 
 USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
 ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
+
+def info_popup(title:str, message:str):
+    app = QtWidgets.QApplication() 
+    msg = QtWidgets.QMessageBox() 
+    msg.setWindowTitle(title) 
+    msg.setText(message) 
+    msg.setIcon(QtWidgets.QMessageBox.Information) 
+    
+    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+    msg.setDefaultButton(QtWidgets.QMessageBox.Ok) 
+    
+    response = msg.exec_()
 
 
 def get_download_dir(create_if_missing=True):
