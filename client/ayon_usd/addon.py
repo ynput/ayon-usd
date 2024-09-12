@@ -10,7 +10,7 @@ from ayon_core.addon import AYONAddon, IPluginPaths, ITrayAddon
 from ayon_core.settings import get_studio_settings
 
 from . import config, utils
-from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR, USD_ADDON_ROOT_DIR
+from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR
 from .version import __version__
 
 from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
@@ -144,11 +144,11 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
     def get_launch_hook_paths(self):
         """Get paths to launch hooks."""
-        return [os.path.join(config.USD_ADDON_DIR, "hooks")]
+        return [os.path.join(USD_ADDON_DIR, "hooks")]
 
     def get_plugin_paths(self):
         return {
             "publish": [
-                os.path.join(config.USD_ADDON_DIR, "plugins", "publish")
+                os.path.join(USD_ADDON_DIR, "plugins", "publish")
             ]
         }
