@@ -9,15 +9,17 @@ from ayon_core.addon import AYONAddon, ITrayAddon
 from ayon_core import style
 from ayon_core.settings import get_studio_settings
 
+from ayon_usd import HEADLESS_MODE_ENABLED
 from . import config, utils
 from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR, USD_ADDON_ROOT_DIR
 from .version import __version__
 
-from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
+if not HEADLESS_MODE_ENABLED:
+    from qtpy import QtWidgets
+    from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 
-from qtpy import QtWidgets
 
 
 class USDAddon(AYONAddon, ITrayAddon):
@@ -40,11 +42,12 @@ class USDAddon(AYONAddon, ITrayAddon):
     def initialize(self, module_settings):
         """Initialize USD Addon."""
         if not module_settings["ayon_usd"]["allow_addon_start"]:
-            utils.info_popup("Ayon Usd Addon", "The experimental AyonUsd addon is currently activated, "
-                "but you haven't yet acknowledged the user agreement "
-                "indicating your understanding that this feature is "
-                "experimental. Please go to the Studio Settings and "
-                "check the agreement checkbox.")
+            if not HEADLESS_MODE_ENABLED:
+                utils.info_popup("Ayon Usd Addon", "The experimental AyonUsd addon is currently activated, "
+                    "but you haven't yet acknowledged the user agreement "
+                    "indicating your understanding that this feature is "
+                    "experimental. Please go to the Studio Settings and "
+                    "check the agreement checkbox.")
             raise SystemError(
                 "The experimental AyonUsd addon is currently activated, "
                 "but you haven't yet acknowledged the user agreement "
@@ -127,17 +130,19 @@ class USDAddon(AYONAddon, ITrayAddon):
             progress_title="Unzip UsdLib",
             dependency_id=[usd_download_work_item.get_uuid()],
         )
-
-        download_ui = progress_ui.ProgressDialog(
-            controller,
-            close_on_finish=True,
-            auto_close_timeout=1,
-            delet_progress_bar_on_finish=False,
-            title="ayon_usd-Addon [UsdLib Download]",
-        )
-        download_ui.setStyleSheet(style.load_stylesheet())
-        download_ui.start()
-        self._download_window = download_ui
+        if not HEADLESS_MODE_ENABLED:
+            download_ui = progress_ui.ProgressDialog(
+                controller,
+                close_on_finish=True,
+                auto_close_timeout=1,
+                delet_progress_bar_on_finish=False,
+                title="ayon_usd-Addon [UsdLib Download]",
+            )
+            download_ui.setStyleSheet(style.load_stylesheet())
+            download_ui.start()
+            self._download_window = download_ui
+        else:
+            controller.start()
 
     def tray_exit(self):
         """Exit tray module."""

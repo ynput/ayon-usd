@@ -6,7 +6,10 @@ import platform
 import pathlib
 import sys
 
-from qtpy import QtWidgets
+from ayon_usd import HEADLESS_MODE_ENABLED
+
+if not HEADLESS_MODE_ENABLED:
+    from qtpy import QtWidgets
 
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
@@ -17,6 +20,14 @@ DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
 ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
 
 def info_popup(title: str, message: str):
+    """ creates a pop up in a QApplication to display a message with an okay button. 
+    it's a blocking function.
+    when the okay button is pressed the QApplication will close and the function will release its block.
+
+    Args:
+        title (str): window title
+        message (str): Popup Message
+    """
     app = QtWidgets.QApplication()   
     msg = QtWidgets.QMessageBox()
     msg.setWindowTitle(title)
