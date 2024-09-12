@@ -1,6 +1,4 @@
 """USD Addon for AYON - client part."""
-import os # noqa: F401
-HEADLESS_MODE_ENABLED = os.getenv("AYON_HEADLESS_MODE") == "1"  # noqa: F821
 
 from .addon import USDAddon  # noqa: F401
 from .utils import (  # noqa: F401
@@ -13,6 +11,3 @@ __all__ = (
     "extract_zip_file",
     "get_download_dir",
 )
-
-# If you know specific rules you want to suppress, add the appropriate `# noqa` codes
-

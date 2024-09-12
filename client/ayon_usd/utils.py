@@ -6,9 +6,8 @@ import platform
 import pathlib
 import sys
 
-from ayon_usd import HEADLESS_MODE_ENABLED
-
-if not HEADLESS_MODE_ENABLED:
+from ayon_core.lib import is_headless_mode_enabled 
+if not is_headless_mode_enabled():
     from qtpy import QtWidgets
 
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker

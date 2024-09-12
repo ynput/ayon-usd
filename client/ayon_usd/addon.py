@@ -4,17 +4,17 @@ import json
 import os
 from datetime import datetime, timezone
 
-from ayon_core.addon import AYONAddon, ITrayAddon
+from ayon_core.lib import is_headless_mode_enabled
 
+from ayon_core.addon import AYONAddon, ITrayAddon
 from ayon_core import style
 from ayon_core.settings import get_studio_settings
 
-from ayon_usd import HEADLESS_MODE_ENABLED
 from . import config, utils
 from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR, USD_ADDON_ROOT_DIR
 from .version import __version__
 
-if not HEADLESS_MODE_ENABLED:
+if not is_headless_mode_enabled():
     from qtpy import QtWidgets
     from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
@@ -42,7 +42,7 @@ class USDAddon(AYONAddon, ITrayAddon):
     def initialize(self, module_settings):
         """Initialize USD Addon."""
         if not module_settings["ayon_usd"]["allow_addon_start"]:
-            if not HEADLESS_MODE_ENABLED:
+            if not is_headless_mode_enabled():
                 utils.info_popup("Ayon Usd Addon", "The experimental AyonUsd addon is currently activated, "
                     "but you haven't yet acknowledged the user agreement "
                     "indicating your understanding that this feature is "
@@ -130,7 +130,8 @@ class USDAddon(AYONAddon, ITrayAddon):
             progress_title="Unzip UsdLib",
             dependency_id=[usd_download_work_item.get_uuid()],
         )
-        if not HEADLESS_MODE_ENABLED:
+
+        if not is_headless_mode_enabled():
             download_ui = progress_ui.ProgressDialog(
                 controller,
                 close_on_finish=True,
