@@ -20,37 +20,6 @@ DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
 ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
 
 
-def info_popup(title: str, message: str):
-    """ creates a pop up in a QApplication to display a message with an okay button. 
-    it's a blocking function.
-    when the okay button is pressed the QApplication will close and the function will release its block.
-
-    Args:
-        title (str): window title
-        message (str): Popup Message
-    """
-
-    def _run(title: str, message: str): 
-        app = QtWidgets.QApplication()   
-        msg = QtWidgets.QMessageBox()
-        msg.setWindowTitle(title)
-        msg.setText(message)
-        msg.setIcon(QtWidgets.QMessageBox.Information)
-        
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        msg.setDefaultButton(QtWidgets.QMessageBox.Ok)
-        
-        if hasattr(msg, 'exec'):
-            msg.exec() 
-        else:
-            msg.exec_() 
-        
-        app.exit()
-
-    p = multiprocessing.Process(target=_run, args=(title, message))
-    p.start()
-    p.join()
-
 def get_download_dir(create_if_missing=True):
     """Dir path where files are downloaded.
 

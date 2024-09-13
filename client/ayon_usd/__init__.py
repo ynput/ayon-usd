@@ -1,5 +1,10 @@
 """USD Addon for AYON - client part."""
 
+import importlib # noqa: F401
+
+# Define custom exception
+class QtBindingsNotFoundError(Exception):
+    pass
 
 from ayon_core.lib import is_headless_mode_enabled # noqa: F401 
 
@@ -9,6 +14,9 @@ if not is_headless_mode_enabled():
         import qtpy  # noqa: F401
         IS_GUI_MODE = True
     except ImportError:
+        pass
+    except QtBindingsNotFoundError:
+        print("testing")
         pass
     except Exception as e: 
         raise RuntimeError(f"An error occurred while checking for Qt: {e}")

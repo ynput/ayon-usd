@@ -40,16 +40,8 @@ class USDAddon(AYONAddon, ITrayAddon):
     def initialize(self, module_settings):
         """Initialize USD Addon."""
 
-        self.enabled = True
         if not module_settings["ayon_usd"]["allow_addon_start"]:
             self.enabled = False
-            if IS_GUI_MODE:
-                utils.info_popup("Ayon Usd Addon", 
-                    "The experimental AyonUsd addon is currently activated, "
-                    "but you haven't yet acknowledged the user agreement "
-                    "indicating your understanding that this feature is "
-                    "experimental. Please go to the Studio Settings and "
-                    "check the agreement checkbox.")
             raise SystemError(
                 "The experimental AyonUsd addon is currently activated, "
                 "but you haven't yet acknowledged the user agreement "
