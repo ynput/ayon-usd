@@ -337,7 +337,6 @@ def generate_pinning_file(
 
     """
 
-
     if not pinning_file_path.endswith(".json"):
         raise RuntimeError(
             f"Pinning file path is not a json file {pinning_file_path}")
