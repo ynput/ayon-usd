@@ -36,33 +36,42 @@ distributing Usd and Ayon Libs:
 
 ## Configuration
 
-there is a list of things that you can configure in the server settings to
+There is a list of things that you can configure in the server settings to
 achieve the optimal setup for your studio. In most cases you will probably not
-need to touch them tho.
+need to touch them though.
 
 #### LakeFs Config
 
-**LakeFs Settings:** `ayon+settings://ayon_usd/lakefs`\
-LakeFs is the backend of our bin distribution system the addon will use the
-specified server to download the resolvers and AyonUsdLibs from LakeFs.
+**LakeFs Settings:**
+
+The `ayon+settings://ayon_usd/lakefs` section configures the backend
+for our bin distribution system, which uses the specified server to download
+resolvers and AyonUsdLibs from LakeFs.
+
 
 **LakeFs Server Uri:**
-`ayon+settings://ayon_usd/lakefs/server_repo`\
-this is the Uri used to host the LakeFs server. the Ynput server can be found at
+
+`ayon+settings://ayon_usd/lakefs/server_repo`
+
+This is the URI used to host the LakeFs server.  You can find the Ynput server at
 `https://lake.ayon.cloud`
 
-**LakeFs Repository Uri:**
-`ayon+settings://ayon_usd/lakefs/server_repo`\
-this is a LakeFs internal link that also specifies the branch your downloading
-from.\
-this can be great if you want to pin your pipeline to a specific release.
+**LakeFs Repository URI:**
 
-**Asset Resolvers:** `ayon+settings://ayon_usd/lakefs/asset_resolvers`\
-allows you to associate a specific Application name with a specific resolver.\
-we always set up all the resolvers we compile but if you have special App_Names
-in your Applications then you might want to add an App Alias.\
-e.g. if you have hou19.5.xxx setup as a variant for Houdini you can then set 
-it as an alias for the Hou19.5 entry because they share the same resolver.
+`ayon+settings://ayon_usd/lakefs/server_repo`
+
+This is a LakeFs internal link that specifies the branch you are downloading
+from. This can be useful if you want to pin your pipeline to a specific release.
+
+**Asset Resolvers:**
+
+`ayon+settings://ayon_usd/lakefs/asset_resolvers`
+
+This allows you to associate a specific Application name with a specific
+resolver. We always set up all the resolvers we compile, but if you have special
+App_Names in your Applications, you might want to add an App Alias. For example,
+if you have "hou19.5.xxx" set up as a variant for Houdini, you can then set it
+as an alias for the Hou19.5 entry because they share the same resolver.
 
 #### Usd Resolver Config
 
