@@ -9,12 +9,17 @@ from urllib.parse import urlparse
 
 log = logging.getLogger(__name__)
 
+
 def _normalize_path(path):
-    if sys.platform.startswith('win'):
-        if len(path) > 1 and path[1] == ':':
-            path = path[0].lower() + path[1:]
+    if (sys.platform.startswith('win')
+        and len(path) > 1 
+        and path[1] == ':'  
+        ):
+        
+        path = path[0].lower() + path[1:]
     
     return os.path.normpath(path)
+
 
 def is_uri(path: str) -> bool:
     parsed = urlparse(path)
@@ -331,7 +336,6 @@ def generate_pinning_file(
         pinning_file_path: The destination path to write the pinning file to.
 
     """
-
 
     if not pinning_file_path.endswith(".json"):
         raise RuntimeError(
