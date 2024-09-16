@@ -13,7 +13,7 @@ from . import config, utils
 from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR
 from .version import __version__
 
-from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
+from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 
@@ -123,11 +123,12 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
             dependency_id=[usd_download_work_item.get_uuid()],
         )
 
+        from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
         download_ui = progress_ui.ProgressDialog(
             controller,
             close_on_finish=True,
             auto_close_timeout=1,
-            delet_progress_bar_on_finish=False,
+            delete_progress_bar_on_finish=False,
             title="ayon_usd-Addon [UsdLib Download]",
         )
         download_ui.setStyleSheet(style.load_stylesheet())

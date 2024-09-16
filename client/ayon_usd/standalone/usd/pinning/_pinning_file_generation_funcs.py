@@ -11,12 +11,11 @@ log = logging.getLogger(__name__)
 
 
 def _normalize_path(path):
-    if (sys.platform.startswith('win')
-        and len(path) > 1 
-        and path[1] == ':'  
-        ):
-        
-        path = path[0].lower() + path[1:]
+    # On windows force drive letter to lowercase
+    if sys.platform.startswith('win'):
+        drive, tail = os.path.splitdrive(path)
+        drive = drive.lower()
+        path = f"{drive}{tail}"
     
     return os.path.normpath(path)
 
