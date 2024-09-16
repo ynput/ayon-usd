@@ -219,7 +219,7 @@ def get_resolver_setup_info(
     }
 
 
-def get_usd_pinning_envs(published_repres: dict) -> dict:
+def get_usd_pinning_envs(instance) -> dict:
     """Get USD pinning file path from published representations.
 
     This sets the rootless path to the USD pinning file and enables
@@ -228,27 +228,56 @@ def get_usd_pinning_envs(published_repres: dict) -> dict:
     task level.
 
     Args:
-        published_repres (dict): Published representations.
+        instance (pyblish.api.Instance): Published representations.
 
     Returns:
         dict: environment variables needed for USD pinning.
 
     """
     usd_pinning_rootless_file_path = None
-    for repre_info in published_repres.values():
-        rep = repre_info["representation"]
+    if not instance.data.get("published_representations"):
+        usd_pinning_file_path = get_pinning_file_path(instance)
+        anatomy = instance.context.data["anatomy"]
+        usd_pinning_rootless_file_path = anatomy.find_root_template_from_path(
+            usd_pinning_file_path
+        )[1]
+    else:
+    
+        for repre_info in instance.data.get(
+                "published_representations").values():
+            rep = repre_info["representation"]
 
-        if rep["name"] == "usd_pinning":
-            usd_pinning_rootless_file_path = rep["attrib"]["path"]
-            continue
-
-        # skip the rest if usd_pinning_rootless_file_path is found
-        if usd_pinning_rootless_file_path:
-            break
+            if rep["name"] == "usd_pinning":
+                usd_pinning_rootless_file_path = rep["attrib"]["path"]
+                break
 
     if not usd_pinning_rootless_file_path:
+        print("-" * 80)
+        print("No USD pinning file path found.")
+        print("-" * 80)
         return {}
+    
     return {
         "PINNING_FILE_PATH": usd_pinning_rootless_file_path,
         "ENABLE_STATIC_GLOBAL_CACHE": "1",
     }
+
+def get_pinning_file_path(instance) -> pathlib.Path:
+    """Get the path to the pinning file.
+    
+    Args:
+        instance (pyblish.api.Instance): Instance to get the pinning
+            file path for.
+        
+    Returns:
+        pathlib.Path: Path to the pinning file.
+    
+    """
+    return next(
+        (
+            pathlib.Path(rep["stagingDir"]) / rep["files"]
+            for rep in instance.data["representations"]
+            if rep["name"] == "usd_pinning"
+        ),
+        None,
+    )

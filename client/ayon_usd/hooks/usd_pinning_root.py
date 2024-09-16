@@ -8,7 +8,10 @@ class UsdPinningRoot(PreLaunchHook):
     """Pre-launch hook to set USD_ROOT environment variable."""
 
     app_groups: ClassVar = {"maya", "houdini", "blender", "unreal"}
-    launch_types: ClassVar = {LaunchTypes.farm_render}
+    # this should be set to farm_render, but this issue
+    # https://github.com/ynput/ayon-applications/issues/2
+    # stands in the way
+    launch_types: ClassVar = {LaunchTypes.farm_publish}
 
     def execute(self) -> None:
         """Set environments necessary for pinning."""
@@ -24,5 +27,3 @@ class UsdPinningRoot(PreLaunchHook):
             "PROJECT_ROOTS"
         ] = ",".join(f"{key}={value}"
                      for key, value in roots.items())
-
-

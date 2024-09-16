@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import ClassVar
 
 import pyblish.api
-from ayon_core.pipeline import OptionalPyblishPluginMixin
+from ayon_core.pipeline import OptionalPyblishPluginMixin, KnownPublishError
 
 
 class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
@@ -33,7 +33,7 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
     label = "Extract Skeleton Pinning JSON"
     order = pyblish.api.ExtractorOrder + 0.49
-    families: ClassVar = ["usd"]
+    families: ClassVar = ["usd", "usdrender"]
 
     @staticmethod
     def _has_usd_representation(representations: list) -> bool:
@@ -47,23 +47,36 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
         if not self.is_active(instance.data):
             return
 
-        if not self._has_usd_representation(instance.data["representations"]):
-            self.log.info("No USD representation found, skipping.")
-            return
+        # we need to handle usdrender differently as usd for rendering will
+        # be produced much later on the farm.
+        if "usdrender" not in instance.data.get("families", []):
+            if not self._has_usd_representation(instance.data["representations"]):
+                self.log.info("No USD representation found, skipping.")
+                return
 
-        staging_dir = Path(instance.data["stagingDir"])
+        try:
+            staging_dir = Path(instance.data["stagingDir"])
+        except KeyError:
+            self.log.debug("No staging directory on instance found.")
+            try:
+                staging_dir = Path(instance.data["ifdFile"]).parent
+            except KeyError as e:
+                self.log.error("No staging directory found.")
+                raise KnownPublishError("Cannot determine staging directory.") from e
+
         pin_file = f"{staging_dir.stem}_pin.json"
         pin_file_path = staging_dir.joinpath(pin_file)
         pin_representation = {
             "name": "usd_pinning",
             "ext": "json",
             "files": pin_file_path.name,
-            "stagingDir": instance.data["stagingDir"],
+            "stagingDir": staging_dir.as_posix(),
         }
         current_timestamp = datetime.now().timestamp()
         skeleton_pinning_data = {
             "timestamp": current_timestamp,
         }
+        Path.mkdir(staging_dir, parents=True, exist_ok=True)
         with open(pin_file_path, "w") as f:
             json.dump(skeleton_pinning_data, f, indent=4)
 
