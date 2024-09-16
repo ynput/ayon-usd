@@ -108,7 +108,7 @@ class LakeFsSettings(BaseSettingsModel):
         description="The url to your LakeFs server.",
     )
     server_repo: str = SettingsField(
-        "lakefs://ayon-usd/main/",
+        "lakefs://ayon-usd/v0.1.0/",
         title="LakeFs Repository Uri",
         description="The url to your LakeFs Repository Path",
     )

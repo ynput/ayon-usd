@@ -13,7 +13,6 @@ from . import config, utils
 from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR, USD_ADDON_ROOT_DIR
 from .version import __version__
 
-from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
 
@@ -121,6 +120,7 @@ class USDAddon(AYONAddon, ITrayAddon):
             dependency_id=[usd_download_work_item.get_uuid()],
         )
 
+        from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
         download_ui = progress_ui.ProgressDialog(
             controller,
             close_on_finish=True,
