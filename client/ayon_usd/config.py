@@ -53,8 +53,8 @@ def get_lakefs_usdlib_name(lake_fs_repo: str) -> str:
 
     raise RuntimeError(
         "No AyonUsdBin/usd item found for current platform "
-            f"'{platform_name}' on LakeFS server: {lake_fs_repo}. "
-            f"All LakeFS repository items found: {lake_fs_repo_items}")
+        f"'{platform_name}' on LakeFS server: {lake_fs_repo}. "
+        f"All LakeFS repository items found: {lake_fs_repo_items}")
 
 
 def get_lakefs_usdlib_path(settings: dict) -> str:
