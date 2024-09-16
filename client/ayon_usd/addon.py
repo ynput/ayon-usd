@@ -125,7 +125,7 @@ class USDAddon(AYONAddon, ITrayAddon):
             controller,
             close_on_finish=True,
             auto_close_timeout=1,
-            delet_progress_bar_on_finish=False,
+            delete_progress_bar_on_finish=False,
             title="ayon_usd-Addon [UsdLib Download]",
         )
         download_ui.setStyleSheet(style.load_stylesheet())
