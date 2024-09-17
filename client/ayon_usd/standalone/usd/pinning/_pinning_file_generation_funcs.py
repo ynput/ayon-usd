@@ -345,12 +345,13 @@ def generate_pinning_file(
     resolver = Ar.GetResolver()
     pinning_data = get_asset_dependencies(entry_usd, resolver)
     
-    # for windows we need to make the drive letter lower case.
+    # on Windows, we need to make the drive letter lower case.
+    normalized_data = {}
     if sys.platform.startswith('win'):
         for key, val in pinning_data.items():
-            pinning_data.pop(key)
-            pinning_data[_normalize_path(key)] = _normalize_path(val)
+            normalized_data[_normalize_path(key)] = _normalize_path(val)
 
+    pinning_data = normalized_data
 
     rootless_pinning_data = remove_root_from_dependency_info(
         pinning_data, root_info
