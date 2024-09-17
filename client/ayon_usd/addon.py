@@ -15,7 +15,6 @@ from .version import __version__
 
 from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 from .ayon_bin_client.ayon_bin_distro.util import zip
-from .ayon_bin_client.ayon_bin_distro.work_handler import worker
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
