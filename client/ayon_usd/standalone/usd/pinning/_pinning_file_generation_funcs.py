@@ -343,14 +343,13 @@ def generate_pinning_file(
     # Assume that the environment sets up the correct default AyonUsdResolver
     resolver = Ar.GetResolver()
     pinning_data = get_asset_dependencies(entry_usd, resolver)
-    
-    # on Windows, we need to make the drive letter lower case.
-    normalized_data = {}
-    if sys.platform.startswith('win'):
-        for key, val in pinning_data.items():
-            normalized_data[_normalize_path(key)] = _normalize_path(val)
 
-    pinning_data = normalized_data
+    # on Windows, we need to make the drive letter lower case.
+    if sys.platform.startswith('win'):
+        pinning_data = {
+            _normalize_path(key): _normalize_path(val)
+            for key, val in pinning_data.items()
+        }
 
     rootless_pinning_data = remove_root_from_dependency_info(
         pinning_data, root_info
