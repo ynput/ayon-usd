@@ -239,10 +239,10 @@ def get_usd_pinning_envs(instance) -> dict:
         usd_pinning_file_path = get_pinning_file_path(instance)
         anatomy = instance.context.data["anatomy"]
         usd_pinning_rootless_file_path = anatomy.find_root_template_from_path(
-            usd_pinning_file_path
+            usd_pinning_file_path,
         )[1]
     else:
-    
+
         for repre_info in instance.data.get(
                 "published_representations").values():
             rep = repre_info["representation"]
@@ -252,11 +252,8 @@ def get_usd_pinning_envs(instance) -> dict:
                 break
 
     if not usd_pinning_rootless_file_path:
-        print("-" * 80)
-        print("No USD pinning file path found.")
-        print("-" * 80)
         return {}
-    
+
     return {
         "PINNING_FILE_PATH": usd_pinning_rootless_file_path,
         "ENABLE_STATIC_GLOBAL_CACHE": "1",
