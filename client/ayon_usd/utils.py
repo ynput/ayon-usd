@@ -270,7 +270,7 @@ def get_pinning_file_path(instance) -> pathlib.Path:
             file path for.
         
     Returns:
-        pathlib.Path: Path to the pinning file.
+        pathlib.Path | None: Path to the pinning file.
     
     """
     return next(
