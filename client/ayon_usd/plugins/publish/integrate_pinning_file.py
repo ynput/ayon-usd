@@ -5,7 +5,6 @@ This is WIP and will be refactored in the future.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar
 
 import ayon_api
 import pyblish.api
@@ -19,8 +18,7 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
 
     order = pyblish.api.IntegratorOrder + 0.01
     label = "Integrate data into USD pinning file"
-    optional = True
-    families: ClassVar = ["usd", "usdrender"]
+    families = ["usd", "usdrender"]
 
     def process(self, instance: pyblish.api.Instance) -> None:
         """Process the plugin."""
