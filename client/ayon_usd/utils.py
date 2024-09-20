@@ -217,3 +217,64 @@ def get_resolver_setup_info(
         "PYTHONPATH": python_path,
         ld_path_key: ld_library_path
     }
+
+
+def get_usd_pinning_envs(instance) -> dict:
+    """Get USD pinning file path from published representations.
+
+    This sets the rootless path to the USD pinning file and enables
+    the static global cache. It is not setting ``PROJECT_ROOTS`` because
+    they are platform dependent and on farm they need to be set on
+    task level.
+
+    Args:
+        instance (pyblish.api.Instance): Published representations.
+
+    Returns:
+        dict: environment variables needed for USD pinning.
+
+    """
+    usd_pinning_rootless_file_path = None
+    if not instance.data.get("published_representations"):
+        usd_pinning_file_path = get_pinning_file_path(instance)
+        anatomy = instance.context.data["anatomy"]
+        usd_pinning_rootless_file_path = anatomy.find_root_template_from_path(
+            usd_pinning_file_path,
+        )[1]
+    else:
+
+        for repre_info in instance.data.get(
+                "published_representations").values():
+            rep = repre_info["representation"]
+
+            if rep["name"] == "usd_pinning":
+                usd_pinning_rootless_file_path = rep["attrib"]["path"]
+                break
+
+    if not usd_pinning_rootless_file_path:
+        return {}
+
+    return {
+        "PINNING_FILE_PATH": usd_pinning_rootless_file_path,
+        "ENABLE_STATIC_GLOBAL_CACHE": "1",
+    }
+
+def get_pinning_file_path(instance) -> pathlib.Path:
+    """Get the path to the pinning file.
+    
+    Args:
+        instance (pyblish.api.Instance): Instance to get the pinning
+            file path for.
+        
+    Returns:
+        pathlib.Path | None: Path to the pinning file.
+    
+    """
+    return next(
+        (
+            pathlib.Path(rep["stagingDir"]) / rep["files"]
+            for rep in instance.data["representations"]
+            if rep["name"] == "usd_pinning"
+        ),
+        None,
+    )
