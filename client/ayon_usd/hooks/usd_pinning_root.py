@@ -1,7 +1,5 @@
 """Pre-launch hook to set USD pinning related environment variable."""
-from ayon_api import get_project
 from ayon_applications import LaunchTypes, PreLaunchHook
-from ayon_core.pipeline import Anatomy
 
 
 class UsdPinningRoot(PreLaunchHook):
