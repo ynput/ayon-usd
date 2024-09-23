@@ -18,9 +18,7 @@ class UsdPinningRoot(PreLaunchHook):
         if not self.launch_context.env.get("PINNING_FILE_PATH"):
             return
 
-        project_entity = get_project(self.data.project_name)
-        anatomy = Anatomy(
-            self.data.project_name, project_entity=project_entity)
+        anatomy = self.data["anatomy"]
         self.launch_context.env["PINNING_FILE_PATH"] = anatomy.fill_root(
             self.launch_context.env.get("PINNING_FILE_PATH"),
         )
