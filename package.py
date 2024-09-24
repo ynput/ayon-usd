@@ -9,3 +9,7 @@ services = {}
 
 plugin_for = ["ayon_server"]
 build_command = ""
+
+ayon_compatible_addons = {
+    "deadline": ">=0.3.0",
+}
