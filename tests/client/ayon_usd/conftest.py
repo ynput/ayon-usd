@@ -244,12 +244,12 @@ def installed_addon(
     response = session.post(
         f"{server_url}/api/addons/install",
         json={
-            "addonName": "ayon_usd",
+            "addonName": "usd",
             "addonVersion": version
         },
         files={
             "upload_file": open(
-                build_addon_package[1] / f"ayon_usd-{version}.zip", "rb")
+                build_addon_package[1] / f"usd-{version}.zip", "rb")
         }
     )
     assert response.status_code == 200, f"Failed to install addon: {response.text}"
@@ -269,12 +269,12 @@ def installed_addon(
     assert response.status_code == 200, f"Failed to get installed addons: {response.text}"
 
     addon_names = [item["addonName"] for item in response.json()["items"]]
-    assert "ayon_usd" in addon_names, f"Addon 'ayon_usd' not found in installed addons: {addon_names}"
+    assert "usd" in addon_names, f"Addon 'usd' not found in installed addons: {addon_names}"
 
     yield version
 
     printer_session("Uninstalling addon ...")
-    # response = session.delete(f"{server_url}/api/ayon_usd/{version}")
+    # response = session.delete(f"{server_url}/api/usd/{version}")
     # assert response.status_code == 200, f"Failed to uninstall addon: {response.text}"
 
     

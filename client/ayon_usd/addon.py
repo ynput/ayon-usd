@@ -28,7 +28,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
     Cares about supplying USD Framework.
     """
 
-    name = "ayon_usd"
+    name = "usd"
     version = __version__
     _download_window = None
 
@@ -36,9 +36,9 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
         """Initialize tray module."""
         super(USDAddon, self).tray_init()
 
-    def initialize(self, module_settings):
+    def initialize(self, studio_settings):
         """Initialize USD Addon."""
-        if not module_settings["ayon_usd"]["allow_addon_start"]:
+        if not studio_settings["usd"]["allow_addon_start"]:
             raise SystemError(
                 "The experimental AyonUsd addon is currently activated, "
                 "but you haven't yet acknowledged the user agreement "
