@@ -51,7 +51,7 @@ def is_usd_lib_download_needed(settings: dict) -> bool:
         bool: When true, a new download is required.
 
     """
-    lake_fs_repo = settings["ayon_usd"]["lakefs"]["server_repo"]
+    lake_fs_repo = settings["usd"]["lakefs"]["server_repo"]
     usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo))
     if not os.path.exists(usd_lib_dir):
         return True
@@ -119,7 +119,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
     """
-    lakefs = settings["ayon_usd"]["lakefs"]
+    lakefs = settings["usd"]["lakefs"]
     resolver_overwrite_list = lakefs["lake_fs_overrides"]
     if resolver_overwrite_list:
         resolver_overwrite = next(
@@ -206,9 +206,9 @@ def get_resolver_setup_info(
         env, "PYTHONPATH", resolver_python_path.as_posix()
     )
 
-    resolver_settings = settings["ayon_usd"]["ayon_usd_resolver"]
+    resolver_settings = settings["usd"]["ayon_usd_resolver"]
     return {
-        "TF_DEBUG": settings["ayon_usd"]["usd"]["usd_tf_debug"],
+        "TF_DEBUG": settings["usd"]["usd"]["usd_tf_debug"],
         "AYONLOGGERLOGLVL": resolver_settings["ayon_log_lvl"],
         "AYONLOGGERSFILELOGGING": resolver_settings["ayon_file_logger_enabled"],  # noqa
         "AYONLOGGERSFILEPOS": resolver_settings["file_logger_file_path"],

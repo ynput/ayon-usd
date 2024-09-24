@@ -1,7 +1,7 @@
 """AYON USD Addon package file."""
 
-name = "ayon_usd"
-title = "Usd Addon"
+name = "usd"
+title = "USD"
 version = "0.1.0"
 client_dir = "ayon_usd"
 
