@@ -32,12 +32,13 @@ class InitializeAssetResolver(PreLaunchHook):
         resolver_lake_fs_path = utils.get_resolver_to_download(
             project_settings, self.app_name)
         if not resolver_lake_fs_path:
-            raise RuntimeError(
-                "No USD Resolver could be found but "
-                f"AYON-Usd addon is activated {self.app_name}"
+            self.log.warning(
+                "No USD Resolver could be found but AYON-Usd addon is"
+                f" activated for application: {self.app_name}"
             )
+            return
 
-        self.log.info(f"Using resolver from LakeFS: {resolver_lake_fs_path}")
+        self.log.info(f"Using resolver from lakeFS: {resolver_lake_fs_path}")
         lake_fs = config.get_global_lake_instance()
         lake_fs_resolver_time_stamp = (
             lake_fs.get_element_info(resolver_lake_fs_path).get(
@@ -45,10 +46,11 @@ class InitializeAssetResolver(PreLaunchHook):
             )
         )
         if not lake_fs_resolver_time_stamp:
-            raise ValueError(
-                "Could not find resolver timestamp on LakeFs server "
+            self.log.error(
+                "Could not find resolver timestamp on lakeFS server "
                 f"for application: {self.app_name}"
             )
+            return
 
         # Check for existing local resolver that matches the lakefs timestamp
         with open(ADDON_DATA_JSON_PATH, "r") as data_json:
