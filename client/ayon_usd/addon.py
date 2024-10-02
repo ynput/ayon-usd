@@ -39,14 +39,15 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
     def initialize(self, studio_settings):
         """Initialize USD Addon."""
         if not studio_settings["usd"]["allow_addon_start"]:
-            raise SystemError(
-                "The experimental AyonUsd addon is currently activated, "
+            self.log.error(
+                "The experimental AYON USD addon is currently activated, "
                 "but you haven't yet acknowledged the user agreement "
                 "indicating your understanding that this feature is "
                 "experimental. Please go to the Studio Settings and "
-                "check the agreement checkbox."
+                "check the agreement checkbox. The AYON USD addon will now "
+                "be disabled"
             )
-        self.enabled = True
+            self.enabled = False
         self._download_window = None
 
     def tray_start(self):
