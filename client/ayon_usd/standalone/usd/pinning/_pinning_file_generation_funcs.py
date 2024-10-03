@@ -50,8 +50,7 @@ def remove_root_from_dependency_info(
         )
 
     replacements = {path: replacer for replacer, path in root_info.items()}
-
-    pattern = "|".join(f"({pat})" for pat in replacements)
+    pattern = "|".join(f"({re.escape(pat)})" for pat in replacements)
     regx = re.compile(pattern)
 
     # TODO test if there are cases where we have more than one match.group
