@@ -199,12 +199,12 @@ class LakeFsSettings(BaseSettingsModel):
             AppPlatformPathModel(
                 name="houdini/20-5",
                 platform="windows",
-                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py310_Win_Windows_AMD64.zip",
+                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py311_Win_Windows_AMD64.zip",
             ),
             AppPlatformPathModel(
                 name="houdini/20-5Py310",
                 platform="windows",
-                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py311_Win_Windows_AMD64.zip",
+                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py310_Win_Windows_AMD64.zip",
             ),
             AppPlatformPathModel(
                 name="unreal/5-4",
