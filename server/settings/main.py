@@ -53,7 +53,7 @@ class AppPlatformPathModel(BaseSettingsModel):
     app_alias_list: list[str] = SettingsField(
         title="Application Alias",
         description="Define a list of App Names that use the same "
-                    "resolver as the parent application",
+        "resolver as the parent application",
         default_factory=list,
     )
 
@@ -187,6 +187,26 @@ class LakeFsSettings(BaseSettingsModel):
                 lake_fs_path="AyonUsdResolverBin/HouWin/Houdini20_Py39_Win_Windows_AMD64.zip",
             ),
             AppPlatformPathModel(
+                name="houdini/20-5",
+                platform="linux",
+                lake_fs_path="AyonUsdResolverBin/HouLinux/Houdini205_Py311_Linux_Linux_x86_64.zip",
+            ),
+            AppPlatformPathModel(
+                name="houdini/20-5Py310",
+                platform="linux",
+                lake_fs_path="AyonUsdResolverBin/HouLinux/Houdini205_Py310_Linux_Linux_x86_64.zip",
+            ),
+            AppPlatformPathModel(
+                name="houdini/20-5",
+                platform="windows",
+                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py310_Win_Windows_AMD64.zip",
+            ),
+            AppPlatformPathModel(
+                name="houdini/20-5Py310",
+                platform="windows",
+                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py311_Win_Windows_AMD64.zip",
+            ),
+            AppPlatformPathModel(
                 name="unreal/5-4",
                 platform="linux",
                 lake_fs_path="AyonUsdResolverBin/UnrealLinux/Unreal5_4_Py39_Linux_Linux_x86_64.zip",
@@ -211,8 +231,7 @@ class LakeFsSettings(BaseSettingsModel):
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
         title="Resolver Application overwrites",
         description=(
-            "Allows to define a specific Resolver Zip "
-            "for a specific Application"
+            "Allows to define a specific Resolver Zip " "for a specific Application"
         ),
         default_factory=list,
     )
@@ -267,9 +286,7 @@ class USDSettings(BaseSettingsModel):
     """USD settings."""
 
     allow_addon_start: bool = SettingsField(
-        False, title=(
-            "I understand and accept that this is an experimental feature"
-        )
+        False, title=("I understand and accept that this is an experimental feature")
     )
 
     lakefs: LakeFsSettings = SettingsField(
@@ -280,6 +297,4 @@ class USDSettings(BaseSettingsModel):
         default_factory=AyonResolverSettings, title="UsdResolver Config"
     )
 
-    usd: UsdSettings = SettingsField(
-        default_factory=UsdSettings, title="UsdLib Config"
-    )
+    usd: UsdSettings = SettingsField(default_factory=UsdSettings, title="UsdLib Config")
