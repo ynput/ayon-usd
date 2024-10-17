@@ -231,7 +231,7 @@ class LakeFsSettings(BaseSettingsModel):
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
         title="Resolver Application overwrites",
         description=(
-            "Allows to define a specific Resolver Zip " "for a specific Application"
+            "Allows to define a specific Resolver Zip for a specific Application"
         ),
         default_factory=list,
     )
