@@ -2,6 +2,7 @@
 
 from ayon_server.settings import BaseSettingsModel, SettingsField
 
+from .publish_plugins import PublishPluginsModel, DEFAULT_PUBLISH_VALUES
 
 def platform_enum():
     """Return enumerator for supported platforms."""
@@ -298,3 +299,8 @@ class USDSettings(BaseSettingsModel):
     )
 
     usd: UsdSettings = SettingsField(default_factory=UsdSettings, title="UsdLib Config")
+
+    publish: PublishPluginsModel = SettingsField(
+        title="Publish plugins",
+        default=DEFAULT_PUBLISH_VALUES
+    )
