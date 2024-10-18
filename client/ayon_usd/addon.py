@@ -69,7 +69,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
     def _download_global_lakefs_binaries(self):
         settings = get_studio_settings()
         if not settings["usd"]["lakefs"].get("enabled", False):
-            self.log.info("USD LakeFS binary distribution is disabled.")
+            self.log.info("USD Binary distribution is disabled.")
             return
 
         os.makedirs(DOWNLOAD_DIR, exist_ok=True)

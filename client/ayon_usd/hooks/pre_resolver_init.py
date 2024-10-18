@@ -21,7 +21,7 @@ class InitializeAssetResolver(PreLaunchHook):
         project_settings = self.data["project_settings"]
         if not project_settings["usd"]["lakefs"].get("enabled", False):
             self.log.info(
-                "USD LakeFS binary distribution for AYON USD Resolver is"
+                "USD Binary distribution for AYON USD Resolver is"
                 " disabled.")
             return
 

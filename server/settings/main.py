@@ -97,8 +97,8 @@ class AppPlatformURIModel(BaseSettingsModel):
     )
 
 
-class LakeFsSettings(BaseSettingsModel):
-    """LakeFS binary distribution of USD and AYON USD Resolver"""
+class BinaryDistributionSettings(BaseSettingsModel):
+    """Binary distribution of USD and AYON USD Resolver"""
 
     _layout = "collapsed"
 
@@ -286,8 +286,8 @@ class UsdLibConfigSettings(BaseSettingsModel):
 
 class USDSettings(BaseSettingsModel):
 
-    lakefs: LakeFsSettings = SettingsField(
-        default_factory=LakeFsSettings, title="LakeFs Binary Distribution"
+    lakefs: BinaryDistributionSettings = SettingsField(
+        default_factory=BinaryDistributionSettings, title="Binary Distribution"
     )
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
