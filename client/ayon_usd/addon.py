@@ -38,16 +38,6 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
     def initialize(self, studio_settings):
         """Initialize USD Addon."""
-        if not studio_settings["usd"]["allow_addon_start"]:
-            self.log.error(
-                "The experimental AYON USD addon is currently activated, "
-                "but you haven't yet acknowledged the user agreement "
-                "indicating your understanding that this feature is "
-                "experimental. Please go to the Studio Settings and "
-                "check the agreement checkbox. The AYON USD addon will now "
-                "be disabled"
-            )
-            self.enabled = False
         self._download_window = None
 
     def tray_start(self):
@@ -55,6 +45,32 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
         Download USD if needed.
         """
+        self._download_global_lakefs_binaries()
+
+    def tray_exit(self):
+        """Exit tray module."""
+        pass
+
+    def tray_menu(self, tray_menu):
+        """Add menu items to tray menu."""
+        pass
+
+    def get_launch_hook_paths(self):
+        """Get paths to launch hooks."""
+        return [os.path.join(USD_ADDON_DIR, "hooks")]
+
+    def get_plugin_paths(self):
+        return {
+            "publish": [
+                os.path.join(USD_ADDON_DIR, "plugins", "publish")
+            ]
+        }
+
+    def _download_global_lakefs_binaries(self):
+        settings = get_studio_settings()
+        if not settings["usd"]["lakefs"].get("enabled", False):
+            self.log.info("USD LakeFS binary distribution is disabled.")
+            return
 
         os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
@@ -66,9 +82,8 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
                 }
                 json.dump(init_data, json_file)
 
-        settings = get_studio_settings()
         if not utils.is_usd_lib_download_needed(settings):
-            print("usd is already downloaded")
+            self.log.info("USD Libs already available. Skipping download.")
             return
 
         lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
@@ -134,22 +149,3 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
         download_ui.setStyleSheet(style.load_stylesheet())
         download_ui.start()
         self._download_window = download_ui
-
-    def tray_exit(self):
-        """Exit tray module."""
-        pass
-
-    def tray_menu(self, tray_menu):
-        """Add menu items to tray menu."""
-        pass
-
-    def get_launch_hook_paths(self):
-        """Get paths to launch hooks."""
-        return [os.path.join(USD_ADDON_DIR, "hooks")]
-
-    def get_plugin_paths(self):
-        return {
-            "publish": [
-                os.path.join(USD_ADDON_DIR, "plugins", "publish")
-            ]
-        }
