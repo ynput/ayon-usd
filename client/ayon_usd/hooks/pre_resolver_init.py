@@ -19,7 +19,7 @@ class InitializeAssetResolver(PreLaunchHook):
     def execute(self):
         """Pre-launch hook entry method."""
         project_settings = self.data["project_settings"]
-        if not project_settings["usd"]["lakefs"].get("enabled", False):
+        if not project_settings["usd"]["lakefs"]["enabled"]:
             self.log.info(
                 "USD Binary distribution for AYON USD Resolver is"
                 " disabled.")
