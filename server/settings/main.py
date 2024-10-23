@@ -286,7 +286,7 @@ class UsdLibConfigSettings(BaseSettingsModel):
 
 class USDSettings(BaseSettingsModel):
 
-    lakefs: BinaryDistributionSettings = SettingsField(
+    distribution: BinaryDistributionSettings = SettingsField(
         default_factory=BinaryDistributionSettings, title="Binary Distribution"
     )
 
