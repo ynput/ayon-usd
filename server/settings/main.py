@@ -125,7 +125,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
         description="LakeFs Access Key",
     )
     asset_resolvers: list[AppPlatformPathModel] = SettingsField(
-        title="Resolver Application LakeFs Paths",
+        title="Resolver Application Paths",
         description="Allows an admin to define a specific Resolver Zip for a specific Application",
         default=[
             AppPlatformPathModel(
@@ -231,7 +231,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
         ],
     )
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
-        title="Resolver Application overwrites",
+        title="Resolver Application Overwrites",
         description=(
             "Allows to define a specific Resolver Zip for a specific Application"
         ),
