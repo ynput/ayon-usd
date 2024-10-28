@@ -16,19 +16,15 @@ class InitializeAssetResolver(PreLaunchHook):
     app_groups = {"maya", "houdini", "unreal"}
     launch_types = {LaunchTypes.local}
 
-    def _setup_resolver(self, local_resolver, settings):
-        self.log.info(
-            f"Initializing USD asset resolver for application: {self.app_name}"
-        )
-
-        updated_env = utils.get_resolver_setup_info(
-            local_resolver, settings, env=self.launch_context.env
-        )
-        self.launch_context.env.update(updated_env)
-
     def execute(self):
         """Pre-launch hook entry method."""
         project_settings = self.data["project_settings"]
+        if not project_settings["usd"]["distribution"]["enabled"]:
+            self.log.info(
+                "USD Binary distribution for AYON USD Resolver is"
+                " disabled.")
+            return
+
         resolver_lake_fs_path = utils.get_resolver_to_download(
             project_settings, self.app_name)
         if not resolver_lake_fs_path:
@@ -85,3 +81,13 @@ class InitializeAssetResolver(PreLaunchHook):
             json.dump(addon_data_json, addon_json)
 
         self._setup_resolver(local_resolver, project_settings)
+
+    def _setup_resolver(self, local_resolver, settings):
+        self.log.info(
+            f"Initializing USD asset resolver for application: {self.app_name}"
+        )
+
+        updated_env = utils.get_resolver_setup_info(
+            local_resolver, settings, env=self.launch_context.env
+        )
+        self.launch_context.env.update(updated_env)

@@ -28,11 +28,11 @@ def get_global_lake_instance(settings=None):
 
     if not settings:
         settings = get_studio_settings()
-    lakefs = settings["usd"]["lakefs"]
+    distribution = settings["usd"]["distribution"]
     return wrapper.LakeCtl(
-        server_url=lakefs["server_uri"],
-        access_key_id=lakefs["access_key_id"],
-        secret_access_key=lakefs["secret_access_key"],
+        server_url=distribution["server_uri"],
+        access_key_id=distribution["access_key_id"],
+        secret_access_key=distribution["secret_access_key"],
     )
 
 
@@ -59,6 +59,6 @@ def get_lakefs_usdlib_name(lake_fs_repo: str) -> str:
 
 def get_lakefs_usdlib_path(settings: dict) -> str:
     """Return AyonUsdBin/usd LakeFS full url for current platform. """
-    lake_fs_repo = settings["usd"]["lakefs"]["server_repo"]
+    lake_fs_repo = settings["usd"]["distribution"]["server_repo"]
     usd_lib_conf = get_lakefs_usdlib_name(lake_fs_repo)
     return f"{lake_fs_repo}{usd_lib_conf}"
