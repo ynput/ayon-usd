@@ -51,7 +51,7 @@ def is_usd_lib_download_needed(settings: dict) -> bool:
         bool: When true, a new download is required.
 
     """
-    lake_fs_repo = settings["usd"]["lakefs"]["server_repo"]
+    lake_fs_repo = settings["usd"]["distribution"]["server_repo"]
     usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo))
     if not os.path.exists(usd_lib_dir):
         return True
@@ -119,8 +119,8 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
     """
-    lakefs = settings["usd"]["lakefs"]
-    resolver_overwrite_list = lakefs["lake_fs_overrides"]
+    distribution = settings["usd"]["distribution"]
+    resolver_overwrite_list = distribution["lake_fs_overrides"]
     if resolver_overwrite_list:
         resolver_overwrite = next(
             (
@@ -134,7 +134,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
         if resolver_overwrite:
             return resolver_overwrite["lake_fs_path"]
 
-    resolver_list = lakefs["asset_resolvers"]
+    resolver_list = distribution["asset_resolvers"]
     if not resolver_list:
         return ""
 
@@ -150,7 +150,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     if not resolver:
         return ""
 
-    lake_fs_repo_uri = lakefs["server_repo"]
+    lake_fs_repo_uri = distribution["server_repo"]
     resolver_lake_path = lake_fs_repo_uri + resolver["lake_fs_path"]
     return resolver_lake_path
 

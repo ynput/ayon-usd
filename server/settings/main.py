@@ -64,7 +64,7 @@ class AppPlatformPathModel(BaseSettingsModel):
         description="windows / linux / darwin",
     )
     lake_fs_path: str = SettingsField(
-        title="LakeFs Object Path",
+        title="Repository Object Path",
         description=(
             "The LakeFs internal path to the resolver zip, e.g: "
             "`AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`"
@@ -89,7 +89,7 @@ class AppPlatformURIModel(BaseSettingsModel):
         description="windows / linux / darwin",
     )
     uri: str = SettingsField(
-        title="LakeFs Object Uri",
+        title="Repository Object Uri",
         description=(
             "Path to USD Asset Resolver plugin zip file on the LakeFs server, "
             "e.g: `lakefs://ayon-usd/V001/AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`"  # noqa
@@ -97,33 +97,35 @@ class AppPlatformURIModel(BaseSettingsModel):
     )
 
 
-class LakeFsSettings(BaseSettingsModel):
-    """LakeFs Settings / Download Settings ?"""
+class BinaryDistributionSettings(BaseSettingsModel):
+    """Binary distribution of USD and AYON USD Resolver"""
 
     _layout = "collapsed"
 
+    enabled: bool = SettingsField(False)
+
     server_uri: str = SettingsField(
         "https://lake.ayon.cloud",
-        title="LakeFs Server Uri",
+        title="Server Uri",
         description="The url to your LakeFs server.",
     )
     server_repo: str = SettingsField(
         "lakefs://ayon-usd/v0.2.0/",
-        title="LakeFs Repository Uri",
+        title="Repository Uri",
         description="The url to your LakeFs Repository Path",
     )
     access_key_id: str = SettingsField(
-        "{Ayon_LakeFs_Key_Id}",
+        "{AYON_Distribution_Key_Id}",
         title="Access Key Id",
         description="LakeFs Access Key Id",
     )
     secret_access_key: str = SettingsField(
-        "{Ayon_LakeFs_Key}",
+        "{AYON_Distribution_Access_Key}",
         title="Access Key",
         description="LakeFs Access Key",
     )
     asset_resolvers: list[AppPlatformPathModel] = SettingsField(
-        title="Resolver Application LakeFs Paths",
+        title="Resolver Application Paths",
         description="Allows an admin to define a specific Resolver Zip for a specific Application",
         default=[
             AppPlatformPathModel(
@@ -229,7 +231,7 @@ class LakeFsSettings(BaseSettingsModel):
         ],
     )
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
-        title="Resolver Application overwrites",
+        title="Resolver Application Overwrites",
         description=(
             "Allows to define a specific Resolver Zip for a specific Application"
         ),
@@ -238,21 +240,30 @@ class LakeFsSettings(BaseSettingsModel):
 
 
 class AyonResolverSettings(BaseSettingsModel):
-    """LakeFs Settings / Download Settings ?"""
+    """AYON USD resolver Settings"""
 
     _layout = "collapsed"
 
     ayon_log_lvl: str = SettingsField(
         "WARN",
-        title="AyonResolver Log Lvl",
+        title="Resolver Log Lvl",
         enum_resolver=log_lvl_enum,
         description="Set verbosity of the AyonUsdResolver logger",
     )
     ayon_file_logger_enabled: str = SettingsField(
         "OFF",
-        title="AyonResolver File Logger Enabled ",
+        title="Resolver File Logger Enabled ",
         enum_resolver=file_logger_enum,
         description="Enable or disable AyonUsdResolver file logger",
+    )
+    file_logger_file_path: str = SettingsField(
+        "",
+        title="Resolver File logger file path",
+        description=(
+            "Allows you to set a custom location where the file logger will "
+            "export to. This can be a relative or absolute path. This is only "
+            "used if `ayon_file_logger_enabled` is enabled."
+        ),
     )
     ayon_logger_logging_keys: str = SettingsField(
         "",
@@ -260,19 +271,10 @@ class AyonResolverSettings(BaseSettingsModel):
         enum_resolver=logger_logging_keys_enum,
         description="List of extra logging options for the AyonCppApi",
     )
-    file_logger_file_path: str = SettingsField(
-        "",
-        title="AyonResolver File logger file path",
-        description=(
-            "Allows you to set a custom location where the file logger will "
-            "export to. This can be a relative or absolute path. This is only "
-            "used if `ayon_file_logger_enabled` is enabled."
-        ),
-    )
 
 
-class UsdSettings(BaseSettingsModel):
-    """LakeFs Settings / Download Settings ?"""
+class UsdLibConfigSettings(BaseSettingsModel):
+    """Settings for USD"""
 
     _layout = "collapsed"
     usd_tf_debug: str = SettingsField(
@@ -283,18 +285,14 @@ class UsdSettings(BaseSettingsModel):
 
 
 class USDSettings(BaseSettingsModel):
-    """USD settings."""
 
-    allow_addon_start: bool = SettingsField(
-        False, title=("I understand and accept that this is an experimental feature")
-    )
-
-    lakefs: LakeFsSettings = SettingsField(
-        default_factory=LakeFsSettings, title="LakeFs Config"
+    distribution: BinaryDistributionSettings = SettingsField(
+        default_factory=BinaryDistributionSettings, title="Binary Distribution"
     )
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
-        default_factory=AyonResolverSettings, title="UsdResolver Config"
+        default_factory=AyonResolverSettings, title="AYON USD Resolver Config"
     )
 
-    usd: UsdSettings = SettingsField(default_factory=UsdSettings, title="UsdLib Config")
+    usd: UsdLibConfigSettings = SettingsField(
+        default_factory=UsdLibConfigSettings, title="USD Library Config")
