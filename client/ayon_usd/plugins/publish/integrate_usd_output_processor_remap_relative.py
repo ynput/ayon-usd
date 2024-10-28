@@ -68,16 +68,15 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
                 "stagingDir", instance.data.get("stagingDir"))
 
             # Process single file or sequence of the representation
-            if isinstance(representation["files"], str):
-                # Single file
-                fname: str = representation["files"]
-                path = os.path.join(staging_dir, fname)
+            filenames = representation["files"]
+            if isinstance(filenames, str):
+                # Single file is stored as `str` in `instance.data["files"]`
+                filenames = [filenames]
+                
+            filenames: "list[str]"
+            for filename in filenames:
+                path = os.path.join(staging_dir, filename)
                 self.process_usd(path, start=published_path_root)
-            else:
-                # Sequence
-                for fname in representation["files"]:
-                    path = os.path.join(staging_dir, fname)
-                    self.process_usd(path, start=published_path_root)
 
         # Some instance may have additional transferred files which
         # themselves are not a representation. For those we need to look in
