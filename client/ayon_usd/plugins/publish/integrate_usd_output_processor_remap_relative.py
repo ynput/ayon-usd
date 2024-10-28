@@ -62,6 +62,8 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
                 ext=representation.get("ext")
             )
             published_path_root = os.path.dirname(published_path)
+            self.log.debug(
+                f"Making USD paths relative to {published_path_root}")
 
             # Process all files of the representation
             staging_dir: str = representation.get(
@@ -72,7 +74,7 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
             if isinstance(filenames, str):
                 # Single file is stored as `str` in `instance.data["files"]`
                 filenames = [filenames]
-                
+
             filenames: "list[str]"
             for filename in filenames:
                 path = os.path.join(staging_dir, filename)
