@@ -28,6 +28,7 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
 
     label = "Process USD files to use relative paths"
     families = ["usd"]
+    settings_category = "usd"
 
     # Run just before the Integrator
     order = pyblish.api.IntegratorOrder - 0.01
