@@ -2,6 +2,7 @@
 
 This is WIP and will be refactored in the future.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -18,7 +19,7 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
 
     order = pyblish.api.IntegratorOrder + 0.01
     label = "Integrate data into USD pinning file"
-    families = ["usd", "usdrender"]
+    families = ["usdrender"]
 
     def process(self, instance: pyblish.api.Instance) -> None:
         """Process the plugin."""
@@ -28,8 +29,7 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
 
         # get pinning json file
         if "usdrender" in instance.data.get("families", []):
-            self.log.debug(
-                "Extracting USD pinning file for usdrender family.")
+            self.log.debug("Extracting USD pinning file for usdrender family.")
             usd_file_path = self.save_usd(instance)
             for rep in instance.data["representations"]:
                 if rep["name"] == "usd_pinning":
@@ -43,7 +43,8 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
             ayon_api.get_representation_by_name(
                 get_current_project_name(),
                 representation_name="usd_pinning",
-                version_id=instance.data["versionEntity"]["id"])
+                version_id=instance.data["versionEntity"]["id"],
+            )
 
             published_repres = instance.data.get("published_representations")
             usd_file_rootless_path = None
@@ -67,10 +68,8 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
                 return
 
             # get the full path of the usd file
-            usd_file_path = Path(
-                anatomy.fill_root(usd_file_rootless_path))
-            usd_pinning_path = Path(
-                anatomy.fill_root(usd_pinning_rootless_file_path))
+            usd_file_path = Path(anatomy.fill_root(usd_file_rootless_path))
+            usd_pinning_path = Path(anatomy.fill_root(usd_pinning_rootless_file_path))
 
         if not usd_pinning_path:
             self.log.error("No USD pinning file found.")
@@ -79,7 +78,8 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
         generate_pinning_file(
             usd_file_path.as_posix(),
             ayon_api.get_project_roots_by_site_id(get_current_project_name()),
-            usd_pinning_path.as_posix())
+            usd_pinning_path.as_posix(),
+        )
 
         # clean temporary usd file
         if "usdrender" in instance.data.get("families", []):
@@ -98,8 +98,7 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
         """
         if get_current_host_name() == "houdini":
             return self._save_usd_from_houdini(instance)
-        raise NotImplementedError(
-            f"Unsupported host {get_current_host_name()}")
+        raise NotImplementedError(f"Unsupported host {get_current_host_name()}")
 
     def _save_usd_from_houdini(self, instance: pyblish.api.Instance) -> Path:
         """Save USD file from Houdini.
@@ -125,8 +124,7 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
         # create temp usdrop node
         with maintained_selection():
             temp_usd_node = hou.node("/out").createNode("usd")
-            temp_usd_node.parm("lopoutput").set(
-                filepath.as_posix())
+            temp_usd_node.parm("lopoutput").set(filepath.as_posix())
             temp_usd_node.parm("loppath").set(ropnode.parm("loppath").eval())
             temp_usd_node.render()
             temp_usd_node.destroy()
