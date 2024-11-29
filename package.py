@@ -2,7 +2,7 @@
 
 name = "usd"
 title = "USD"
-version = "0.1.2+dev"
+version = "0.1.3"
 client_dir = "ayon_usd"
 
 services = {}
