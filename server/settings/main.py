@@ -79,7 +79,7 @@ class AppPlatformPathModel(BaseSettingsModel):
 class AppPlatformURIModel(BaseSettingsModel):
     """Application platform URI model."""
 
-    _layout = "compact"
+    _layout = "expanded"
     app_name: str = SettingsField(
         title="App Name", description="Application name, e.g. maya/2025"
     )
