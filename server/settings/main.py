@@ -90,7 +90,7 @@ class AppPlatformURIModel(BaseSettingsModel):
         description="windows / linux / darwin",
     )
     uri: str = SettingsField(
-        title="Repository Object Uri",
+        title="Repository Object URI",
         description=(
             "Path to USD Asset Resolver plugin zip file on the LakeFs server, "
             "e.g: `lakefs://ayon-usd/V001/AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`"  # noqa
