@@ -280,7 +280,7 @@ class UsdLibConfigSettings(BaseSettingsModel):
     _layout = "collapsed"
     usd_tf_debug: str = SettingsField(
         "",
-        title="Tf Debug Variable for Debugging Usd",
+        title="Tf Debug Variable for Debugging USD",
         description="",
     )
 
