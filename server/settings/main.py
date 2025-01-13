@@ -247,7 +247,7 @@ class AyonResolverSettings(BaseSettingsModel):
 
     ayon_log_lvl: str = SettingsField(
         "WARN",
-        title="Resolver Log Lvl",
+        title="Resolver Log Level",
         enum_resolver=log_lvl_enum,
         description="Set verbosity of the AyonUsdResolver logger",
     )
