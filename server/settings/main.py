@@ -232,7 +232,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
         ],
     )
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
-        title="Resolver Application Overwrites",
+        title="Resolver Application Overrides",
         description=(
             "Allows to define a specific Resolver Zip for a specific Application"
         ),
