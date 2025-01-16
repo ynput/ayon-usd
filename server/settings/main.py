@@ -79,7 +79,7 @@ class AppPlatformPathModel(BaseSettingsModel):
 class AppPlatformURIModel(BaseSettingsModel):
     """Application platform URI model."""
 
-    _layout = "compact"
+    _layout = "expanded"
     app_name: str = SettingsField(
         title="App Name", description="Application name, e.g. maya/2025"
     )
@@ -90,7 +90,7 @@ class AppPlatformURIModel(BaseSettingsModel):
         description="windows / linux / darwin",
     )
     uri: str = SettingsField(
-        title="Repository Object Uri",
+        title="Repository Object URI",
         description=(
             "Path to USD Asset Resolver plugin zip file on the LakeFs server, "
             "e.g: `lakefs://ayon-usd/V001/AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`"  # noqa
@@ -232,7 +232,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
         ],
     )
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
-        title="Resolver Application Overwrites",
+        title="Resolver Application Overrides",
         description=(
             "Allows to define a specific Resolver Zip for a specific Application"
         ),
@@ -247,7 +247,7 @@ class AyonResolverSettings(BaseSettingsModel):
 
     ayon_log_lvl: str = SettingsField(
         "WARN",
-        title="Resolver Log Lvl",
+        title="Resolver Log Level",
         enum_resolver=log_lvl_enum,
         description="Set verbosity of the AyonUsdResolver logger",
     )
@@ -280,7 +280,7 @@ class UsdLibConfigSettings(BaseSettingsModel):
     _layout = "collapsed"
     usd_tf_debug: str = SettingsField(
         "",
-        title="Tf Debug Variable for Debugging Usd",
+        title="Tf Debug Variable for Debugging USD",
         description="",
     )
 
