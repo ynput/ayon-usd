@@ -108,22 +108,24 @@ class BinaryDistributionSettings(BaseSettingsModel):
     server_uri: str = SettingsField(
         "https://lake.ayon.cloud",
         title="Server URL",
-        description="The url to your LakeFs server.",
+        description="The URL for the USD binary distribution LakeFs "
+                    "server. It's recommended to keep the default "
+                    "value to use the USD builds we provide.",
     )
     server_repo: str = SettingsField(
         "lakefs://ayon-usd/v0.2.0/",
         title="Repository URI",
-        description="The url to your LakeFs Repository Path",
+        description="The repository tag or branch URI within the LakeFs server.",
     )
     access_key_id: str = SettingsField(
         "{AYON_Distribution_Key_Id}",
         title="Access Key ID",
-        description="LakeFs Access Key Id",
+        description="The LakeFs server access key ID.",
     )
     secret_access_key: str = SettingsField(
         "{AYON_Distribution_Access_Key}",
         title="Secret Access Key",
-        description="LakeFs Access Key",
+        description="The LakeFs server secret access key.",
     )
     asset_resolvers: list[AppPlatformPathModel] = SettingsField(
         title="Resolver Application Paths",
