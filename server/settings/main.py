@@ -117,7 +117,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
     )
     access_key_id: str = SettingsField(
         "{AYON_Distribution_Key_Id}",
-        title="Access Key Id",
+        title="Access Key ID",
         description="LakeFs Access Key Id",
     )
     secret_access_key: str = SettingsField(
