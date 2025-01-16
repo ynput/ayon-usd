@@ -122,7 +122,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
     )
     secret_access_key: str = SettingsField(
         "{AYON_Distribution_Access_Key}",
-        title="Access Key",
+        title="Secret Access Key",
         description="LakeFs Access Key",
     )
     asset_resolvers: list[AppPlatformPathModel] = SettingsField(
