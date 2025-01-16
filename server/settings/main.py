@@ -112,7 +112,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
     )
     server_repo: str = SettingsField(
         "lakefs://ayon-usd/v0.2.0/",
-        title="Repository URL",
+        title="Repository URI",
         description="The url to your LakeFs Repository Path",
     )
     access_key_id: str = SettingsField(
