@@ -35,6 +35,8 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
     order = pyblish.api.ExtractorOrder + 0.49
     families: ClassVar = ["usd", "usdrender"]
 
+    settings_category: ClassVar = "usd"
+
     @staticmethod
     def _has_usd_representation(representations: list) -> bool:
         return any(
