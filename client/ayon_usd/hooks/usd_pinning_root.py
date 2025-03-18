@@ -1,4 +1,5 @@
 """Pre-launch hook to set USD pinning related environment variable."""
+
 from ayon_applications import LaunchTypes, PreLaunchHook
 
 
@@ -21,8 +22,7 @@ class UsdPinningRoot(PreLaunchHook):
             self.launch_context.env.get("PINNING_FILE_PATH"),
         )
 
-        roots = anatomy.roots()
-        self.launch_context.env[
-            "PROJECT_ROOTS"
-        ] = ",".join(f"{key}={value}"
-                     for key, value in roots.items())
+        roots = anatomy.roots
+        self.launch_context.env["PROJECT_ROOTS"] = ",".join(
+            f"{key}={value}" for key, value in roots.items()
+        )

@@ -14,6 +14,7 @@ Side effects:
       to check if the processed data is up-to-date.
 
 """
+
 import json
 from datetime import datetime
 from pathlib import Path
@@ -23,8 +24,9 @@ import pyblish.api
 from ayon_core.pipeline import OptionalPyblishPluginMixin, KnownPublishError
 
 
-class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
-                                 OptionalPyblishPluginMixin):
+class ExtractSkeletonPinningJSON(
+    pyblish.api.InstancePlugin, OptionalPyblishPluginMixin
+):
     """Extract Skeleton Pinning JSON file.
 
     Extracted JSON file doesn't contain any data, it's just a placeholder
@@ -33,15 +35,14 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
     label = "Extract Skeleton Pinning JSON"
     order = pyblish.api.ExtractorOrder + 0.49
-    families: ClassVar = ["usd", "usdrender"]
+    families: ClassVar = ["usdrender"]
 
     settings_category: ClassVar = "usd"
 
     @staticmethod
     def _has_usd_representation(representations: list) -> bool:
         return any(
-            representation.get("name") == "usd"
-            for representation in representations
+            representation.get("name") == "usd" for representation in representations
         )
 
     def process(self, instance: pyblish.api.Instance) -> None:
