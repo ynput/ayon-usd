@@ -56,15 +56,12 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
                 self.log.info("No USD representation found, skipping.")
                 return
 
+        # FIXME: Getting `staging_dir` should be a generic way. `ifdFile` is a very Houdini related.
         try:
-            staging_dir = Path(instance.data["stagingDir"])
-        except KeyError:
-            self.log.debug("No staging directory on instance found.")
-            try:
-                staging_dir = Path(instance.data["ifdFile"]).parent
-            except KeyError as e:
-                self.log.error("No staging directory found.")
-                raise KnownPublishError("Cannot determine staging directory.") from e
+            staging_dir = staging_dir = Path(instance.data["stagingDir"]) or Path(instance.data["ifdFile"]).parent
+        except KeyError as e:
+            self.log.error("No staging directory found.")
+            raise KnownPublishError("Cannot determine staging directory.") from e
 
         pin_file = f"{staging_dir.stem}_pin.json"
         pin_file_path = staging_dir.joinpath(pin_file)
@@ -82,4 +79,5 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
         with open(pin_file_path, "w") as f:
             json.dump(skeleton_pinning_data, f, indent=4)
 
+        self.log.debug(f"Pinning File was created at: '{pin_file_path}'.")
         instance.data["representations"].append(pin_representation)
