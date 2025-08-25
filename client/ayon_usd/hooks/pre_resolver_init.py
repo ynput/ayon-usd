@@ -14,7 +14,7 @@ class InitializeAssetResolver(PreLaunchHook):
     """
 
     app_groups = {"maya", "houdini", "unreal"}
-    launch_types = {LaunchTypes.local}
+    launch_types = {LaunchTypes.local, LaunchTypes.farm_publish}
 
     def execute(self):
         """Pre-launch hook entry method."""
