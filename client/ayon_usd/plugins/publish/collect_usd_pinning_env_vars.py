@@ -4,7 +4,6 @@ from ayon_core.pipeline.publish import FARM_JOB_ENV_DATA_KEY
 from ayon_usd import get_usd_pinning_envs
 
 
-
 class CollectUSDPinningEnvVars(pyblish.api.InstancePlugin):
 
     order = pyblish.api.CollectorOrder + 0.250
