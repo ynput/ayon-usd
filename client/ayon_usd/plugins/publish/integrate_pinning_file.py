@@ -10,7 +10,6 @@ import ayon_api
 import pyblish.api
 from ayon_core.pipeline import get_current_host_name, get_current_project_name
 from ayon_core.pipeline.publish import KnownPublishError
-from ayon_usd.standalone.usd.pinning import generate_pinning_file
 
 
 class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
@@ -32,6 +31,7 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
 
     def process(self, instance: pyblish.api.Instance) -> None:
         """Process the plugin."""
+        from ayon_usd.standalone.usd.pinning import generate_pinning_file
 
         anatomy = instance.context.data["anatomy"]
         usd_pinning_path = None
