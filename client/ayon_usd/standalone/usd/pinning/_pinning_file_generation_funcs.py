@@ -10,19 +10,23 @@ from urllib.parse import urlparse
 log = logging.getLogger(__name__)
 
 
+def is_uri(path: str) -> bool:
+    parsed = urlparse(path)
+    return bool(parsed.scheme)
+
+
 def _normalize_path(path):
-    # On windows force drive letter to lowercase
-    if sys.platform.startswith('win'):
+    # If the path is a URI, return it as is
+    if is_uri(path):
+        return path
+
+    # On Windows, force the drive letter to lowercase
+    if sys.platform.startswith("win"):
         drive, tail = os.path.splitdrive(path)
         drive = drive.lower()
         path = f"{drive}{tail}"
     
     return os.path.normpath(path)
-
-
-def is_uri(path: str) -> bool:
-    parsed = urlparse(path)
-    return bool(parsed.scheme)
 
 
 def remove_root_from_dependency_info(
@@ -39,7 +43,7 @@ def remove_root_from_dependency_info(
     Returns:
          a dependency_info dict that holds key: Usd assetIdentifiers val:
          rootless paths as they would be returned from Ayon server `/resolve`
-         endpoint ('Resolve Uris' in the server Docs).
+         endpoint ("Resolve Uris" in the server Docs).
     """
 
     if not root_info or not dependency_info:
@@ -56,12 +60,12 @@ def remove_root_from_dependency_info(
     # TODO test if there are cases where we have more than one match.group
     def _replace_match(match: re.Match):
         match_grp_zero = match.group(0)
-        match_replacment = replacements.get(re.escape(match_grp_zero))
-        if not match_replacment:
+        match_replacement = replacements.get(re.escape(match_grp_zero))
+        if not match_replacement:
             return match_grp_zero
 
-        replacment = "{root[" + match_replacment + "]}"
-        return replacment
+        replacement = "{root[" + match_replacement + "]}"
+        return replacement
 
     rootless_dependency_info = {}
     for key, path in dependency_info.items():
@@ -279,7 +283,7 @@ def _write_pinning_file(
     create_missing_dirs: bool = True,
     overwrite_ok: bool = True,
 ):
-    """writes out a pinning file to disk in the appropriate format
+    """Writes out a pinning file to disk in the appropriate format
 
     Args:
         output_path (str): Path where the pinning file should be written to
@@ -323,7 +327,7 @@ def generate_pinning_file(
 
     The pinning file can be used to pin paths in USD to specific filepaths,
     avoiding the need for dynamic resolving and runtime and allowing to pin
-    dynamic URIs (like 'get me latest version') to be pinned to the version
+    dynamic URIs (like "get me latest version") to be pinned to the version
     at the time of the generation.
 
     Arguments:
@@ -343,8 +347,8 @@ def generate_pinning_file(
     resolver = Ar.GetResolver()
     pinning_data = get_asset_dependencies(entry_usd, resolver)
 
-    # on Windows, we need to make the drive letter lower case.
-    if sys.platform.startswith('win'):
+    # on Windows, we need to make the drive letter lowercase.
+    if sys.platform.startswith("win"):
         pinning_data = {
             _normalize_path(key): _normalize_path(val)
             for key, val in pinning_data.items()
