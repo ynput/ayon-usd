@@ -348,6 +348,7 @@ def generate_pinning_file(
     if sys.platform.startswith("win"):
         pinning_data = {
             # _normalize_path(key): _normalize_path(val)
+            key: _normalize_path(val)
             for key, val in pinning_data.items()
         }
 
