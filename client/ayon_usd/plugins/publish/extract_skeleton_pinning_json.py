@@ -21,6 +21,7 @@ from typing import ClassVar
 
 import pyblish.api
 from ayon_core.pipeline import OptionalPyblishPluginMixin, KnownPublishError
+from ayon_core.pipeline.publish import FARM_JOB_ENV_DATA_KEY
 
 
 class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
@@ -81,3 +82,12 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
         self.log.debug(f"Pinning File was created at: '{pin_file_path}'.")
         instance.data["representations"].append(pin_representation)
+
+        # Set farm env keys
+        if FARM_JOB_ENV_DATA_KEY not in instance.data:
+            instance.data[FARM_JOB_ENV_DATA_KEY] = {}
+
+        instance.data[FARM_JOB_ENV_DATA_KEY].update({
+            "PINNING_FILE_PATH": pin_file_path,
+            "ENABLE_STATIC_GLOBAL_CACHE": "1",
+        })
