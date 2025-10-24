@@ -20,7 +20,8 @@ class CollectUSDPinningEnvVars(pyblish.api.InstancePlugin):
         "arnold_rop",
         "mantra_rop",
         "karma_rop",
-        "vray_rop"
+        "vray_rop",
+        "usdrender"
     ]
     targets = ["local"]
 
