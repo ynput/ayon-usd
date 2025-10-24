@@ -19,12 +19,6 @@ def _normalize_path(path):
     # If the path is a URI, return it as is
     if is_uri(path):
         return path
-
-    # On Windows, force the drive letter to lowercase
-    if sys.platform.startswith("win"):
-        drive, tail = os.path.splitdrive(path)
-        drive = drive.lower()
-        path = f"{drive}{tail}"
     
     return os.path.normpath(path)
 
@@ -198,7 +192,7 @@ def get_asset_dependencies(
         identifier = _remove_sdf_args(identifier)
         resolved_path = resolver.Resolve(layer.ComputeAbsolutePath(identifier))
         resolved_path_str = resolved_path.GetPathString()
-        identifier_to_path[layer.ComputeAbsolutePath(identifier)] = resolved_path_str
+        identifier_to_path[identifier] = resolved_path_str
 
         if "<UDIM>" in resolved_path_str:
             # Include all tiles/paths of the UDIM
@@ -346,11 +340,14 @@ def generate_pinning_file(
     # Assume that the environment sets up the correct default AyonUsdResolver
     resolver = Ar.GetResolver()
     pinning_data = get_asset_dependencies(entry_usd, resolver)
+    
+    print("[generate_pinning_file] Generated pinning data:")
+    print(pinning_data)
 
     # on Windows, we need to make the drive letter lowercase.
     if sys.platform.startswith("win"):
         pinning_data = {
-            _normalize_path(key): _normalize_path(val)
+            # _normalize_path(key): _normalize_path(val)
             for key, val in pinning_data.items()
         }
 
