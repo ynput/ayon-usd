@@ -59,7 +59,7 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
         # FIXME: Getting `staging_dir` should be a generic way. `ifdFile` is a very Houdini related.
         try:
-            staging_dir = staging_dir = Path(instance.data["stagingDir"]) or Path(instance.data["ifdFile"]).parent
+            staging_dir = Path(instance.data["stagingDir"]) or Path(instance.data["ifdFile"]).parent
         except KeyError as e:
             self.log.error("No staging directory found.")
             raise KnownPublishError("Cannot determine staging directory.") from e
