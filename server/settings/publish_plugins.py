@@ -3,6 +3,9 @@ from ayon_server.settings import (
     SettingsField,
 )
 
+class EnabledOnlyModel(BaseSettingsModel):
+    enabled: bool = SettingsField(True)
+
 
 class EnabledBaseModel(BaseSettingsModel):
     _isGroup = True
@@ -20,6 +23,16 @@ class PublishPluginsModel(BaseSettingsModel):
             " the published filepath. "
         )
     )
+    ExtractSkeletonPinningJSON: EnabledOnlyModel = SettingsField(
+        default_factory=EnabledOnlyModel,
+        title="Generate USD Resolver Pinning file on publish",
+        description=(
+            "When enabled, on publishing USD files a pinning file will be "
+            "written along with the published file that pins all dynamic "
+            "entity URIs to the paths in the pinning file. This should be "
+            "disabled when not using the USD resolver."
+        )
+    )
 
 
 DEFAULT_PUBLISH_VALUES = {
@@ -28,4 +41,7 @@ DEFAULT_PUBLISH_VALUES = {
         "optional": False,
         "active": True,
     },
+    "ExtractSkeletonPinningJSON": {
+        "enabled": True
+    }
 }

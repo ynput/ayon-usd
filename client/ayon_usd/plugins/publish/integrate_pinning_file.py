@@ -20,6 +20,16 @@ class IntegrateUsdPinningFile(pyblish.api.InstancePlugin):
     label = "Integrate data into USD pinning file"
     families = ["usd", "usdrender"]
 
+    @classmethod
+    def apply_settings(cls, project_settings):
+        # Match enable state of ExtractSkeletonPinningJSON because the plug-ins
+        # should always run in unison.
+        cls.enabled = (
+            project_settings["usd"]["publish"]
+            .get("ExtractSkeletonPinningJSON", {})
+            .get("enabled", True)
+        )
+
     def process(self, instance: pyblish.api.Instance) -> None:
         """Process the plugin."""
 
