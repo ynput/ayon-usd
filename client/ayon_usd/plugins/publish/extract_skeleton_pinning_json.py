@@ -109,7 +109,7 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
             "publishRenderMetadataFolder",
             instance.data.get("outputDir")
         )
-        if not pin_file_dir:
+        if not pin_file_dir and instance.data.get("expectedFiles"):
             expected_files = instance.data["expectedFiles"]
             first_file = next(iter_expected_files(expected_files))
             pin_file_dir = os.path.dirname(first_file)
