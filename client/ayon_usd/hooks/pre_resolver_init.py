@@ -14,6 +14,9 @@ class InitializeAssetResolver(PreLaunchHook):
     """
 
     app_groups = {"maya", "houdini", "unreal"}
+    # TODO Use `farm_render` instead of `farm_publish`
+    # once this issue is resolved
+    # https://github.com/ynput/ayon-applications/issues/2
     launch_types = {LaunchTypes.local, LaunchTypes.farm_publish}
 
     def execute(self):
