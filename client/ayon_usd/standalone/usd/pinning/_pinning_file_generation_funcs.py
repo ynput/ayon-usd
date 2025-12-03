@@ -340,9 +340,6 @@ def generate_pinning_file(
     # Assume that the environment sets up the correct default AyonUsdResolver
     resolver = Ar.GetResolver()
     pinning_data = get_asset_dependencies(entry_usd, resolver)
-    
-    print("[generate_pinning_file] Generated pinning data:")
-    print(pinning_data)
 
     # on Windows, we need to make the drive letter lowercase.
     if sys.platform.startswith("win"):
