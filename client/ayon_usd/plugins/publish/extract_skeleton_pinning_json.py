@@ -14,9 +14,8 @@ from ayon_usd.standalone.usd.pinning import generate_pinning_file
 class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
                                  OptionalPyblishPluginMixin):
     """Extract Skeleton Pinning JSON file.
-
     
-    This plugin is generates Pinning JSON file, which is useful
+    This plugin generates a Pinning JSON file, which is useful
     for farm submission to decrease the overhead of resolving Entity URIs.
 
     This extractor does the following:
