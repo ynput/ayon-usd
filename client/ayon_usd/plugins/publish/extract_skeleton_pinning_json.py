@@ -66,8 +66,11 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
         generate_pinning_file(
             usd_file_path,
-            ayon_api.get_project_roots_by_site_id(get_current_project_name()),
-            pin_file_path)
+            ayon_api.get_project_roots_by_site_id(
+                instance.context.data["projectName"]
+            ),
+            pin_file_path
+        )
 
         self.log.debug(f"Pinning File was created at: '{pin_file_path}'.")
 
