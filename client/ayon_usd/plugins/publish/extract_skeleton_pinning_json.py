@@ -4,8 +4,7 @@ import pyblish.api
 import ayon_api
 from ayon_core.pipeline import (
     OptionalPyblishPluginMixin,
-    KnownPublishError,
-    get_current_project_name
+    KnownPublishError
 )
 from ayon_core.pipeline.publish import FARM_JOB_ENV_DATA_KEY
 from ayon_usd.standalone.usd.pinning import generate_pinning_file
