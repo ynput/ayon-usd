@@ -84,21 +84,17 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
         })
 
     def get_usd_file_path(self, instance):
-        usd_file_path = None
+        usd_file_path = instance.data.get(
+            "ifdFile", None
+        )
 
-        # Use __render__.usd file path
-        if instance.data.get("ifdFile"):
-            usd_file_path = os.path.dirname(
-                instance.data["ifdFile"]
-            )
-
-        # Export __render__.usd if
-        # the path is not set OR if the file does NOT exist.
-        if usd_file_path is None or not os.path.exists(usd_file_path):
-            usd_file_path = self.export_usd_file(instance)
+        # Return "ifdFile" if exists. With some render targets, the file is
+        # set but not saved to disk.
+        if os.path.isfile(usd_file_path):
             return usd_file_path
 
-        raise KnownPublishError("Failed to find or save `__render__.usd`")
+        # Export __render__.usd if file doesn't exist already.
+        return self.export_usd_file(instance)
 
     def export_usd_file(self, instance) -> str:
         """Save USD file from Houdini.
