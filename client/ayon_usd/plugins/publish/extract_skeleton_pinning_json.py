@@ -90,7 +90,7 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
         # Return "ifdFile" if exists. With some render targets, the file is
         # set but not saved to disk.
-        if os.path.isfile(usd_file_path):
+        if usd_file_path and os.path.isfile(usd_file_path):
             return usd_file_path
 
         # Export __render__.usd if file doesn't exist already.
