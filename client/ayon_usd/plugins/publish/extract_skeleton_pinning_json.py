@@ -53,29 +53,30 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
         usd_file_path = self.get_usd_file_path(instance)
         usd_file_name = os.path.basename(usd_file_path)
-        usd_file_name, _ = os.path.splitext(usd_file_name)
+        usd_file_name = os.path.splitext(usd_file_name)[0]
 
         pin_file_name = f"{usd_file_name}_pin.json"
         pin_file_path = os.path.join(
             os.path.dirname(usd_file_path), pin_file_name
         )
 
+        project_roots = ayon_api.get_project_roots_by_site_id(
+            instance.context.data["projectName"]
+        )
         generate_pinning_file(
             usd_file_path,
-            ayon_api.get_project_roots_by_site_id(
-                instance.context.data["projectName"]
-            ),
+            project_roots,
             pin_file_path
         )
 
-        self.log.debug(f"Pinning File was created at: '{pin_file_path}'.")
+        self.log.debug(f"Pinning file was created at: '{pin_file_path}'.")
+        pin_file_path = self.get_rootless_path(instance, pin_file_path)
 
         # Set farm env keys
-        if FARM_JOB_ENV_DATA_KEY not in instance.data:
-            instance.data[FARM_JOB_ENV_DATA_KEY] = {}
-
-        pin_file_path = self.get_rootless_path(instance, pin_file_path)
-        instance.data[FARM_JOB_ENV_DATA_KEY].update({
+        farm_job_data: dict[str, str] = instance.data.setdefault(
+		    FARM_JOB_ENV_DATA_KEY, {}
+		)
+        farm_job_data.update({
             "PINNING_FILE_PATH": pin_file_path,
             "ENABLE_STATIC_GLOBAL_CACHE": "1",
         })
