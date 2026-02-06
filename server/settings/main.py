@@ -111,7 +111,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
         description="The url to your LakeFs server.",
     )
     server_repo: str = SettingsField(
-        "lakefs://ayon-usd/v0.2.0/",
+        "lakefs://ayon-usd/v1.0.1/",
         title="Repository Uri",
         description="The url to your LakeFs Repository Path",
     )
