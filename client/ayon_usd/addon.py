@@ -59,12 +59,10 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
         """Get paths to launch hooks."""
         return [os.path.join(USD_ADDON_DIR, "hooks")]
 
-    def get_plugin_paths(self):
-        return {
-            "publish": [
-                os.path.join(USD_ADDON_DIR, "plugins", "publish")
-            ]
-        }
+    def get_publish_plugin_paths(self, host_name):
+        return [
+            os.path.join(USD_ADDON_DIR, "plugins", "publish")
+        ]
 
     def _download_global_lakefs_binaries(self):
         settings = get_studio_settings()

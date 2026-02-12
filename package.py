@@ -11,7 +11,7 @@ plugin_for = ["ayon_server"]
 build_command = ""
 
 ayon_required_addons = {
-    "core": ">=0.4.1",
+    "core": ">=1.5.3",
 }
 ayon_compatible_addons = {
     "deadline": ">=0.3.0",

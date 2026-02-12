@@ -21,7 +21,7 @@ class UsdPinningRoot(PreLaunchHook):
             self.launch_context.env.get("PINNING_FILE_PATH"),
         )
 
-        roots = anatomy.roots()
+        roots = anatomy.roots
         self.launch_context.env[
             "PROJECT_ROOTS"
         ] = ",".join(f"{key}={value}"
