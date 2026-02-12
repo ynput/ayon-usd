@@ -273,24 +273,17 @@ def get_asset_dependencies(
 
 def _write_pinning_file(
     output_path: str,
-    pinning_data: Dict[str, str],
-    create_missing_dirs: bool = True,
-    overwrite_ok: bool = True,
+    pinning_data: Dict[str, str]
 ):
     """Writes out a pinning file to disk in the appropriate format
 
     Args:
         output_path (str): Path where the pinning file should be written to
         pinning_data (str): The pinning dict that holds all the pinning data
-        create_missing_dirs (bool): Whether to ensure folders to output path
-            exist before writing the file.
-        overwrite_ok (bool): Whether to overwrite the pinning file if it
-            already exists.
 
     Raises:
         TypeError: raised if pinning_data is not a dict
             or output_path is not a JSON
-        FileExistsError: raised if output_path exists and overwrite_ok is False
     """
 
     # data validation
@@ -300,14 +293,7 @@ def _write_pinning_file(
     if not output_path.endswith(".json"):
         raise TypeError("output_path is not a json")
 
-    # file creation
-    if os.path.exists(output_path) and not overwrite_ok:
-        raise FileExistsError(
-            f"Destination filepath already exists: {output_path}")
-
-    if create_missing_dirs:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w") as pinning_file:
 
         write_data = {"ayon_resolver_pinning_data": pinning_data}
