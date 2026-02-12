@@ -113,7 +113,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
                     "value to use the USD builds we provide.",
     )
     server_repo: str = SettingsField(
-        "lakefs://ayon-usd/v0.2.0/",
+        "lakefs://ayon-usd/v1.0.1/",
         title="Repository URI",
         description="The repository tag or branch URI within the LakeFs server.",
     )
@@ -150,6 +150,16 @@ class BinaryDistributionSettings(BaseSettingsModel):
                 name="maya/2025",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/MayaWin/Maya2025_Py311_Win_Windows_AMD64.zip",
+            ),
+            AppPlatformPathModel(
+                name="maya/2026",
+                platform="linux",
+                lake_fs_path="AyonUsdResolverBin/MayaLinux/Maya2026_Py311_Linux_Linux_x86_64.zip",
+            ),
+            AppPlatformPathModel(
+                name="maya/2026",
+                platform="windows",
+                lake_fs_path="AyonUsdResolverBin/MayaWin/Maya2026_Py311_Win_Windows_AMD64.zip",
             ),
             AppPlatformPathModel(
                 name="houdini/19-5Py37",
@@ -202,6 +212,11 @@ class BinaryDistributionSettings(BaseSettingsModel):
                 lake_fs_path="AyonUsdResolverBin/HouLinux/Houdini205_Py310_Linux_Linux_x86_64.zip",
             ),
             AppPlatformPathModel(
+                name="houdini/21-0",
+                platform="linux",
+                lake_fs_path="AyonUsdResolverBin/HouLinux/Houdini21_Py311_Linux_Linux_x86_64.zip",
+            ),
+            AppPlatformPathModel(
                 name="houdini/20-5",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py311_Win_Windows_AMD64.zip",
@@ -210,6 +225,11 @@ class BinaryDistributionSettings(BaseSettingsModel):
                 name="houdini/20-5Py310",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py310_Win_Windows_AMD64.zip",
+            ),
+            AppPlatformPathModel(
+                name="houdini/21-0",
+                platform="windows",
+                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini21_Py311_Win_Windows_AMD64.zip",
             ),
             AppPlatformPathModel(
                 name="unreal/5-4",
