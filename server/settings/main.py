@@ -233,11 +233,6 @@ class BinaryDistributionSettings(BaseSettingsModel):
             ),
             AppPlatformPathModel(
                 name="unreal/5-4",
-                platform="linux",
-                lake_fs_path="AyonUsdResolverBin/UnrealLinux/Unreal5_4_Py39_Linux_Linux_x86_64.zip",
-            ),
-            AppPlatformPathModel(
-                name="unreal/5-4",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/UnrealWin/Unreal5_4_Py39_Win_Windows_AMD64.zip",
             ),
