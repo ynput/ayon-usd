@@ -98,12 +98,50 @@ class AppPlatformURIModel(BaseSettingsModel):
     )
 
 
+class LocalResolverPathModel(BaseSettingsModel):
+    """Local filesystem path to a pre-installed resolver."""
+
+    _layout = "collapsed"
+    name: str = SettingsField(
+        title="App Name",
+        description="Application name, e.g. houdini/20-5",
+    )
+    app_alias_list: list[str] = SettingsField(
+        title="Application Alias",
+        description="Define a list of App Names that use the same "
+        "resolver as the parent application",
+        default_factory=list,
+    )
+    platform: str = SettingsField(
+        title="Platform",
+        enum_resolver=platform_enum,
+        description="windows / linux / darwin",
+    )
+    path: str = SettingsField(
+        title="Resolver Directory Path",
+        description=(
+            "Local filesystem path to the resolver directory "
+            "(the directory containing `ayonUsdResolver/`)"
+        ),
+    )
+
+
 class BinaryDistributionSettings(BaseSettingsModel):
     """Binary distribution of USD and AYON USD Resolver"""
 
     _layout = "collapsed"
 
     enabled: bool = SettingsField(False)
+
+    local_resolver_paths: list[LocalResolverPathModel] = SettingsField(
+        title="Local Resolver Paths",
+        description=(
+            "Local filesystem paths to pre-installed resolver binaries. "
+            "When a match is found for the current app and platform, "
+            "the resolver is loaded directly without downloading from lakeFS."
+        ),
+        default_factory=list,
+    )
 
     server_uri: str = SettingsField(
         "https://lake.ayon.cloud",
