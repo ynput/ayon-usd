@@ -3,6 +3,7 @@
 import json
 import os
 from ayon_applications import PreLaunchHook
+from ayon_applications.defs import LaunchTypes
 from ayon_usd import config, utils
 from ayon_usd.addon import ADDON_DATA_JSON_PATH
 
@@ -14,6 +15,7 @@ class InitializeAssetResolver(PreLaunchHook):
     """
 
     app_groups = {"maya", "houdini", "unreal"}
+    launch_types = {LaunchTypes.local, LaunchTypes.farm_publish}
 
     def execute(self):
         """Pre-launch hook entry method."""
@@ -23,6 +25,11 @@ class InitializeAssetResolver(PreLaunchHook):
                 "USD Binary distribution for AYON USD Resolver is"
                 " disabled.")
             return
+
+        is_farm = (
+            hasattr(self, "launch_type")
+            and self.launch_type == LaunchTypes.farm_publish
+        )
 
         # Check for a locally-configured resolver path first
         local_path = utils.get_local_resolver_path(
@@ -38,6 +45,15 @@ class InitializeAssetResolver(PreLaunchHook):
                 f"Using local resolver path for {self.app_name}: {local_path}"
             )
             self._setup_resolver(local_path, project_settings)
+            return
+
+        # On the farm, skip the lakeFS download — workers may not have access
+        if is_farm:
+            self.log.warning(
+                "No local resolver path configured for "
+                f"'{self.app_name}' on this platform. "
+                "Skipping lakeFS download on farm worker."
+            )
             return
 
         # Fall through to lakeFS-based resolver download
