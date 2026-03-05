@@ -132,7 +132,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
             None,
         )
         if resolver_overwrite:
-            return resolver_overwrite["lake_fs_uri"]
+            return resolver_overwrite["uri"]
 
     resolver_list = distribution["asset_resolvers"]
     if not resolver_list:
