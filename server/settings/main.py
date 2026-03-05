@@ -89,7 +89,7 @@ class AppPlatformURIModel(BaseSettingsModel):
         enum_resolver=platform_enum,
         description="windows / linux / darwin",
     )
-    uri: str = SettingsField(
+    lake_fs_uri: str = SettingsField(
         title="Repository Object URI",
         description=(
             "Path to USD Asset Resolver plugin zip file on the LakeFs server, "
