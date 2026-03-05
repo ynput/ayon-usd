@@ -2,7 +2,8 @@
 
 import json
 import os
-from ayon_applications import LaunchTypes, PreLaunchHook
+from ayon_applications import PreLaunchHook
+from ayon_applications.defs import LaunchTypes
 from ayon_usd import config, utils
 from ayon_usd.addon import ADDON_DATA_JSON_PATH
 
@@ -14,9 +15,6 @@ class InitializeAssetResolver(PreLaunchHook):
     """
 
     app_groups = {"maya", "houdini", "unreal"}
-    # TODO Use `farm_render` instead of `farm_publish`
-    # once this issue is resolved
-    # https://github.com/ynput/ayon-applications/issues/2
     launch_types = {LaunchTypes.local, LaunchTypes.farm_publish}
 
     def execute(self):
@@ -28,6 +26,37 @@ class InitializeAssetResolver(PreLaunchHook):
                 " disabled.")
             return
 
+        is_farm = (
+            hasattr(self, "launch_type")
+            and self.launch_type == LaunchTypes.farm_publish
+        )
+
+        # Check for a locally-configured resolver path first
+        local_path = utils.get_local_resolver_path(
+            project_settings, self.app_name
+        )
+        if local_path:
+            if not os.path.isdir(local_path):
+                self.log.error(
+                    f"Local resolver path does not exist: {local_path}"
+                )
+                return
+            self.log.info(
+                f"Using local resolver path for {self.app_name}: {local_path}"
+            )
+            self._setup_resolver(local_path, project_settings)
+            return
+
+        # On the farm, skip the lakeFS download — workers may not have access
+        if is_farm:
+            self.log.warning(
+                "No local resolver path configured for "
+                f"'{self.app_name}' on this platform. "
+                "Skipping lakeFS download on farm worker."
+            )
+            return
+
+        # Fall through to lakeFS-based resolver download
         resolver_lake_fs_path = utils.get_resolver_to_download(
             project_settings, self.app_name)
         if not resolver_lake_fs_path:
@@ -52,8 +81,20 @@ class InitializeAssetResolver(PreLaunchHook):
             return
 
         # Check for existing local resolver that matches the lakefs timestamp
-        with open(ADDON_DATA_JSON_PATH, "r") as data_json:
-            addon_data_json = json.load(data_json)
+        addon_data_json = {}
+        if os.path.exists(ADDON_DATA_JSON_PATH):
+            try:
+                with open(ADDON_DATA_JSON_PATH, "r") as data_json:
+                    addon_data_json = json.load(data_json)
+            except (json.JSONDecodeError, OSError):
+                self.log.warning(
+                    "Could not read addon data JSON, starting fresh."
+                )
+                addon_data_json = {}
+
+        if not addon_data_json:
+            # Ensure the downloads directory exists
+            os.makedirs(os.path.dirname(ADDON_DATA_JSON_PATH), exist_ok=True)
 
         key = str(self.app_name).replace("/", "_")
         local_resolver_key = f"resolver_data_{key}"
