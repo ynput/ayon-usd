@@ -151,7 +151,8 @@ def get_resolver_to_download(settings, app_name: str) -> str:
         return ""
 
     lake_fs_repo_uri = distribution["server_repo"]
-    resolver_lake_path = lake_fs_repo_uri + resolver["lake_fs_path"]
+    lake_fs_repo_uri = lake_fs_repo_uri.strip().rstrip("/")
+    resolver_lake_path = f"{lake_fs_repo_uri}/{resolver['lake_fs_path']}"
     return resolver_lake_path
 
 
