@@ -125,6 +125,11 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
                 return asset_path
 
             anchored_path = "./" + os.path.relpath(asset_path, start)
+
+            # Force forward slashes so that relative paths generated on Windows
+            # load correctly on e.g. Linux. It also makes the paths consistent
+            # regardless of platforms
+            anchored_path = anchored_path.replace("\\", "/")
             self.log.debug(f"Anchored path: {anchored_path}")
             return anchored_path
 
