@@ -290,7 +290,13 @@ class LocalBinaryDistributionSettings(BaseSettingsModel):
     _layout = "collapsed"
 
     enabled: bool = SettingsField(False)
-    override: bool = SettingsField(False, title="Override LakeFS")
+    override: bool = SettingsField(
+        False,
+        title="Override LakeFS",
+        description=(
+            "When enabled, use the local resolver. When disabled, use it as a fallback."
+        ),
+    )
 
     root: MultiplatformPathModel = SettingsField(
         default_factory=MultiplatformPathModel,
