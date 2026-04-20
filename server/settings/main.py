@@ -1,6 +1,6 @@
 """Main settings for USD on AYON server."""
 
-from ayon_server.settings import BaseSettingsModel, SettingsField
+from ayon_server.settings import BaseSettingsModel, SettingsField, MultiplatformPathModel
 
 from .publish_plugins import PublishPluginsModel, DEFAULT_PUBLISH_VALUES
 
@@ -132,16 +132,6 @@ class BinaryDistributionSettings(BaseSettingsModel):
     _layout = "collapsed"
 
     enabled: bool = SettingsField(False)
-
-    local_resolver_paths: list[LocalResolverPathModel] = SettingsField(
-        title="Local Resolver Paths",
-        description=(
-            "Local filesystem paths to pre-installed resolver binaries. "
-            "When a match is found for the current app and platform, "
-            "the resolver is loaded directly without downloading from lakeFS."
-        ),
-        default_factory=list,
-    )
 
     server_uri: str = SettingsField(
         "https://lake.ayon.cloud",
@@ -294,6 +284,25 @@ class BinaryDistributionSettings(BaseSettingsModel):
         default_factory=list,
     )
 
+class LocalBinaryDistributionSettings(BaseSettingsModel):
+    """Settings for using a locally stored resolver binary distribution"""
+
+    _layout = "collapsed"
+
+    root: MultiplatformPathModel = SettingsField(
+        default_factory=MultiplatformPathModel,
+        title="Root",
+        tooltip="Define root for local builds.",
+    )
+
+    asset_resolvers: list[LocalResolverPathModel] = SettingsField(
+        title="Resolver Paths",
+        description=(
+            "Local filesystem paths to pre-installed resolver binaries."
+        ),
+        default_factory=list,
+    )
+
 
 class AyonResolverSettings(BaseSettingsModel):
     """AYON USD resolver Settings"""
@@ -344,6 +353,10 @@ class USDSettings(BaseSettingsModel):
 
     distribution: BinaryDistributionSettings = SettingsField(
         default_factory=BinaryDistributionSettings, title="Binary Distribution"
+    )
+
+    local_ditribution: LocalBinaryDistributionSettings = SettingsField(
+        default_factory=LocalBinaryDistributionSettings, title="Local Resolver Paths"
     )
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
