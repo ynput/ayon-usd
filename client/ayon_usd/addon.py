@@ -80,70 +80,73 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
                 }
                 json.dump(init_data, json_file)
 
-        if not utils.is_usd_lib_download_needed(settings):
-            self.log.info("USD Libs already available. Skipping download.")
-            return
+        self.log.info("USD Libs are not needed. Skipping download.")
+        return
 
-        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
+        # if not utils.is_usd_lib_download_needed(settings):
+        #     self.log.info("USD Libs already available. Skipping download.")
+        #     return
 
-        # Get modified time on LakeFS
-        lake_fs = config.get_global_lake_instance(settings)
-        usd_lib_lake_fs_time_cest = (
-            lake_fs
-            .get_element_info(lake_fs_usd_lib_path)
-            .get("Modified Time")
-        )
-        if not usd_lib_lake_fs_time_cest:
-            raise ValueError(
-                "Unable to find UsdLib date modified timestamp on "
-                f"LakeFs server: {lake_fs_usd_lib_path}"
-            )
+        # lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
 
-        with open(ADDON_DATA_JSON_PATH, "r+") as json_file:
-            addon_data_json = json.load(json_file)
-            addon_data_json["usd_lib_lake_fs_time_cest"] = usd_lib_lake_fs_time_cest
+        # # Get modified time on LakeFS
+        # lake_fs = config.get_global_lake_instance(settings)
+        # usd_lib_lake_fs_time_cest = (
+        #     lake_fs
+        #     .get_element_info(lake_fs_usd_lib_path)
+        #     .get("Modified Time")
+        # )
+        # if not usd_lib_lake_fs_time_cest:
+        #     raise ValueError(
+        #         "Unable to find UsdLib date modified timestamp on "
+        #         f"LakeFs server: {lake_fs_usd_lib_path}"
+        #     )
 
-            json_file.seek(0)
-            json.dump(
-                addon_data_json,
-                json_file,
-            )
-            json_file.truncate()
+        # with open(ADDON_DATA_JSON_PATH, "r+") as json_file:
+        #     addon_data_json = json.load(json_file)
+        #     addon_data_json["usd_lib_lake_fs_time_cest"] = usd_lib_lake_fs_time_cest
 
-        controller = worker.Controller()
+        #     json_file.seek(0)
+        #     json.dump(
+        #         addon_data_json,
+        #         json_file,
+        #     )
+        #     json_file.truncate()
 
-        usd_download_work_item = controller.construct_work_item(
-            func=lake_fs.clone_element,
-            kwargs={
-                "lake_fs_object_uir": lake_fs_usd_lib_path,
-                "dist_path": DOWNLOAD_DIR,
-            },
-            progress_title="Download UsdLib",
-        )
+        # controller = worker.Controller()
 
-        usd_zip_path = os.path.join(
-            DOWNLOAD_DIR,
-            os.path.basename(config.get_lakefs_usdlib_path(settings))
-        )
-        usd_lib_path = os.path.splitext(usd_zip_path)[0]
-        controller.construct_work_item(
-            func=zip.extract_zip_file,
-            kwargs={
-                "zip_file_path": usd_zip_path,
-                "dest_dir": usd_lib_path,
-            },
-            progress_title="Unzip UsdLib",
-            dependency_id=[usd_download_work_item.get_uuid()],
-        )
+        # usd_download_work_item = controller.construct_work_item(
+        #     func=lake_fs.clone_element,
+        #     kwargs={
+        #         "lake_fs_object_uir": lake_fs_usd_lib_path,
+        #         "dist_path": DOWNLOAD_DIR,
+        #     },
+        #     progress_title="Download UsdLib",
+        # )
 
-        from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
-        download_ui = progress_ui.ProgressDialog(
-            controller,
-            close_on_finish=True,
-            auto_close_timeout=1,
-            delete_progress_bar_on_finish=False,
-            title="ayon_usd-Addon [UsdLib Download]",
-        )
-        download_ui.setStyleSheet(style.load_stylesheet())
-        download_ui.start()
-        self._download_window = download_ui
+        # usd_zip_path = os.path.join(
+        #     DOWNLOAD_DIR,
+        #     os.path.basename(config.get_lakefs_usdlib_path(settings))
+        # )
+        # usd_lib_path = os.path.splitext(usd_zip_path)[0]
+        # controller.construct_work_item(
+        #     func=zip.extract_zip_file,
+        #     kwargs={
+        #         "zip_file_path": usd_zip_path,
+        #         "dest_dir": usd_lib_path,
+        #     },
+        #     progress_title="Unzip UsdLib",
+        #     dependency_id=[usd_download_work_item.get_uuid()],
+        # )
+
+        # from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
+        # download_ui = progress_ui.ProgressDialog(
+        #     controller,
+        #     close_on_finish=True,
+        #     auto_close_timeout=1,
+        #     delete_progress_bar_on_finish=False,
+        #     title="ayon_usd-Addon [UsdLib Download]",
+        # )
+        # download_ui.setStyleSheet(style.load_stylesheet())
+        # download_ui.start()
+        # self._download_window = download_ui
