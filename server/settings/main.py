@@ -289,6 +289,9 @@ class LocalBinaryDistributionSettings(BaseSettingsModel):
 
     _layout = "collapsed"
 
+    enabled: bool = SettingsField(False)
+    override: bool = SettingsField(False, title="Override LakeFS")
+
     root: MultiplatformPathModel = SettingsField(
         default_factory=MultiplatformPathModel,
         title="Root",
@@ -351,12 +354,12 @@ class UsdLibConfigSettings(BaseSettingsModel):
 
 class USDSettings(BaseSettingsModel):
 
-    distribution: BinaryDistributionSettings = SettingsField(
-        default_factory=BinaryDistributionSettings, title="Binary Distribution"
+    lake_fs_distribution: BinaryDistributionSettings = SettingsField(
+        default_factory=BinaryDistributionSettings, title="LakeFS Binary Distribution"
     )
 
     local_ditribution: LocalBinaryDistributionSettings = SettingsField(
-        default_factory=LocalBinaryDistributionSettings, title="Local Resolver Paths"
+        default_factory=LocalBinaryDistributionSettings, title="Local Binary Distribution"
     )
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
