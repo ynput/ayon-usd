@@ -113,7 +113,7 @@ class BinaryDistributionSettings(BaseSettingsModel):
                     "value to use the USD builds we provide.",
     )
     server_repo: str = SettingsField(
-        "lakefs://ayon-usd/v1.0.1/",
+        "lakefs://ayon-usd/v1.1.0/",
         title="Repository URI",
         description="The repository tag or branch URI within the LakeFs server.",
     )
