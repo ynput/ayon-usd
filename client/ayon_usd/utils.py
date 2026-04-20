@@ -210,9 +210,9 @@ def get_resolver_setup_info(
     resolver_settings = settings["usd"]["ayon_usd_resolver"]
     return {
         "TF_DEBUG": settings["usd"]["usd"]["usd_tf_debug"],
-        "AYONLOGGERLOGLVL": resolver_settings["ayon_log_lvl"],
-        "AYONLOGGERSFILELOGGING": resolver_settings["ayon_file_logger_enabled"],  # noqa
-        "AYONLOGGERSFILEPOS": resolver_settings["file_logger_file_path"],
+        "AYON_USD_RESOLVER_LOG_LVL": resolver_settings["ayon_log_lvl"],
+        "AYON_USD_RESOLVER_LOG_FILE_ENABLED": resolver_settings["ayon_file_logger_enabled"],  # noqa
+        "AYON_USD_RESOLVER_LOG_FILE": resolver_settings["file_logger_file_path"],
         "AYON_LOGGIN_LOGGIN_KEYS": resolver_settings["ayon_logger_logging_keys"],  # noqa
         "PXR_PLUGINPATH_NAME": pxr_pluginpath_name,
         "PYTHONPATH": python_path,
