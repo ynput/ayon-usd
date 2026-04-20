@@ -60,7 +60,7 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
             os.path.dirname(usd_file_path), pin_file_name
         )
 
-        AYON_USD_RESOLVER_PINNING_ROOTS = ayon_api.get_AYON_USD_RESOLVER_PINNING_ROOTS_by_site_id(
+        AYON_USD_RESOLVER_PINNING_ROOTS = ayon_api.get_project_roots_by_site_id(
             instance.context.data["projectName"]
         )
         generate_pinning_file(
