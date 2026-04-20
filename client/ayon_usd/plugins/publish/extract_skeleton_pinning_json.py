@@ -60,12 +60,12 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
             os.path.dirname(usd_file_path), pin_file_name
         )
 
-        project_roots = ayon_api.get_project_roots_by_site_id(
+        AYON_USD_RESOLVER_PINNING_ROOTS = ayon_api.get_project_roots_by_site_id(
             instance.context.data["projectName"]
         )
         generate_pinning_file(
             usd_file_path,
-            project_roots,
+            AYON_USD_RESOLVER_PINNING_ROOTS,
             pin_file_path
         )
 
@@ -77,8 +77,8 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 		    FARM_JOB_ENV_DATA_KEY, {}
 		)
         farm_job_data.update({
-            "PINNING_FILE_PATH": pin_file_path,
-            "ENABLE_STATIC_GLOBAL_CACHE": "1",
+            "AYON_USD_RESOLVER_PINNING_FILE": pin_file_path,
+            "AYON_USD_RESOLVER_ENABLE_PINNING": "1",
         })
 
     def get_usd_file_path(self, instance):

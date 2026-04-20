@@ -29,7 +29,7 @@ creates a pinning file JSON from a given USD stage
 
 ```py
 def generate_pinning_file(
-    entry_usd: str, root_info: Dict[str, str], pinning_file_path: str
+    entry_usd: str, root_info: Dict[str, str], AYON_USD_RESOLVER_PINNING_FILE: str
 ):
 ```
 

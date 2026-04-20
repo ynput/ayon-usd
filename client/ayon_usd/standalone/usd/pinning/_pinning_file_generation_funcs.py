@@ -301,7 +301,7 @@ def _write_pinning_file(
 
 
 def generate_pinning_file(
-    entry_usd: str, root_info: Dict[str, str], pinning_file_path: str
+    entry_usd: str, root_info: Dict[str, str], AYON_USD_RESOLVER_PINNING_FILE: str
 ):
     """Generate a AYON USD Resolver pinning file.
 
@@ -315,13 +315,13 @@ def generate_pinning_file(
         root_info: The project roots for the site the pinning should resolve
           to. These can be obtained via e.g. the AYON REST API get
           `/api/projects/{project_name}/siteRoots".
-        pinning_file_path: The destination path to write the pinning file to.
+        AYON_USD_RESOLVER_PINNING_FILE: The destination path to write the pinning file to.
 
     """
 
-    if not pinning_file_path.endswith(".json"):
+    if not AYON_USD_RESOLVER_PINNING_FILE.endswith(".json"):
         raise RuntimeError(
-            f"Pinning file path is not a json file {pinning_file_path}")
+            f"Pinning file path is not a json file {AYON_USD_RESOLVER_PINNING_FILE}")
 
     # Assume that the environment sets up the correct default AyonUsdResolver
     resolver = Ar.GetResolver()
@@ -344,6 +344,6 @@ def generate_pinning_file(
     )
 
     _write_pinning_file(
-        pinning_file_path,
+        AYON_USD_RESOLVER_PINNING_FILE,
         rootless_pinning_data,
     )
