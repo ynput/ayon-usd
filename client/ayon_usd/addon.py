@@ -45,8 +45,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
         Download USD if needed.
         """
-        # self._download_global_lakefs_binaries()
-        pass
+        self._download_global_lakefs_binaries()
 
     def tray_exit(self):
         """Exit tray module."""
