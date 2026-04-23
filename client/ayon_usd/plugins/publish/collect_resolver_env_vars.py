@@ -7,8 +7,6 @@ LD_LIBRARY_PATH) are NOT set here — they are injected by the
 worker, producing paths correct for that worker's OS.
 """
 
-import os
-
 import pyblish.api
 
 from ayon_core.pipeline.publish import FARM_JOB_ENV_DATA_KEY
