@@ -123,7 +123,7 @@ def get_local_resolver_path(settings, app_name: str):
 
     """
     local_paths = (
-        settings["usd"]["distribution"].get("local_resolver_paths", [])
+        settings["usd"]["local_ditribution"].get("asset_resolvers", [])
     )
     current_platform = platform.system().lower()
     for entry in local_paths:

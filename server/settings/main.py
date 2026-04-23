@@ -290,18 +290,13 @@ class LocalBinaryDistributionSettings(BaseSettingsModel):
     _layout = "collapsed"
 
     enabled: bool = SettingsField(False)
-    override: bool = SettingsField(
+    prefer: bool = SettingsField(
         False,
-        title="Override LakeFS",
+        title="Prefer Local Distribution",
         description=(
-            "When enabled, use the local resolver. When disabled, use it as a fallback."
+            "Prefer local resolver paths over LakeFS. If disabled, local is "
+            "used only on farm or as fallback when LakeFS fails."
         ),
-    )
-
-    root: MultiplatformPathModel = SettingsField(
-        default_factory=MultiplatformPathModel,
-        title="Root",
-        tooltip="Define root for local builds.",
     )
 
     asset_resolvers: list[LocalResolverPathModel] = SettingsField(
