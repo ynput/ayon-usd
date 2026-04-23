@@ -36,9 +36,9 @@ class InitializeAssetResolver(PreLaunchHook):
         if not local_resolver and project_settings["usd"]["lake_fs_distribution"]["enabled"]:
             local_resolver = self._handle_lake_fs_distribution(project_settings)
             
-            # fallback if LakeFS wasn't succesful
-            if not local_resolver and project_settings["usd"]["local_ditribution"]["enabled"]:
-                local_resolver = self._handle_local_distribution(project_settings)
+        # fallback if LakeFS wasn't succesful or is disabled, but local distribution is enabled
+        if not local_resolver and project_settings["usd"]["local_ditribution"]["enabled"]:
+            local_resolver = self._handle_local_distribution(project_settings)
 
         if not local_resolver:
             return
