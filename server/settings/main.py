@@ -1,6 +1,6 @@
 """Main settings for USD on AYON server."""
 
-from ayon_server.settings import BaseSettingsModel, SettingsField, MultiplatformPathModel
+from ayon_server.settings import BaseSettingsModel, SettingsField
 
 from .publish_plugins import PublishPluginsModel, DEFAULT_PUBLISH_VALUES
 
