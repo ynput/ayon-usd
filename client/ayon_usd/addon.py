@@ -69,6 +69,14 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
         if not settings["usd"]["distribution"]["enabled"]:
             self.log.info("USD Binary distribution is disabled.")
             return
+        
+        if settings["usd"]["local_distribution"]["enabled"] \
+        and settings["usd"]["local_distribution"]["prefer"]:                                                                                                                                                          
+            self.log.info(
+                "Local distribution is preferred; skipping LakeFS USD lib "
+                "download."
+            )
+            return                            
 
         os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 

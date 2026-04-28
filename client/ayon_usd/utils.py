@@ -110,6 +110,32 @@ def lakefs_download_and_extract(resolver_lake_fs_path: str,
     return str(extract_zip_item.func_return)
 
 
+def get_local_resolver_path(settings, app_name: str):
+    """Check local_resolver_paths for a matching app + platform entry.
+
+    Args:
+        settings (dict): Project settings.
+        app_name (str): Application name, e.g. "houdini/20-5".
+
+    Returns:
+        str | None: Local filesystem path to the resolver directory,
+            or None if no match found.
+
+    """
+    local_paths = (
+        settings["usd"]["local_ditribution"].get("asset_resolvers", [])
+    )
+    current_platform = platform.system().lower()
+    for entry in local_paths:
+        if entry["platform"] != current_platform:
+            continue
+        if entry["name"] == app_name or app_name in entry.get(
+            "app_alias_list", []
+        ):
+            return entry["path"]
+    return None
+
+
 def get_resolver_to_download(settings, app_name: str) -> str:
     """
     Gets LakeFs path that can be used with copy element to download

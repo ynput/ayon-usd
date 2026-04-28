@@ -98,6 +98,34 @@ class AppPlatformURIModel(BaseSettingsModel):
     )
 
 
+class LocalResolverPathModel(BaseSettingsModel):
+    """Local filesystem path to a pre-installed resolver."""
+
+    _layout = "collapsed"
+    name: str = SettingsField(
+        title="App Name",
+        description="Application name, e.g. houdini/20-5",
+    )
+    app_alias_list: list[str] = SettingsField(
+        title="Application Alias",
+        description="Define a list of App Names that use the same "
+        "resolver as the parent application",
+        default_factory=list,
+    )
+    platform: str = SettingsField(
+        title="Platform",
+        enum_resolver=platform_enum,
+        description="windows / linux / darwin",
+    )
+    path: str = SettingsField(
+        title="Resolver Directory Path",
+        description=(
+            "Local filesystem path to the resolver directory "
+            "(the directory containing `ayonUsdResolver/`)"
+        ),
+    )
+
+
 class BinaryDistributionSettings(BaseSettingsModel):
     """Binary distribution of USD and AYON USD Resolver"""
 
@@ -256,6 +284,29 @@ class BinaryDistributionSettings(BaseSettingsModel):
         default_factory=list,
     )
 
+class LocalBinaryDistributionSettings(BaseSettingsModel):
+    """Settings for using a locally stored resolver binary distribution"""
+
+    _layout = "collapsed"
+
+    enabled: bool = SettingsField(False)
+    prefer: bool = SettingsField(
+        False,
+        title="Prefer Local Distribution",
+        description=(
+            "Prefer local resolver paths over LakeFS. If disabled, local is "
+            "used only on farm or as fallback when LakeFS fails."
+        ),
+    )
+
+    asset_resolvers: list[LocalResolverPathModel] = SettingsField(
+        title="Resolver Paths",
+        description=(
+            "Local filesystem paths to pre-installed resolver binaries."
+        ),
+        default_factory=list,
+    )
+
 
 class AyonResolverSettings(BaseSettingsModel):
     """AYON USD resolver Settings"""
@@ -305,7 +356,11 @@ class UsdLibConfigSettings(BaseSettingsModel):
 class USDSettings(BaseSettingsModel):
 
     distribution: BinaryDistributionSettings = SettingsField(
-        default_factory=BinaryDistributionSettings, title="Binary Distribution"
+        default_factory=BinaryDistributionSettings, title="LakeFS Binary Distribution"
+    )
+
+    local_ditribution: LocalBinaryDistributionSettings = SettingsField(
+        default_factory=LocalBinaryDistributionSettings, title="Local Binary Distribution"
     )
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
