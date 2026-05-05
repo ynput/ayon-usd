@@ -9,8 +9,8 @@ from .publish_plugins import (
 
 def _binary_distribution_enum():
     return [
-        {"value": "lake_fs", "label": "LakeFS server distribution"},
-        {"value": "local", "label": "Local pre-installed distribution"},
+        {"value": "lake_fs", "label": "Distribute via AYON (LakeFS)"},
+        {"value": "local", "label": "Configure via local path"},
     ]
 
 
