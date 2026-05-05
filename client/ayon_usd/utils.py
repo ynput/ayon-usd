@@ -5,6 +5,7 @@ import os
 import platform
 import pathlib
 import sys
+from datetime import datetime, timezone
 
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
@@ -13,6 +14,24 @@ from ayon_usd import config
 USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
 ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
+
+
+def ensure_addon_data_json() -> dict:
+    """Ensure addon metadata JSON exists and return its content."""
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
+    if os.path.exists(ADDON_DATA_JSON_PATH):
+        with open(ADDON_DATA_JSON_PATH, "r") as json_file:
+            return json.load(json_file)
+
+    init_data = {
+        "ayon_usd_addon_first_init_utc": str(
+            datetime.now().astimezone(timezone.utc)
+        )
+    }
+    with open(ADDON_DATA_JSON_PATH, "w") as json_file:
+        json.dump(init_data, json_file)
+    return init_data
 
 
 def get_download_dir(create_if_missing=True):
@@ -56,8 +75,7 @@ def is_usd_lib_download_needed(settings: dict) -> bool:
     if not os.path.exists(usd_lib_dir):
         return True
 
-    with open(ADDON_DATA_JSON_PATH, "r") as data_json:
-        addon_data_json = json.load(data_json)
+    addon_data_json = ensure_addon_data_json()
     try:
         usd_lib_lake_fs_time_stamp_local = addon_data_json[
             "usd_lib_lake_fs_time_cest"
