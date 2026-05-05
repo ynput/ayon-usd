@@ -153,7 +153,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
     """
-    distribution = settings["usd"]["distribution"]
+    distribution = settings["usd"]["distribution"]["lake_fs"]
     resolver_overwrite_list = distribution["lake_fs_overrides"]
     if resolver_overwrite_list:
         resolver_overwrite = next(
