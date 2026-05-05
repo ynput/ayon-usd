@@ -137,7 +137,7 @@ def get_local_resolver_path(settings, app_name: str):
         ):
             template = StringTemplate(entry["path"])
             result = template.format(
-                roots={root["name"]: root.get(current_platform) for root in roots}
+                {root["name"]: root.get(current_platform) for root in roots}
             )
             return str(result)
     
