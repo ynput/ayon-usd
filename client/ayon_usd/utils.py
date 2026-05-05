@@ -6,6 +6,8 @@ import platform
 import pathlib
 import sys
 
+from ayon_core.lib.path_templates import StringTemplate
+
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 from ayon_usd import config
@@ -122,8 +124,9 @@ def get_local_resolver_path(settings, app_name: str):
             or None if no match found.
 
     """
+    roots = settings["usd"]["distribution"]["roots"]
     local_paths = (
-        settings["usd"]["local_ditribution"].get("asset_resolvers", [])
+        settings["usd"]["ditribution"]["local"].get("asset_resolvers", [])
     )
     current_platform = platform.system().lower()
     for entry in local_paths:
@@ -132,7 +135,12 @@ def get_local_resolver_path(settings, app_name: str):
         if entry["name"] == app_name or app_name in entry.get(
             "app_alias_list", []
         ):
-            return entry["path"]
+            template = StringTemplate(entry["path"])
+            result = template.format(
+                roots={root["name"]: root.get(current_platform) for root in roots}
+            )
+            return str(result)
+    
     return None
 
 

@@ -24,24 +24,14 @@ class InitializeAssetResolver(PreLaunchHook):
         project_settings = self.data["project_settings"]
         local_resolver = None
 
-        is_farm = (
-            hasattr(self, "launch_type")
-            and self.launch_type == LaunchTypes.farm_publish
-        )
-
-        if project_settings["usd"]["local_ditribution"]["enabled"] \
-        and (is_farm or project_settings["usd"]["local_ditribution"]["prefer"]):
-            local_resolver = self._handle_local_distribution(project_settings)
-
-        if not local_resolver and project_settings["usd"]["distribution"]["enabled"]:
-            local_resolver = self._handle_lake_fs_distribution(project_settings)
-            
-        # fallback if LakeFS wasn't succesful or is disabled, but local distribution is enabled
-        if not local_resolver and project_settings["usd"]["local_ditribution"]["enabled"]:
-            local_resolver = self._handle_local_distribution(project_settings)
-
-        if not local_resolver:
+        if not project_settings["usd"]["ditribution"]["enabled"]:
+            self.log.info("USD distribution is disabled; skipping resolver setup.")
             return
+
+        if project_settings["usd"]["ditribution"]["type"] == "lake_fs":
+            local_resolver = self._handle_lake_fs_distribution(project_settings)
+        elif project_settings["usd"]["ditribution"]["type"] == "local":
+            local_resolver = self._handle_local_distribution(project_settings)
         
         self._setup_resolver(local_resolver, project_settings)
     
