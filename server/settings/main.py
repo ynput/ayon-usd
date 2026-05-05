@@ -410,10 +410,6 @@ class USDSettings(BaseSettingsModel):
         default_factory=BinaryDistributionSettings, title="Binary Distribution"
     )
 
-    # local_ditribution: LocalBinaryDistributionSettings = SettingsField(
-    #     default_factory=LocalBinaryDistributionSettings, title="Local Binary Distribution"
-    # )
-
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
         default_factory=AyonResolverSettings, title="AYON USD Resolver Config"
     )
