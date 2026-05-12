@@ -28,9 +28,10 @@ class InitializeAssetResolver(PreLaunchHook):
             self.log.info("USD distribution is disabled; skipping resolver setup.")
             return
 
-        if project_settings["usd"]["distribution"]["type"] == "lake_fs":
+        distribution_type = project_settings["usd"]["distribution"]["type"]
+        if distribution_type == "lake_fs":
             local_resolver = self._handle_lake_fs_distribution(project_settings)
-        elif project_settings["usd"]["distribution"]["type"] == "local":
+        elif distribution_type == "local":
             local_resolver = self._handle_local_distribution(project_settings)
         
         self._setup_resolver(local_resolver, project_settings)
