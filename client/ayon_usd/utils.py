@@ -6,6 +6,8 @@ import platform
 import pathlib
 import sys
 
+from ayon_core.lib.path_templates import StringTemplate
+
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 from ayon_usd import config
@@ -110,6 +112,38 @@ def lakefs_download_and_extract(resolver_lake_fs_path: str,
     return str(extract_zip_item.func_return)
 
 
+def get_local_resolver_path(settings, app_name: str):
+    """Check local_resolver_paths for a matching app + platform entry.
+
+    Args:
+        settings (dict): Project settings.
+        app_name (str): Application name, e.g. "houdini/20-5".
+
+    Returns:
+        str | None: Local filesystem path to the resolver directory,
+            or None if no match found.
+
+    """
+    roots = settings["usd"]["distribution"]["local"]["roots"]
+    local_paths = (
+        settings["usd"]["distribution"]["local"]["asset_resolvers"]
+    )
+    current_platform = platform.system().lower()
+    for entry in local_paths:
+        if entry["platform"] != current_platform:
+            continue
+        if entry["name"] == app_name or app_name in entry.get(
+            "app_alias_list", []
+        ):
+            template = StringTemplate(entry["path"])
+            result = template.format(
+                {root["name"]: root.get(current_platform) for root in roots}
+            )
+            return str(result)
+    
+    return None
+
+
 def get_resolver_to_download(settings, app_name: str) -> str:
     """
     Gets LakeFs path that can be used with copy element to download
@@ -119,7 +153,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
     """
-    distribution = settings["usd"]["distribution"]
+    distribution = settings["usd"]["distribution"]["lake_fs"]
     resolver_overwrite_list = distribution["lake_fs_overrides"]
     if resolver_overwrite_list:
         resolver_overwrite = next(
