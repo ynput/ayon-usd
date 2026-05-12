@@ -124,9 +124,9 @@ def get_local_resolver_path(settings, app_name: str):
             or None if no match found.
 
     """
-    roots = settings["usd"]["distribution"]["local"].get("roots", [])
+    roots = settings["usd"]["distribution"]["local"]["roots"]
     local_paths = (
-        settings["usd"]["distribution"]["local"].get("asset_resolvers", [])
+        settings["usd"]["distribution"]["local"]["asset_resolvers"]
     )
     current_platform = platform.system().lower()
     for entry in local_paths:
