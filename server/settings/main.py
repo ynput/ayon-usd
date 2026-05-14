@@ -1,7 +1,7 @@
 """Main settings for USD on AYON server."""
 
 from ayon_server.settings import BaseSettingsModel, SettingsField
-
+from ayon_server.addons import AddonLibrary, ServerAddonDefinition
 from .publish_plugins import PublishPluginsModel, DEFAULT_PUBLISH_VALUES
 
 def platform_enum():
@@ -44,11 +44,28 @@ def file_logger_enum():
     ]
 
 
+async def apps_enum(project_name, addon, settings_variant):
+    addon_library = AddonLibrary.getinstance()
+    app_addons = addon_library.data.get("applications")
+    if not app_addons:
+        return []
+
+    app_addons: ServerAddonDefinition
+    addon = app_addons.latest
+    if not hasattr(addon, "get_applications_settings_enum"):
+        return []
+    return await addon.get_applications_settings_enum(
+        project_name=project_name,
+        settings_variant=settings_variant,
+    )
+
+
 class AppPlatformPathModel(BaseSettingsModel):
 
     _layout = "collapsed"
     name: str = SettingsField(
-        title="App Name", description="Application name, e.g. maya/2025"
+        title="App Name", description="Application name, e.g. maya/2025",
+        enum_resolver=apps_enum,
     )
 
     app_alias_list: list[str] = SettingsField(
@@ -56,6 +73,7 @@ class AppPlatformPathModel(BaseSettingsModel):
         description="Define a list of App Names that use the same "
         "resolver as the parent application",
         default_factory=list,
+        enum_resolver=apps_enum
     )
 
     # TODO: we need to take into account here different linux flavors
@@ -81,7 +99,9 @@ class AppPlatformURIModel(BaseSettingsModel):
 
     _layout = "expanded"
     app_name: str = SettingsField(
-        title="App Name", description="Application name, e.g. maya/2025"
+        title="App Name",
+        description="Application name, e.g. maya/2025",
+        enum_resolver=apps_enum
     )
     # TODO: we need to take into account here different linux flavors
     platform: str = SettingsField(
