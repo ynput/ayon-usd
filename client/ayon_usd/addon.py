@@ -81,7 +81,8 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
                 json.dump(init_data, json_file)
 
         if not utils.is_usd_lib_download_needed(settings):
-            self.log.info("USD Libs already available. Skipping download.")
+            # self.log.info("USD Libs already available. Skipping download.")
+            self.log.info("USD Libs are not needed or are already available. Skipping download.")
             return
 
         lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)

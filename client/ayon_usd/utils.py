@@ -51,6 +51,9 @@ def is_usd_lib_download_needed(settings: dict) -> bool:
         bool: When true, a new download is required.
 
     """
+    # currently there is no need to download usd libs
+    return False
+
     lake_fs_repo = settings["usd"]["distribution"]["server_repo"]
     usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo))
     if not os.path.exists(usd_lib_dir):
