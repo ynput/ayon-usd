@@ -51,9 +51,12 @@ class InitializeAssetResolver(PreLaunchHook):
             )
             return
 
-        # Check for existing local resolver that matches the lakefs timestamp
-        with open(ADDON_DATA_JSON_PATH, "r") as data_json:
-            addon_data_json = json.load(data_json)
+        # Bootstrap addon metadata for launches that happen without tray init.
+        addon_data_json = utils.get_addon_data_json()
+        
+        if not addon_data_json:
+            utils.create_addon_data_json_file()
+            addon_data_json = utils.get_addon_data_json()
 
         key = str(self.app_name).replace("/", "_")
         local_resolver_key = f"resolver_data_{key}"
