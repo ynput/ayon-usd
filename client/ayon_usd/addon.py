@@ -69,7 +69,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
             self.log.info("USD Binary distribution is disabled.")
             return
 
-        utils.ensure_addon_data_json()
+        utils.create_addon_data_json_file()
 
         if not utils.is_usd_lib_download_needed(settings):
             self.log.info("USD Libs already available. Skipping download.")
