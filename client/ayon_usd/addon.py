@@ -66,12 +66,12 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
     def _download_global_lakefs_binaries(self):
         settings = get_studio_settings()
-        if not settings["usd"]["distribution"]["enabled"]:
+        dist_settings = settings["usd"]["distribution"]
+        if not dist_settings["enabled"]:
             self.log.info("USD Binary distribution is disabled.")
             return
         
-        if settings["usd"]["distribution"]["enabled"] \
-        and settings["usd"]["distribution"]["type"] == "local":                                                                                                                                                          
+        if dist_settings["enabled"] and dist_settings["type"] == "local":
             self.log.info(
                 "Local distribution; skipping LakeFS USD lib download."
             )
@@ -87,11 +87,13 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
                 }
                 json.dump(init_data, json_file)
 
-        if not utils.is_usd_lib_download_needed(settings):
+        lakefs_repo: str = dist_settings["lake_fs"]["server_repo"]
+        lakefs_repo = lakefs_repo.strip().rstrip("/")
+        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(lakefs_repo)
+
+        if not utils.is_usd_lib_download_needed(settings, lake_fs_usd_lib_path):
             self.log.info("USD Libs already available. Skipping download.")
             return
-
-        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
 
         # Get modified time on LakeFS
         lake_fs = config.get_global_lake_instance(settings)
@@ -130,7 +132,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
         usd_zip_path = os.path.join(
             DOWNLOAD_DIR,
-            os.path.basename(config.get_lakefs_usdlib_path(settings))
+            os.path.basename(lake_fs_usd_lib_path)
         )
         usd_lib_path = os.path.splitext(usd_zip_path)[0]
         controller.construct_work_item(
