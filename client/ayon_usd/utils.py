@@ -14,31 +14,35 @@ from ayon_usd import config
 USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
 ADDON_DATA_JSON_PATH = os.path.join(DOWNLOAD_DIR, "ayon_usd_addon_info.json")
+ADDON_FIRST_INIT_KEY = "ayon_usd_addon_first_init_utc"
 
 
 def get_addon_data_json() -> dict:
     """Get addon data JSON content as dict."""
     if os.path.exists(ADDON_DATA_JSON_PATH):
-        with open(ADDON_DATA_JSON_PATH, "r") as json_file:
-            return json.load(json_file)
+        try:
+            with open(ADDON_DATA_JSON_PATH, "r") as json_file:
+                data = json.load(json_file)
+        except (json.JSONDecodeError, OSError, ValueError):
+            return {}
+        if isinstance(data, dict):
+            return data
     return {}
 
 
 def create_addon_data_json_file():
-    """Create addon data JSON file if it doesn't exist."""
-    if os.path.exists(ADDON_DATA_JSON_PATH):
+    """Ensure addon data JSON file exists and contains init metadata."""
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+    addon_data = get_addon_data_json()
+    if ADDON_FIRST_INIT_KEY in addon_data:
         return
 
-    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
-    init_data = {
-        "ayon_usd_addon_first_init_utc": str(
-            datetime.now().astimezone(timezone.utc)
-        )
-    }
+    addon_data[ADDON_FIRST_INIT_KEY] = str(datetime.now().astimezone(
+        timezone.utc
+    ))
 
     with open(ADDON_DATA_JSON_PATH, "w") as json_file:
-        json.dump(init_data, json_file)
+        json.dump(addon_data, json_file)
 
 
 def get_download_dir(create_if_missing=True):
