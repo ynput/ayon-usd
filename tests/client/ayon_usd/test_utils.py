@@ -1,6 +1,7 @@
 # test_utils.py
 import hashlib
 from client.ayon_usd import utils
+import ayon_api
 
 
 def test_validate_file_checksum(file_info, tmp_path):
@@ -40,3 +41,7 @@ def test_file_info_endpoint(
 
     response = session.get(f"{server_url}/api/addons/usd/{version}/files_info")
     assert response.status_code == 200
+
+
+def test_endpoint() -> None:
+    result = ayon_api.get("/api/addons/usd/0.1.6+dev/")

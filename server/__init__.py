@@ -6,6 +6,7 @@ from pathlib import Path
 from fastapi import Depends  # noqa: F401
 
 from ayon_server.addons import BaseServerAddon
+from .api import router
 
 
 from .settings import USDSettings
@@ -20,3 +21,4 @@ class USDAddon(BaseServerAddon):
 
     def initialize(self):
         """Initialize USD Addon."""
+        self.add_router(router)
