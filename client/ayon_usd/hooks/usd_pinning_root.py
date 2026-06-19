@@ -13,7 +13,8 @@ class UsdPinningRoot(PreLaunchHook):
 
     def execute(self) -> None:
         """Set environments necessary for pinning."""
-        if not self.launch_context.env.get("AYON_USD_RESOLVER_PINNING_FILE"):
+        if not self.launch_context.env.get("AYON_USD_RESOLVER_PINNING_FILE") \
+        and not self.launch_context.env.get("PINNING_FILE_PATH"):
             return
 
         anatomy = self.data["anatomy"]
@@ -21,8 +22,20 @@ class UsdPinningRoot(PreLaunchHook):
             self.launch_context.env.get("AYON_USD_RESOLVER_PINNING_FILE"),
         )
 
+        # Backwards compatibility (deprecated)
+        self.launch_context.env["PINNING_FILE_PATH"] = anatomy.fill_root(
+            self.launch_context.env.get("PINNING_FILE_PATH"),
+        )
+
+
         roots = anatomy.roots
         self.launch_context.env[
             "AYON_USD_RESOLVER_PINNING_ROOTS"
+        ] = ",".join(f"{key}={value}"
+                     for key, value in roots.items())
+        
+        # Backwards compatibility (deprecated)
+        self.launch_context.env[
+            "PROJECT_ROOTS"
         ] = ",".join(f"{key}={value}"
                      for key, value in roots.items())
