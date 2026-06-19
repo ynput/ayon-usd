@@ -112,6 +112,8 @@ class InitializeAssetResolver(PreLaunchHook):
                 f"Using local resolver path for {self.app_name}: {resolver_path}"
             )
         
+        self.log.error("Local resolver path is empty.")
+
         return resolver_path
 
     def _setup_resolver(self, local_resolver, settings):
