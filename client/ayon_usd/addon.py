@@ -2,7 +2,6 @@
 
 import json
 import os
-from datetime import datetime, timezone
 
 from ayon_core import style
 from ayon_core.addon import AYONAddon, IPluginPaths, ITrayAddon
@@ -70,15 +69,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
             self.log.info("USD Binary distribution is disabled.")
             return
 
-        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
-        if not os.path.exists(ADDON_DATA_JSON_PATH):
-            now = datetime.now().astimezone(timezone.utc)
-            with open(ADDON_DATA_JSON_PATH, "w+") as json_file:
-                init_data = {
-                    "ayon_usd_addon_first_init_utc": str(now)
-                }
-                json.dump(init_data, json_file)
+        utils.create_addon_data_json_file()
 
         if not utils.is_usd_lib_download_needed(settings):
             # self.log.info("USD Libs already available. Skipping download.")
