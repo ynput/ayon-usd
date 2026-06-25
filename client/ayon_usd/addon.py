@@ -42,9 +42,9 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
     def tray_start(self):
         """Start tray module.
 
-        Download USD if needed.
+        Skip downloading base USD, not needed now.
         """
-        self._download_global_lakefs_binaries()
+        pass
 
     def tray_exit(self):
         """Exit tray module."""
