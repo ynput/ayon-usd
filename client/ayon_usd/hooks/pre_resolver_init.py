@@ -2,6 +2,8 @@
 
 import json
 import os
+from typing import Optional
+
 from ayon_applications import LaunchTypes, PreLaunchHook
 from ayon_usd import config, utils
 from ayon_usd.addon import ADDON_DATA_JSON_PATH
@@ -34,9 +36,17 @@ class InitializeAssetResolver(PreLaunchHook):
         elif distribution_type == "local":
             local_resolver = self._handle_local_distribution(project_settings)
         
+        if local_resolver is None:
+            self.log.warning(
+                "Resolver setup skipped for %s because no resolver directory "
+                "was resolved.",
+                self.app_name,
+            )
+            return
+
         self._setup_resolver(local_resolver, project_settings)
     
-    def _handle_lake_fs_distribution(self, settings):
+    def _handle_lake_fs_distribution(self, settings) -> Optional[str]:
         resolver_lake_fs_path = utils.get_resolver_to_download(
             settings,
             self.app_name
@@ -99,27 +109,21 @@ class InitializeAssetResolver(PreLaunchHook):
         
         return local_resolver
 
-    def _handle_local_distribution(self, settings):
-        resolver_path = utils.get_local_resolver_path(
-            settings,
-            self.app_name
-        )
+    def _handle_local_distribution(self, settings) -> Optional[str]:
+        resolver_path = utils.get_local_resolver_path(settings, self.app_name)
 
-        if resolver_path:
-            if not os.path.isdir(resolver_path):
-                self.log.error(
-                    f"Local resolver path does not exist: {resolver_path}"
-                )
-                return None
-            self.log.info(
-                f"Using local resolver path for {self.app_name}: {resolver_path}"
-            )
-        
-        self.log.error("Local resolver path is empty.")
+        if not resolver_path or not os.path.isdir(resolver_path):
+            self.log.error(f"Invalid local resolver path: {resolver_path}")
+            return None
 
+        self.log.info(f"Using local resolver path for {self.app_name}: {resolver_path}")
         return resolver_path
 
-    def _setup_resolver(self, local_resolver, settings):
+    def _setup_resolver(
+        self,
+        local_resolver: str,
+        settings,
+    ):
         self.log.info(
             f"Initializing USD asset resolver for application: {self.app_name}"
         )
