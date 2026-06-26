@@ -243,12 +243,12 @@ def get_resolver_setup_info(
         "AYON_USD_RESOLVER_LOG_FILE_ENABLED": resolver_settings["ayon_file_logger_enabled"],  # noqa
         "AYON_USD_RESOLVER_LOG_FILE": resolver_settings["file_logger_file_path"],
         "AYON_USD_RESOLVER_LOGGING_KEYS": resolver_settings["ayon_logger_logging_keys"],  # noqa
+        "PXR_PLUGINPATH_NAME": pxr_pluginpath_name,
+        "PYTHONPATH": python_path,
+        ld_path_key: ld_library_path,
         # Backwards compatibility (deprecated)
         "AYONLOGGERLOGLVL": resolver_settings["ayon_log_lvl"],
         "AYONLOGGERFILELOGGING": resolver_settings["ayon_file_logger_enabled"],
         "AYONLOGGERFILEPOS": resolver_settings["file_logger_file_path"],
         "AYON_LOGGIN_LOGGIN_KEYS": resolver_settings["ayon_logger_logging_keys"],
-        "PXR_PLUGINPATH_NAME": pxr_pluginpath_name,
-        "PYTHONPATH": python_path,
-        ld_path_key: ld_library_path
     }
