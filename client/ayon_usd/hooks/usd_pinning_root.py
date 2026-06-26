@@ -27,20 +27,11 @@ class UsdPinningRoot(PreLaunchHook):
             self.launch_context.env.get("PINNING_FILE_PATH"),
         )
 
-
-        roots = anatomy.roots
-        self.launch_context.env[
-            "AYON_USD_RESOLVER_PINNING_ROOTS"
-        ] = ",".join(f"{key}={value}"
-                     for key, value in roots.items())
-        
-        # Backwards compatibility (deprecated)
-        self.launch_context.env[
-            "PROJECT_ROOTS"
-        ] = ",".join(f"{key}={value}"
+        roots = anatomy.roots                     
         pinning_roots = ",".join(
             f"{key}={value}" for key, value in roots.items()
         )
+
         self.launch_context.env[
             "AYON_USD_RESOLVER_PINNING_ROOTS"
         ] = pinning_roots
