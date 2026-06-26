@@ -236,16 +236,6 @@ class BinaryDistributionSettings(BaseSettingsModel):
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/UnrealWin/Unreal5_4_Py39_Win_Windows_AMD64.zip",
             ),
-            AppPlatformPathModel(
-                name="ayon_usd/23-5",
-                platform="linux",
-                lake_fs_path="AyonUsdResolverBin/AyonUsdLinux/AyonUsd23_5_Py39_Linux_Linux_x86_64.zip",
-            ),
-            AppPlatformPathModel(
-                name="ayon_usd/23-5",
-                platform="windows",
-                lake_fs_path="AyonUsdResolverBin/AyonUsdWin/AyonUsd23_5_Py39_Win_Windows_AMD64.zip",
-            ),
         ],
     )
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
