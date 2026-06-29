@@ -67,48 +67,6 @@ def get_downloaded_usd_root(lake_fs_repo_uri) -> str:
     return os.path.join(DOWNLOAD_DIR, filename_no_ext)
 
 
-def is_usd_lib_download_needed(settings: dict) -> bool:
-    """Return whether a USD libraries need (re-)download from the Lake FS
-    repository.
-
-    This will be the case if it's the first time syncing, the timestamp on the
-    server is newer or the local files have been removed.
-
-    Arguments:
-        settings (dict): Studio or Project settings.
-
-    Returns:
-        bool: When true, a new download is required.
-
-    """
-    # currently there is no need to download usd libs
-    return False
-
-    lake_fs_repo = settings["usd"]["distribution"]["server_repo"]
-    usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo))
-    if not os.path.exists(usd_lib_dir):
-        return True
-
-    addon_data_json = get_addon_data_json()
-    try:
-        usd_lib_lake_fs_time_stamp_local = addon_data_json[
-            "usd_lib_lake_fs_time_cest"
-        ]
-    except KeyError:
-        return True
-
-    lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
-    lake_fs = config.get_global_lake_instance(settings)
-    lake_fs_timestamp = lake_fs.get_element_info(
-        lake_fs_usd_lib_path).get("Modified Time")
-    if (
-        not lake_fs_timestamp
-        or usd_lib_lake_fs_time_stamp_local != lake_fs_timestamp
-    ):
-        return True
-    return False
-
-
 def lakefs_download_and_extract(resolver_lake_fs_path: str,
                                 download_dir: str) -> str:
     """Download individual object based on the lake_fs_path and extracts
