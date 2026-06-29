@@ -1,19 +1,10 @@
 """USD Addon for AYON."""
 
-import json
 import os
 
-from ayon_core import style
 from ayon_core.addon import AYONAddon, IPluginPaths, ITrayAddon
 
-from ayon_core.settings import get_studio_settings
-
-from . import config, utils
-from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR
 from .version import __version__
-
-from .ayon_bin_client.ayon_bin_distro.work_handler import worker
-from .ayon_bin_client.ayon_bin_distro.util import zip
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
