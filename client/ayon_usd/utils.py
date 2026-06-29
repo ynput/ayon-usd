@@ -1,4 +1,5 @@
 """USD Addon utility functions."""
+from __future__ import annotations
 
 import json
 import os
@@ -6,6 +7,8 @@ import platform
 import pathlib
 import sys
 from datetime import datetime, timezone
+
+from ayon_core.lib.path_templates import StringTemplate
 
 from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
@@ -67,7 +70,9 @@ def get_downloaded_usd_root(lake_fs_repo_uri) -> str:
     return os.path.join(DOWNLOAD_DIR, filename_no_ext)
 
 
-def is_usd_lib_download_needed(settings: dict) -> bool:
+def is_usd_lib_download_needed(
+        settings: dict,
+        lake_fs_usd_lib_path: str | None = None) -> bool:
     """Return whether a USD libraries need (re-)download from the Lake FS
     repository.
 
@@ -76,12 +81,15 @@ def is_usd_lib_download_needed(settings: dict) -> bool:
 
     Arguments:
         settings (dict): Studio or Project settings.
+        lake_fs_usd_lib_path (str | None): Optional Lake FS path
+            to the USD library zip file. If not provided, it will
+            be determined.
 
     Returns:
         bool: When true, a new download is required.
 
     """
-    lake_fs_repo = settings["usd"]["distribution"]["server_repo"]
+    lake_fs_repo = settings["usd"]["distribution"]["lake_fs"]["server_repo"]
     usd_lib_dir = os.path.abspath(get_downloaded_usd_root(lake_fs_repo))
     if not os.path.exists(usd_lib_dir):
         return True
@@ -94,7 +102,8 @@ def is_usd_lib_download_needed(settings: dict) -> bool:
     except KeyError:
         return True
 
-    lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
+    if not lake_fs_usd_lib_path:
+        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(lake_fs_repo)
     lake_fs = config.get_global_lake_instance(settings)
     lake_fs_timestamp = lake_fs.get_element_info(
         lake_fs_usd_lib_path).get("Modified Time")
@@ -139,6 +148,38 @@ def lakefs_download_and_extract(resolver_lake_fs_path: str,
     return str(extract_zip_item.func_return)
 
 
+def get_local_resolver_path(settings, app_name: str):
+    """Check local_resolver_paths for a matching app + platform entry.
+
+    Args:
+        settings (dict): Project settings.
+        app_name (str): Application name, e.g. "houdini/20-5".
+
+    Returns:
+        str | None: Local filesystem path to the resolver directory,
+            or None if no match found.
+
+    """
+    roots = settings["usd"]["distribution"]["local"]["roots"]
+    local_paths = (
+        settings["usd"]["distribution"]["local"]["asset_resolvers"]
+    )
+    current_platform = platform.system().lower()
+    for entry in local_paths:
+        if entry["platform"] != current_platform:
+            continue
+        if entry["name"] == app_name or app_name in entry.get(
+            "app_alias_list", []
+        ):
+            template = StringTemplate(entry["path"])
+            result = template.format(
+                {root["name"]: root.get(current_platform) for root in roots}
+            )
+            return str(result)
+    
+    return None
+
+
 def get_resolver_to_download(settings, app_name: str) -> str:
     """
     Gets LakeFs path that can be used with copy element to download
@@ -148,7 +189,7 @@ def get_resolver_to_download(settings, app_name: str) -> str:
     Returns: str: LakeFs object path to be used with lake_fs_py wrapper
 
     """
-    distribution = settings["usd"]["distribution"]
+    distribution = settings["usd"]["distribution"]["lake_fs"]
     resolver_overwrite_list = distribution["lake_fs_overrides"]
     if resolver_overwrite_list:
         resolver_overwrite = next(
