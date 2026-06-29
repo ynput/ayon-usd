@@ -7,8 +7,6 @@ from ayon_core.settings import get_studio_settings
 class _LocalCache:
     lake_instance = None
 
-CACHED_ITEMS = []
-
 
 def get_global_lake_instance(settings=None):
     """Create lakefs connection.
@@ -30,7 +28,7 @@ def get_global_lake_instance(settings=None):
 
     if not settings:
         settings = get_studio_settings()
-    distribution = settings["usd"]["distribution"]["lake_fs"]
+    distribution = settings["usd"]["distribution"]
     return wrapper.LakeCtl(
         server_url=distribution["server_uri"],
         access_key_id=distribution["access_key_id"],
@@ -38,36 +36,30 @@ def get_global_lake_instance(settings=None):
     )
 
 
-def _get_lakefs_repo_items(lakefs_repo: str) -> list:
+def _get_lakefs_repo_items(lake_fs_repo: str) -> list:
     """Return all repo object names in the LakeFS repository"""
-    if not lakefs_repo:
+    if not lake_fs_repo:
         return []
-
-    if not lakefs_repo.endswith("/"):
-        lakefs_repo += "/"
-    return get_global_lake_instance().list_repo_objects(lakefs_repo)
+    return get_global_lake_instance().list_repo_objects(lake_fs_repo)
 
 
-def get_lakefs_usdlib_name(lakefs_repo: str) -> str:
+def get_lakefs_usdlib_name(lake_fs_repo: str) -> str:
     """Return AyonUsdBin/usd LakeFS repo object name for current platform."""
-    global CACHED_ITEMS
     platform_name = platform.system().lower()
-    if CACHED_ITEMS:
-        lake_fs_repo_items = CACHED_ITEMS
-    else:
-        lake_fs_repo_items = _get_lakefs_repo_items(lakefs_repo)
-        CACHED_ITEMS = lake_fs_repo_items
+    lake_fs_repo_items = _get_lakefs_repo_items(lake_fs_repo)
     for item in lake_fs_repo_items:
         if "AyonUsdBin/usd" in item and platform_name in item:
             return item
 
     raise RuntimeError(
         "No AyonUsdBin/usd item found for current platform "
-        f"'{platform_name}' on LakeFS server: {lakefs_repo}. "
+        f"'{platform_name}' on LakeFS server: {lake_fs_repo}. "
         f"All LakeFS repository items found: {lake_fs_repo_items}")
 
 
-def get_lakefs_usdlib_path(lakefs_repo: str) -> str:
+def get_lakefs_usdlib_path(settings: dict) -> str:
     """Return AyonUsdBin/usd LakeFS full url for current platform. """
-    usd_lib_conf = get_lakefs_usdlib_name(lakefs_repo)
-    return f"{lakefs_repo}/{usd_lib_conf}"
+    lake_fs_repo = settings["usd"]["distribution"]["server_repo"]
+    lake_fs_repo = lake_fs_repo.strip().rstrip("/")
+    usd_lib_conf = get_lakefs_usdlib_name(lake_fs_repo)
+    return f"{lake_fs_repo}/{usd_lib_conf}"

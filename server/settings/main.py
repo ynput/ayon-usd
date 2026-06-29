@@ -1,18 +1,8 @@
 """Main settings for USD on AYON server."""
 
 from ayon_server.settings import BaseSettingsModel, SettingsField
-from .publish_plugins import (
-    PublishPluginsModel,
-    DEFAULT_PUBLISH_VALUES
-)
 
-
-def _binary_distribution_enum():
-    return [
-        {"value": "lake_fs", "label": "Distribute via AYON (LakeFS)"},
-        {"value": "local", "label": "Configure via local path"},
-    ]
-
+from .publish_plugins import PublishPluginsModel, DEFAULT_PUBLISH_VALUES
 
 def platform_enum():
     """Return enumerator for supported platforms."""
@@ -108,64 +98,12 @@ class AppPlatformURIModel(BaseSettingsModel):
     )
 
 
-class ResolverRootModel(BaseSettingsModel):
-    """Model for defining root paths for resolver search."""
-
-    _layout = "expanded"
-
-    name: str = SettingsField(
-        ...,
-        title="Root Name",
-        description="Name of the root, e.g. 'resolver_root'",
-        example="resolver_root",
-    )
-    windows: str = SettingsField(
-        "",
-        title="Windows",
-        description="Path to use on Windows hosts.",
-    )
-    linux: str = SettingsField(
-        "",
-        title="Linux",
-        description="Path to use on Linux hosts.",
-    )
-    darwin: str = SettingsField(
-        "",
-        title="Darwin",
-        description="Path to use on macOS hosts.",
-    )
-
-
-class LocalResolverPathModel(BaseSettingsModel):
-    """Local filesystem path to a pre-installed resolver."""
+class BinaryDistributionSettings(BaseSettingsModel):
+    """Binary distribution of USD and AYON USD Resolver"""
 
     _layout = "collapsed"
-    name: str = SettingsField(
-        title="App Name",
-        description="Application name, e.g. houdini/20-5",
-    )
-    app_alias_list: list[str] = SettingsField(
-        title="Application Alias",
-        description="Define a list of App Names that use the same "
-        "resolver as the parent application",
-        default_factory=list,
-    )
-    platform: str = SettingsField(
-        title="Platform",
-        enum_resolver=platform_enum,
-        description="windows / linux / darwin",
-    )
-    path: str = SettingsField(
-        title="Resolver Directory Path",
-        description=(
-            "Local filesystem path to the resolver directory "
-            "(the directory containing `ayonUsdResolver/`)"
-        ),
-    )
 
-
-class LakeFSDistributionSettings(BaseSettingsModel):
-    """Settings specific to LakeFS distribution of USD binaries."""
+    enabled: bool = SettingsField(False)
 
     server_uri: str = SettingsField(
         "https://lake.ayon.cloud",
@@ -189,7 +127,6 @@ class LakeFSDistributionSettings(BaseSettingsModel):
         title="Secret Access Key",
         description="The LakeFs server secret access key.",
     )
-
     asset_resolvers: list[AppPlatformPathModel] = SettingsField(
         title="Resolver Application Paths",
         description="Allows an admin to define a specific Resolver Zip for a specific Application",
@@ -317,45 +254,6 @@ class LakeFSDistributionSettings(BaseSettingsModel):
             "Allows to define a specific Resolver Zip for a specific Application"
         ),
         default_factory=list,
-    )
-
-
-class LocalBinaryDistributionSettings(BaseSettingsModel):
-    """Settings for using a locally stored resolver binary distribution"""
-
-    roots: list[ResolverRootModel] = SettingsField(
-        title="Resolver Roots",
-        description="Define named root paths usable as '{resolver_root}' in resolver paths.",
-        default_factory=list,
-    )
-    asset_resolvers: list[LocalResolverPathModel] = SettingsField(
-        title="Resolver Paths",
-        description=(
-            "Local filesystem paths to pre-installed resolver binaries."
-        ),
-        default_factory=list,
-    )
-
-
-class BinaryDistributionSettings(BaseSettingsModel):
-    """Binary distribution of USD and AYON USD Resolver"""
-
-    _layout = "collapsed"
-
-    enabled: bool = SettingsField(False)
-    type: str = SettingsField(
-        title="Distribution type",
-        enum_resolver=_binary_distribution_enum,
-        conditional_enum=True,
-        default="lake_fs",
-    )
-    lake_fs: LakeFSDistributionSettings = SettingsField(
-        default_factory=LakeFSDistributionSettings,
-        title="LakeFS Distribution Settings",
-    )
-    local: LocalBinaryDistributionSettings = SettingsField(
-        default_factory=LocalBinaryDistributionSettings,
-        title="Local Distribution Settings",
     )
 
 
