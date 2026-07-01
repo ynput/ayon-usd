@@ -1,5 +1,7 @@
 [project]
 name = "ayon-usd"
+[project]
+name = "ayon-usd"
 version = "1.0.1"
 description = "AYON Addon providing USD support"
 authors = [
