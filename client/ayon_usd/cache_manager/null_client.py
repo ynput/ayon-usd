@@ -134,7 +134,7 @@ class NullCacheClient(CacheClient):
         """
         return False
 
-    def invalidate_folder(self, project_name: str, folder_id: str) -> bool:
+    def invalidate_folder(self, project_name: str, folder_id: str) -> int:
         """Invalidate folder data in the cache.
 
         Args:
@@ -142,21 +142,21 @@ class NullCacheClient(CacheClient):
             folder_id: ID of the folder.
 
         Returns:
-            bool: True if the folder was invalidated successfully.
+            int: Number of invalidated entries.
 
         """
-        return False
+        return 0
 
-    def invalidate_project(self, project_name: str) -> int:
+    def invalidate_project(self, project_name: str) -> bool:
         """Invalidate project data in the cache.
 
         Args:
             project_name: Name of the project.
 
         Returns:
-            int: Number of invalidated entries.
+            bool: True if the project was invalidated successfully.
         """
-        return 0
+        return False
 
     def flush_all(self) -> bool:
         """Flush all cache data.

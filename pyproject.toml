@@ -11,11 +11,9 @@ readme = "README.md"
 requires-python = ">=3.11,<3.12"
 
 dependencies = [
-    "ayon-python-api>=1.0.5",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
     "pytest-print>=1.0.0",
-    "ayon-python-api>=1.0.5",
     "ruff>=0.15.0",
     "pre-commit>=3.6.2",
     "codespell>=2.2.6",
@@ -43,4 +41,4 @@ docs = [
 [project.urls]
 homepage = "https://ynput.io"
 documentation = "https://ayon.ynput.io"
-repository = "https://github.com/ynput/ayon-usd-resolver"
+repository = "https://github.com/ynput/ayon-usd"

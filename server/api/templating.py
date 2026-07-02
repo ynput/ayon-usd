@@ -1,3 +1,12 @@
+"""Template formatting module.
+
+This module provides classes and functions
+for formatting strings with templates.
+
+It is taken from the server:
+https://github.com/ynput/ayon-backend/blob/develop/api/resolve/templating.py
+
+"""
 import numbers
 import os
 import re

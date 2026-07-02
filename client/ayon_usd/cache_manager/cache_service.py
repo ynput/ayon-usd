@@ -112,7 +112,7 @@ class CacheService:
             return
 
         logger.info("Starting cache service...")
-
+        self._running = True
         try:
             # Connect to memcached
             self.cache_client.connect()
@@ -127,7 +127,6 @@ class CacheService:
             # Start pre-fetching task
             self._prefetch_task = asyncio.create_task(self._prefetch_loop())
 
-            self._running = True
             logger.info("Cache service started successfully")
 
         except Exception as e:
@@ -300,9 +299,10 @@ class CacheService:
 
             elif event.event_type.startswith("entity.project"):
                 # Invalidate entire project
-                count = self.cache_client.invalidate_project(
+                result = self.cache_client.invalidate_project(
                     event.project_name)
-                self.stats["invalidations"] += count
+                if result:
+                    self.stats["invalidations"] += 1
 
         except Exception as e:  # noqa: BLE001
             logger.exception(f"Error handling invalidation event: {e}")
@@ -329,11 +329,14 @@ class CacheService:
             Dictionary with service statistics
 
         """
+        ws = self.websocket_client._websocket  # noqa: SLF001
+        websocket_connected = bool(ws and not getattr(ws, "closed", True))
+
         return {
             "service_stats": self.stats,
             "rate_limiter_stats": self.rate_limiter.get_stats(),
             # "memcache_stats": self.cache_client.get_cache_stats(),
-            "websocket_connected": self.websocket_client.is_connected(),
+            "websocket_connected": websocket_connected,
             "running": self._running,
             "configured_projects": len(self.config.projects_to_cache),
         }

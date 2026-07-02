@@ -59,17 +59,18 @@ class InvalidationEvent:
             InvalidationEvent instance
 
         """
+        summary = data.get("summary") or {}
         entity_type = cls._entity_type_from_topic(data.get("topic", ""))
         if entity_type == "folder":
-            data["folder_id"] = data["summary"].get("entityId")
+            data["folder_id"] = summary.get("entityId")
 
         if entity_type == "task":
-            data["task_id"] = data["summary"].get("entityId")
+            data["task_id"] = summary.get("entityId")
 
         return cls(
             event_type=data.get("topic", ""),
             project_name=data.get("project", ""),
-            entity_id=data["summary"].get("entityId"),
+            entity_id=summary.get("entityId"),
             timestamp=data.get("timestamp")
         )
 

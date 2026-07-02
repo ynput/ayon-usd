@@ -320,6 +320,7 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         folders_to_cache = {}
 
         # Example: BEAM_PROJECTS="TestProject,AnotherProject"
+        projects_to_cache = []
         projects_env = os.getenv("AYON_PRECACHE_PROJECTS", "")
         if projects_env:
             projects_to_cache = [
