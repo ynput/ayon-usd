@@ -35,7 +35,7 @@ class InitializeAssetResolver(PreLaunchHook):
             local_resolver = self._handle_lake_fs_distribution(project_settings)
         elif distribution_type == "local":
             local_resolver = self._handle_local_distribution(project_settings)
-        
+
         if local_resolver is None:
             self.log.warning(
                 "Resolver setup skipped for %s because no resolver directory "
@@ -45,7 +45,7 @@ class InitializeAssetResolver(PreLaunchHook):
             return
 
         self._setup_resolver(local_resolver, project_settings)
-    
+
     def _handle_lake_fs_distribution(self, settings) -> Optional[str]:
         resolver_lake_fs_path = utils.get_resolver_to_download(
             settings,
@@ -58,8 +58,8 @@ class InitializeAssetResolver(PreLaunchHook):
                 f" activated for application: {self.app_name}"
             )
             return None
-    
-        self.log.info(f"Using resolver from lakeFS: {resolver_lake_fs_path}")
+
+        self.log.info("Using resolver from lakeFS: %s", resolver_lake_fs_path)
         lake_fs = config.get_global_lake_instance()
         lake_fs_resolver_time_stamp = (
             lake_fs.get_element_info(resolver_lake_fs_path).get(
@@ -71,11 +71,11 @@ class InitializeAssetResolver(PreLaunchHook):
                 "Could not find resolver timestamp on lakeFS server "
                 f"for application: {self.app_name}"
             )
-            return
+            return None
 
         # Bootstrap addon metadata for launches that happen without tray init.
         addon_data_json = utils.get_addon_data_json()
-        
+
         if not addon_data_json:
             utils.create_addon_data_json_file()
             addon_data_json = utils.get_addon_data_json()
@@ -92,7 +92,7 @@ class InitializeAssetResolver(PreLaunchHook):
             and os.path.exists(local_resolver)
         ):
             return local_resolver
-        
+
         # If no existing match, download the resolver
         local_resolver = utils.lakefs_download_and_extract(
             resolver_lake_fs_path, str(utils.get_download_dir())
@@ -106,17 +106,18 @@ class InitializeAssetResolver(PreLaunchHook):
         ]
         with open(ADDON_DATA_JSON_PATH, "w") as addon_json:
             json.dump(addon_data_json, addon_json)
-        
+
         return local_resolver
 
     def _handle_local_distribution(self, settings) -> Optional[str]:
         resolver_path = utils.get_local_resolver_path(settings, self.app_name)
 
         if not resolver_path or not os.path.isdir(resolver_path):
-            self.log.error(f"Invalid local resolver path: {resolver_path}")
+            self.log.error("Invalid local resolver path: %s", resolver_path)
             return None
 
-        self.log.info(f"Using local resolver path for {self.app_name}: {resolver_path}")
+        self.log.info("Using local resolver path for %s: %s",
+                      self.app_name, resolver_path)
         return resolver_path
 
     def _setup_resolver(
@@ -125,10 +126,22 @@ class InitializeAssetResolver(PreLaunchHook):
         settings,
     ):
         self.log.info(
-            f"Initializing USD asset resolver for application: {self.app_name}"
+            "Initializing USD asset resolver for application: %s",
+            self.app_name
         )
 
         updated_env = utils.get_resolver_setup_info(
             local_resolver, settings, env=self.launch_context.env
         )
+        # handle memcached support
+        if settings["usd"]["memcached"].get("enabled", False):
+            memcached_servers = settings["usd"]["memcached"].get(
+                "servers", []
+            )
+            if os.getenv("AYON_MEMCACHED_SERVERS"):
+                memcached_servers = os.getenv(
+                    "AYON_MEMCACHED_SERVERS", "").split(",")
+            updated_env["AYON_MEMCACHED_SERVERS"] = ",".join(memcached_servers)
+            updated_env["AYON_MEMCACHED_ENABLED"] = "true"
+
         self.launch_context.env.update(updated_env)
