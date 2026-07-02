@@ -316,8 +316,7 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         prefetch_interval = int(os.getenv("AYON_PREFETCH_INTERVAL", "300"))
         max_concurrent_fetches = int(os.getenv("AYON_MAX_CONCURRENT", "5"))
 
-        # Get projects and folders to cache from environment
-        projects_to_cache = ["TestProject"]  # Default project to cache
+        # Get projects and folders to cache from environment]
         folders_to_cache = {}
 
         # Example: BEAM_PROJECTS="TestProject,AnotherProject"
