@@ -36,7 +36,7 @@ class TemplateUnsolved(Exception):
         if invalid_types:
             invalid_types_msg = self.invalid_types_msg.format(
                 ", ".join(
-                    [f'"{_key}" {str(_type)}' for _key, _type in invalid_types.items()]
+                    [f'"{_key}" {_type!s}' for _key, _type in invalid_types.items()]
                 )
             )
 

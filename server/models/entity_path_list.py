@@ -1,6 +1,6 @@
 """Model for entity path list."""
-from pydantic import validator
-from ayon_server.types import OPModel, Field
+from ayon_server.types import Field, OPModel
+
 
 class ResolvedPair(OPModel):
     """Model for entity path list."""
@@ -8,11 +8,12 @@ class ResolvedPair(OPModel):
         ...,
         title="Entity URI",
         description="Entity URI",
-        example="ayon+entity://Project/assets/foo?product=modelMain&version=v002&representation=usd"  # noqa: E501
+        example="ayon+entity://Project/assets/foo?product=modelMain&version=v002&representation=usd"
     )
     path: str = Field(
         ...,
-        title="Resolved path",)
+        title="Resolved path")
+
 
 class EntityPathList(OPModel):
     """Model for entity path list."""
