@@ -316,11 +316,11 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         prefetch_interval = int(os.getenv("AYON_PREFETCH_INTERVAL", "300"))
         max_concurrent_fetches = int(os.getenv("AYON_MAX_CONCURRENT", "5"))
 
-        # Get projects and folders to cache from environment]
+        # Get projects and folders to cache from environment
         folders_to_cache = {}
 
-        # Example: BEAM_PROJECTS="TestProject,AnotherProject"
-        projects_to_cache = []
+        # Example: AYON_PRECACHE_PROJECTS="TestProject,AnotherProject"
+        projects_to_cache: list[str] = []
         projects_env = os.getenv("AYON_PRECACHE_PROJECTS", "")
         if projects_env:
             projects_to_cache = [
@@ -329,7 +329,7 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
                 if p.strip()
             ]
 
-        # Example: BEAM_FOLDERS_TestProject="folder1,folder2"
+        # Example: AYON_PRECACHE_FOLDERS_TestProject="folder1,folder2"
         for project in projects_to_cache:
             folders_env = os.getenv(f"AYON_PRECACHE_FOLDERS_{project}", "")
             if folders_env:
