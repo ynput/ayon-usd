@@ -1,26 +1,21 @@
 """USD Addon for AYON."""
 from __future__ import annotations
-import json
-import os
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Optional
 
 import asyncio
-from loguru import logger
-
+import json
+import os
+from typing import TYPE_CHECKING, Any, Optional
 
 from ayon_core import style
-from ayon_core.addon import AYONAddon, IPluginPaths, ITrayService, ITrayAddon
+from ayon_core.addon import AYONAddon, IPluginPaths, ITrayService
+from loguru import logger
 
-from ayon_core.settings import get_studio_settings
-
-from .cache_manager import CacheService, CacheServiceConfig, RateLimitConfig
 from . import config, utils
+from .ayon_bin_client.ayon_bin_distro.util import zip
+from .ayon_bin_client.ayon_bin_distro.work_handler import worker
+from .cache_manager import CacheService, CacheServiceConfig, RateLimitConfig
 from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR
 from .version import __version__
-
-from .ayon_bin_client.ayon_bin_distro.work_handler import worker
-from .ayon_bin_client.ayon_bin_distro.util import zip
 
 if TYPE_CHECKING:
     from ayon_core.addon import AddonsManager
@@ -49,6 +44,7 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._stop_event: Optional[asyncio.Event] = None
         self.log = logger.bind(addon=self.name)
+        self.settings = settings
 
     @property
     def label(self) -> str:
@@ -60,9 +56,9 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         """
         return "AYON USD Addon Cache Service"
 
-    def tray_init(self):
+    def tray_init(self) -> None:
         """Initialize tray module."""
-        super(USDAddon, self).tray_init()
+        super().tray_init()
         self.log.info("Initializing AYON USD addon tray service")
 
         # Create event loop for async operations
@@ -76,17 +72,17 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
 
         if config:
             # Initialize cache service
-            self._cache_service = CacheService(config)
+            self._cache_service = CacheService(config, self.name, self.version)
             self.log.info("Cache service initialized")
         else:
             self.log.warning(
                 "Cache service not configured - missing required settings")
 
-    def initialize(self, studio_settings):
+    def initialize(self, studio_settings: dict[str, Any]) -> None:
         """Initialize USD Addon."""
         self._download_window = None
 
-    def tray_start(self):
+    def tray_start(self) -> None:
         """Start tray module.
 
         Download USD if needed.
@@ -121,7 +117,7 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
             msg = "Failed to start AYON USD addon cache service"
             self.log.exception(msg)
 
-    def tray_exit(self):
+    def tray_exit(self) -> None:
         """Exit tray module."""
         if (self._cache_service and
                 self._loop and not self._loop.is_closed()):
@@ -158,31 +154,49 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         except Exception:
             self.log.exception("Cache service error")
 
-    def tray_menu(self, tray_menu):
+    def tray_menu(self, _tray_menu: Any) -> None:
         """Add menu items to tray menu."""
-        pass
 
-    def get_launch_hook_paths(self):
-        """Get paths to launch hooks."""
+    @staticmethod
+    def get_launch_hook_paths() -> list[str]:
+        """Get paths to launch hooks.
+
+        Returns:
+            list[str]: List of paths to launch hooks.
+
+        """
         return [os.path.join(USD_ADDON_DIR, "hooks")]
 
-    def get_publish_plugin_paths(self, host_name):
+    @staticmethod
+    def get_publish_plugin_paths(_host_name: str) -> list[str]:
+        """Get paths to publish plugins.
+
+        Returns:
+            list[str]: List of paths to publish plugins.
+
+        """
         return [
             os.path.join(USD_ADDON_DIR, "plugins", "publish")
         ]
 
-    def _download_global_lakefs_binaries(self):
-        settings = get_studio_settings()
-        dist_settings = settings["usd"]["distribution"]
+    def _download_global_lakefs_binaries(self) -> None:
+        """Download USD binaries from lakeFS if needed.
+
+        Raises:
+            ValueError: If unable to find UsdLib date modified
+                timestamp on LakeFS server.
+
+        """
+        dist_settings = self.settings["usd"]["distribution"]
         if not dist_settings["enabled"]:
             self.log.info("USD Binary distribution is disabled.")
             return
-        
+
         if dist_settings["enabled"] and dist_settings["type"] == "local":
             self.log.info(
                 "Local distribution; skipping LakeFS USD lib download."
             )
-            return                            
+            return
 
         utils.create_addon_data_json_file()
 
@@ -190,26 +204,30 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         lakefs_repo = lakefs_repo.strip().rstrip("/")
         lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(lakefs_repo)
 
-        if not utils.is_usd_lib_download_needed(settings, lake_fs_usd_lib_path):
+        if not utils.is_usd_lib_download_needed(
+                self.settings, lake_fs_usd_lib_path):
             self.log.info("USD Libs already available. Skipping download.")
             return
 
         # Get modified time on LakeFS
-        lake_fs = config.get_global_lake_instance(settings)
+        lake_fs = config.get_global_lake_instance(self.settings)
         usd_lib_lake_fs_time_cest = (
             lake_fs
             .get_element_info(lake_fs_usd_lib_path)
             .get("Modified Time")
         )
         if not usd_lib_lake_fs_time_cest:
-            raise ValueError(
+            msg = (
                 "Unable to find UsdLib date modified timestamp on "
                 f"LakeFs server: {lake_fs_usd_lib_path}"
             )
+            raise ValueError(msg)
 
-        with open(ADDON_DATA_JSON_PATH, "r+") as json_file:
+        with open(ADDON_DATA_JSON_PATH, "r+", encoding="utf-8") as json_file:
             addon_data_json = json.load(json_file)
-            addon_data_json["usd_lib_lake_fs_time_cest"] = usd_lib_lake_fs_time_cest
+            addon_data_json["usd_lib_lake_fs_time_cest"] = (
+                usd_lib_lake_fs_time_cest
+            )
 
             json_file.seek(0)
             json.dump(
@@ -256,8 +274,7 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         download_ui.start()
         self._download_window = download_ui
 
-    @staticmethod
-    def _get_cache_config() -> Optional[CacheServiceConfig]:
+    def _get_cache_config(self) -> Optional[CacheServiceConfig]:
         """Get cache service configuration from environment and settings.
 
         Returns:
@@ -272,15 +289,15 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
             logger.error("Missing AYON_SERVER_URL or "
                             "AYON_API_KEY environment variables")
             return None
-        
+
         # Get memcached settings from environment
-        """
-        AYON_USD_ENABLE_MEMCACHED_CACHE=true          # Enable/disable memcached
-        AYON_MEMCACHED_SERVERS=localhost:11211        # Single or comma-separated servers
-        AYON_MEMCACHED_TIMEOUT_MS=1000 
-        """
-        memcache_hosts: list[str] = os.getenv("AYON_MEMCACHED_SERVERS", "localhost:11211").split(",")
-        
+        memcache_hosts: list[str] = []
+        if self.settings["usd"]["memcached"].get("enabled", False):
+            memcache_hosts = self.settings["usd"]["memcached"].get(
+                "servers", [])
+            if os.getenv("AYON_MEMCACHED_SERVERS"):
+                memcache_hosts = os.getenv(
+                    "AYON_MEMCACHED_SERVERS", "").split(",")
 
         # Get rate limiting settings
         rate_limit_config = RateLimitConfig(
@@ -300,7 +317,7 @@ class USDAddon(AYONAddon, IPluginPaths, ITrayService):
         max_concurrent_fetches = int(os.getenv("AYON_MAX_CONCURRENT", "5"))
 
         # Get projects and folders to cache from environment
-        projects_to_cache = []
+        projects_to_cache = ["TestProject"]  # Default project to cache
         folders_to_cache = {}
 
         # Example: BEAM_PROJECTS="TestProject,AnotherProject"

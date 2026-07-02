@@ -63,7 +63,6 @@ class NullCacheClient(CacheClient):
         Args:
             key (str): The key to delete.
         """
-        pass
 
     def set_folder_data(
             self,

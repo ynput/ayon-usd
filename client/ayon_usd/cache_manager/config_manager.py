@@ -1,11 +1,13 @@
 """Dynamic configuration manager for cache service.
 
-
 USD Resolver is using:
 
-AYON_USD_ENABLE_MEMCACHED_CACHE=true          # Enable/disable memcached
-AYON_MEMCACHED_SERVERS=localhost:11211        # Single or comma-separated servers
-AYON_MEMCACHED_TIMEOUT_MS=1000  
+These are set from the settings and can be
+overridden by environment variables:
+
+AYON_ENABLE_MEMCACHED_CACHE=true       # Enable/disable memcached
+AYON_MEMCACHED_SERVERS=localhost:11211 # Single or comma-separated servers
+AYON_MEMCACHED_TIMEOUT_MS=1000
 
 """
 from __future__ import annotations
@@ -19,11 +21,8 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import aiofiles
 import aiofiles.os
-import ayon_api
 import dotenv
 from loguru import logger
-
-from .prefetcher import Prefetcher
 
 if TYPE_CHECKING:
     from .cache_service import CacheService
@@ -83,7 +82,7 @@ class CacheConfigManager:
         for callback in self._config_watchers:
             try:
                 callback(config)
-            except Exception as e:  # noqa: BLE001, PERF203
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"Error in config watcher: {e}")
 
     async def load_config_from_file(
@@ -106,7 +105,7 @@ class CacheConfigManager:
                     config = json.loads(content)
                     logger.info(f"Loaded configuration from {file_path}")
                     return config
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to load config from {file_path}: {e}")
 
         return {}
@@ -133,11 +132,11 @@ class CacheConfigManager:
                 await f.write(json.dumps(config, indent=2))
 
             logger.info(f"Saved configuration to {file_path}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to save config to {file_path}: {e}")
 
     async def apply_config_from_file(
-            self,file_path: Optional[Path] = None) -> None:
+            self, file_path: Optional[Path] = None) -> None:
         """Load and apply configuration from file.
 
         Args:
@@ -197,7 +196,7 @@ class CacheConfigManager:
                                 "reloading...")
                             await self.apply_config_from_file(file_path)
 
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     logger.error(f"Error checking config file: {e}")
 
                 await asyncio.sleep(check_interval)
@@ -209,12 +208,18 @@ class CacheConfigManager:
             self, config_dict: dict[str, Any]) -> None:
         """Update configuration from various dictionary formats.
 
+        Note: Per-folder configuration is not supported in CacheManager yet
+            this method. Only project-level configuration is applied.
+
         Support multiple formats::
 
             - Format 1: {"ProjectName": ["folder1", "folder2"]}
-            - Format 2: {"projects": [{"name": "ProjectName", "folders": ["folder1", "folder2"]}]}
-            - Format 3: {"cache_config": {"ProjectName": ["folder1", "folder2"]}}
-
+            - Format 2: {"projects": [
+                    {"name": "ProjectName", "folders": ["folder1", "folder2"]}
+                ]}
+            - Format 3: {
+                    "cache_config": {"ProjectName": ["folder1", "folder2"]}
+                }
 
         Args:
             config_dict: Configuration in various supported formats
@@ -253,32 +258,6 @@ class CacheConfigManager:
         else:
             logger.error("Invalid configuration format")
 
-    async def update_config_from_api(
-            self,
-            api_endpoint: str,
-            headers: Optional[dict[str, str]] = None) -> None:
-        """Fetch and apply configuration from API endpoint.
-
-        Args:
-            api_endpoint: URL to fetch configuration from
-            headers: Optional HTTP headers
-        """
-        try:
-            import aiohttp
-
-            async with (
-                    aiohttp.ClientSession() as session,
-                    session.get(api_endpoint, headers=headers) as response):
-                if response.status == 200:
-                    config_data = await response.json()
-                    self.update_config_from_dict(config_data)
-                    logger.info(
-                        f"Updated configuration from API: {api_endpoint}")
-                else:
-                    logger.error(f"API request failed: {response.status}")
-        except Exception as e:
-            logger.error(f"Failed to fetch config from API: {e}")
-
     def update_config_from_env(
             self, env_prefix: str = "AYON_USD_CACHE") -> None:
         """Update configuration from environment variables.
@@ -296,7 +275,9 @@ class CacheConfigManager:
             if key.startswith(f"{env_prefix}_"):
                 project_name = key[len(f"{env_prefix}_"):]
                 if project_name and value:
-                    folders = [f.strip() for f in value.split(",") if f.strip()]
+                    folders = [
+                        f.strip() for f in value.split(",") if f.strip()
+                    ]
                     config[project_name] = folders
 
         if config:
@@ -306,44 +287,8 @@ class CacheConfigManager:
                 "Updated configuration from environment "
                 f"variables: {len(config)} projects")
         else:
-            logger.info("No cache configuration found in environment variables")
-
-    @staticmethod
-    async def get_config_suggestions(
-            project_name: str) -> list[str]:
-        """Get folder suggestions for a project by querying the server.
-
-        This could fetch available folders from the GraphQL API to help
-        with configuration.
-
-        Args:
-            project_name: Project to get suggestions for
-
-        Returns:
-            List of available folder IDs
-
-        """
-        current_user = ayon_api.get_user()
-        if not current_user:
-            logger.error(
-                "No authenticated user for fetching folder suggestions")
-            return []
-
-        try:
-            # Example query to get all folders in a project
-            # You would need to implement this in the GraphQLClient
-            logger.info(f"Fetching folder suggestions for {project_name}")
-            prefetch_ids = Prefetcher(user=current_user["name"]).prefetch()
-            return_ids = [
-                prefetch_data.folder_id
-                for prefetch_data in prefetch_ids.folder_requests
-                if prefetch_data.project_name == project_name
-            ]
-        except Exception as e:  # noqa: BLE001
-            logger.error(f"Failed to get folder suggestions: {e}")
-            return []
-        else:
-            return return_ids
+            logger.info(
+                "No cache configuration found in environment variables")
 
 
 # Convenience functions for easy configuration management

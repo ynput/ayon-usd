@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from loguru import logger
@@ -24,11 +24,24 @@ class MemcachedClient(CacheClient):
         """
         self.hosts = hosts
         self._client: Client | None = None
-        
+
         self._key_tracker: set[str] = set()  # Track keys for invalidation
 
     def connect(self) -> None:
-        """Connect to memcached server."""
+        """Connect to memcached server.
+
+        Raises:
+            ValueError: If no hosts are provided.
+
+        """
+        if not self.hosts:
+            logger.error("No memcached hosts provided")
+            msg = (
+                "Memcached connection skipped because no "
+                "hosts were provided."
+            )
+            raise ValueError(msg)
+
         try:
             if len(self.hosts) > 1:
                 # when more than one host is provided, we will assume it's a cluster
@@ -48,7 +61,7 @@ class MemcachedClient(CacheClient):
             else:
                 logger.info(f"Connected to memcached at {self.hosts[0]}")
         except Exception as e:
-            logger.error(f"Failed to connect to memcached: {e}")
+            logger.exception(f"Failed to connect to memcached: {e}")
             raise
 
     def disconnect(self) -> None:
@@ -155,7 +168,7 @@ class MemcachedClient(CacheClient):
                 metadata = {
                     "project_name": project_name,
                     "folder_id": folder_id,
-                    "cached_at": datetime.now(tz=timezone.utc).isoformat(),
+                    "cached_at": datetime.now(tz=UTC).isoformat(),
                     "ttl": ttl,
                     "data_type": "folder"
                 }

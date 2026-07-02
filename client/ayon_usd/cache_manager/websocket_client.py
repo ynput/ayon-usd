@@ -91,11 +91,12 @@ class WebSocketClient:
             "http://", "ws://").replace("https://", "wss://")
         self.ws_url = f"{self.ws_url}/ws"
 
-        self._websocket = None
+        self._websocket: websockets.ClientConnection | None = None
         self._running = False
         self._reconnect_delay = 5
         self._max_reconnect_delay = 60
         self._event_handlers: list[Callable[[InvalidationEvent], None]] = []
+        logger.debug(f"Using websockets version: {websockets.__version__}")
 
     def add_event_handler(
             self,
@@ -160,7 +161,7 @@ class WebSocketClient:
             for handler in self._event_handlers:
                 try:
                     handler(event)
-                except Exception as e:  # noqa: BLE001, PERF203
+                except Exception as e:  # noqa: BLE001
                     logger.error(f"Message: {message}")
                     logger.exception(f"Error in event handler: {e}")
 
@@ -209,7 +210,7 @@ class WebSocketClient:
         try:
             async for message in self._websocket:
                 # logger.debug(f"WebSocket message received: {message}")
-                await self._handle_message(message)  # pyright: ignore[reportArgumentType]
+                await self._handle_message(str(message))
 
         except ConnectionClosed:
             logger.warning("WebSocket connection closed")
