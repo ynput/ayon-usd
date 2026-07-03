@@ -1,1 +1,3 @@
---8<-- "README.md"
+# AYON USD Addon API Reference
+
+--8<-- "README.md:3"
