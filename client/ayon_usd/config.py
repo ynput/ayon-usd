@@ -30,7 +30,7 @@ def get_global_lake_instance(settings=None):
 
     if not settings:
         settings = get_studio_settings()
-    distribution = settings["usd"]["distribution"]
+    distribution = settings["usd"]["distribution"]["lake_fs"]
 
     _LocalCache.lake_instance = wrapper.LakeCtl(
         server_url=distribution["server_uri"],
