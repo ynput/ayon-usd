@@ -3,99 +3,42 @@ name = "ayon-usd"
 version = "1.0.1"
 description = "AYON Addon providing USD support"
 authors = [
-    {"name" = "Ynput s.r.o.", "email" = "info@ynput.io"}
+    {name = "Ynput s.r.o.", email = "info@ynput.io"}
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
+
 requires-python = ">=3.11,<3.12"
 
 dependencies = [
-    "ayon-python-api>=1.2.20,<2.0.0",
-    "ruff ~= 0.15.16",
-    "ty",
-    "pytest",
-    "pytest-cov",
-    "codespell",
-    "clique ~= 2.0.0",
-    "semver ~= 3.0.2",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "pytest-print>=1.0.0",
+    "ruff>=0.15.0",
+    "pre-commit>=3.6.2",
+    "codespell>=2.2.6",
+    "pydocstyle>=0.0.0",
+    "requests>=2.26.0",
+    "semver>=3.0.2",  # needed for ayon-python-api to run tests
+    "clique>=2.0.0",
+    "websockets>=16.0",
+    "loguru>=0.7.3",
+]
+
+[dependency-groups]
+docs = [
+    "mkdocs-material>=9.6.7",
+    "mkdocs-autoapi >= 0.4.0",
+    "mkdocstrings-python >= 1.16.2",
+    "mkdocs-minify-plugin >= 0.8.0",
+    "markdown-checklist >= 0.4.4",
+    "mdx-gh-links >= 0.4",
+    "pymdown-extensions >= 10.14.3",
+    "mike >= 2.1.3",
+    "mkdocstrings-shell >= 1.0.2",
 ]
 
 [project.urls]
 homepage = "https://ynput.io"
 documentation = "https://ayon.ynput.io"
 repository = "https://github.com/ynput/ayon-usd"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.ruff]
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-    "vendor",
-    "generated",
-]
-
-# Same as Black.
-line-length = 79
-indent-width = 4
-
-target-version = "py311"
-
-[tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-select = ["E4", "E7", "E9", "F"]
-ignore = []
-
-# Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.format]
-# Like Black, use double quotes for strings.
-quote-style = "double"
-
-# Like Black, indent with spaces, rather than tabs.
-indent-style = "space"
-
-# Like Black, respect magic trailing commas.
-skip-magic-trailing-comma = false
-
-# Like Black, automatically detect the appropriate line ending.
-line-ending = "auto"
-
-[tool.codespell]
-# Ignore words that are not in the dictionary.
-ignore-words-list = "ayon,ynput"
-skip = "./.*,./client/ayon_usd/downloads,*/vendor/*,./downloads,./package,./private"
-count = true
-quiet-level = 3
