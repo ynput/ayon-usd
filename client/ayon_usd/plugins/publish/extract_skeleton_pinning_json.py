@@ -77,6 +77,10 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 		    FARM_JOB_ENV_DATA_KEY, {}
 		)
         farm_job_data.update({
+            "AYON_USD_RESOLVER_PINNING_FILE": pin_file_path,
+            "AYON_USD_RESOLVER_ENABLE_PINNING": "1",
+            
+            # Backwards compatibility (deprecated)
             "PINNING_FILE_PATH": pin_file_path,
             "ENABLE_STATIC_GLOBAL_CACHE": "1",
         })

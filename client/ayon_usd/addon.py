@@ -2,7 +2,6 @@
 
 import json
 import os
-from datetime import datetime, timezone
 
 from ayon_core import style
 from ayon_core.addon import AYONAddon, IPluginPaths, ITrayAddon
@@ -66,25 +65,26 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
     def _download_global_lakefs_binaries(self):
         settings = get_studio_settings()
-        if not settings["usd"]["distribution"]["enabled"]:
+        dist_settings = settings["usd"]["distribution"]
+        if not dist_settings["enabled"]:
             self.log.info("USD Binary distribution is disabled.")
             return
+        
+        if dist_settings["enabled"] and dist_settings["type"] == "local":
+            self.log.info(
+                "Local distribution; skipping LakeFS USD lib download."
+            )
+            return                            
 
-        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+        utils.create_addon_data_json_file()
 
-        if not os.path.exists(ADDON_DATA_JSON_PATH):
-            now = datetime.now().astimezone(timezone.utc)
-            with open(ADDON_DATA_JSON_PATH, "w+") as json_file:
-                init_data = {
-                    "ayon_usd_addon_first_init_utc": str(now)
-                }
-                json.dump(init_data, json_file)
+        lakefs_repo: str = dist_settings["lake_fs"]["server_repo"]
+        lakefs_repo = lakefs_repo.strip().rstrip("/")
+        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(lakefs_repo)
 
-        if not utils.is_usd_lib_download_needed(settings):
+        if not utils.is_usd_lib_download_needed(settings, lake_fs_usd_lib_path):
             self.log.info("USD Libs already available. Skipping download.")
             return
-
-        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(settings)
 
         # Get modified time on LakeFS
         lake_fs = config.get_global_lake_instance(settings)
@@ -123,7 +123,7 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
 
         usd_zip_path = os.path.join(
             DOWNLOAD_DIR,
-            os.path.basename(config.get_lakefs_usdlib_path(settings))
+            os.path.basename(lake_fs_usd_lib_path)
         )
         usd_lib_path = os.path.splitext(usd_zip_path)[0]
         controller.construct_work_item(
