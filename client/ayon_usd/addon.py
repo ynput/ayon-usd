@@ -1,19 +1,10 @@
 """USD Addon for AYON."""
 
-import json
 import os
 
-from ayon_core import style
 from ayon_core.addon import AYONAddon, IPluginPaths, ITrayAddon
 
-from ayon_core.settings import get_studio_settings
-
-from . import config, utils
-from .utils import ADDON_DATA_JSON_PATH, DOWNLOAD_DIR
 from .version import __version__
-
-from .ayon_bin_client.ayon_bin_distro.work_handler import worker
-from .ayon_bin_client.ayon_bin_distro.util import zip
 
 USD_ADDON_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -42,9 +33,9 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
     def tray_start(self):
         """Start tray module.
 
-        Download USD if needed.
+        Skip downloading base USD, not needed now.
         """
-        self._download_global_lakefs_binaries()
+        pass
 
     def tray_exit(self):
         """Exit tray module."""
@@ -62,88 +53,3 @@ class USDAddon(AYONAddon, ITrayAddon, IPluginPaths):
         return [
             os.path.join(USD_ADDON_DIR, "plugins", "publish")
         ]
-
-    def _download_global_lakefs_binaries(self):
-        settings = get_studio_settings()
-        dist_settings = settings["usd"]["distribution"]
-        if not dist_settings["enabled"]:
-            self.log.info("USD Binary distribution is disabled.")
-            return
-        
-        if dist_settings["enabled"] and dist_settings["type"] == "local":
-            self.log.info(
-                "Local distribution; skipping LakeFS USD lib download."
-            )
-            return                            
-
-        utils.create_addon_data_json_file()
-
-        lakefs_repo: str = dist_settings["lake_fs"]["server_repo"]
-        lakefs_repo = lakefs_repo.strip().rstrip("/")
-        lake_fs_usd_lib_path = config.get_lakefs_usdlib_path(lakefs_repo)
-
-        if not utils.is_usd_lib_download_needed(settings, lake_fs_usd_lib_path):
-            self.log.info("USD Libs already available. Skipping download.")
-            return
-
-        # Get modified time on LakeFS
-        lake_fs = config.get_global_lake_instance(settings)
-        usd_lib_lake_fs_time_cest = (
-            lake_fs
-            .get_element_info(lake_fs_usd_lib_path)
-            .get("Modified Time")
-        )
-        if not usd_lib_lake_fs_time_cest:
-            raise ValueError(
-                "Unable to find UsdLib date modified timestamp on "
-                f"LakeFs server: {lake_fs_usd_lib_path}"
-            )
-
-        with open(ADDON_DATA_JSON_PATH, "r+") as json_file:
-            addon_data_json = json.load(json_file)
-            addon_data_json["usd_lib_lake_fs_time_cest"] = usd_lib_lake_fs_time_cest
-
-            json_file.seek(0)
-            json.dump(
-                addon_data_json,
-                json_file,
-            )
-            json_file.truncate()
-
-        controller = worker.Controller()
-
-        usd_download_work_item = controller.construct_work_item(
-            func=lake_fs.clone_element,
-            kwargs={
-                "lake_fs_object_uir": lake_fs_usd_lib_path,
-                "dist_path": DOWNLOAD_DIR,
-            },
-            progress_title="Download UsdLib",
-        )
-
-        usd_zip_path = os.path.join(
-            DOWNLOAD_DIR,
-            os.path.basename(lake_fs_usd_lib_path)
-        )
-        usd_lib_path = os.path.splitext(usd_zip_path)[0]
-        controller.construct_work_item(
-            func=zip.extract_zip_file,
-            kwargs={
-                "zip_file_path": usd_zip_path,
-                "dest_dir": usd_lib_path,
-            },
-            progress_title="Unzip UsdLib",
-            dependency_id=[usd_download_work_item.get_uuid()],
-        )
-
-        from .ayon_bin_client.ayon_bin_distro.gui import progress_ui
-        download_ui = progress_ui.ProgressDialog(
-            controller,
-            close_on_finish=True,
-            auto_close_timeout=1,
-            delete_progress_bar_on_finish=False,
-            title="ayon_usd-Addon [UsdLib Download]",
-        )
-        download_ui.setStyleSheet(style.load_stylesheet())
-        download_ui.start()
-        self._download_window = download_ui
