@@ -175,7 +175,7 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                     "value to use the USD builds we provide.",
     )
     server_repo: str = SettingsField(
-        "lakefs://ayon-usd/v1.0.1/",
+        "lakefs://ayon-usd/v1.2.0/",
         title="Repository URI",
         description="The repository tag or branch URI within the LakeFs server.",
     )
@@ -298,16 +298,6 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                 name="unreal/5-4",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/UnrealWin/Unreal5_4_Py39_Win_Windows_AMD64.zip",
-            ),
-            AppPlatformPathModel(
-                name="ayon_usd/23-5",
-                platform="linux",
-                lake_fs_path="AyonUsdResolverBin/AyonUsdLinux/AyonUsd23_5_Py39_Linux_Linux_x86_64.zip",
-            ),
-            AppPlatformPathModel(
-                name="ayon_usd/23-5",
-                platform="windows",
-                lake_fs_path="AyonUsdResolverBin/AyonUsdWin/AyonUsd23_5_Py39_Win_Windows_AMD64.zip",
             ),
         ],
     )

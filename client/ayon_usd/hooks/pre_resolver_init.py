@@ -6,7 +6,7 @@ from typing import Optional
 
 from ayon_applications import LaunchTypes, PreLaunchHook
 from ayon_usd import config, utils
-from ayon_usd.addon import ADDON_DATA_JSON_PATH
+from ayon_usd.utils import ADDON_DATA_JSON_PATH
 
 
 class InitializeAssetResolver(PreLaunchHook):
