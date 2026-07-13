@@ -75,7 +75,8 @@ class AppPlatformPathModel(BaseSettingsModel):
 
     _layout = "collapsed"
     name: str = SettingsField(
-        title="App Name", description="Application name, e.g. maya/2025",
+        title="App Name",
+        description="Application name, e.g. maya/2025",
         enum_resolver=apps_enum,
     )
 
@@ -164,6 +165,7 @@ class LocalResolverPathModel(BaseSettingsModel):
     name: str = SettingsField(
         title="App Name",
         description="Application name, e.g. houdini/20-5",
+        enum_resolver=apps_enum
     )
     app_alias_list: list[str] = SettingsField(
         title="Application Alias",
