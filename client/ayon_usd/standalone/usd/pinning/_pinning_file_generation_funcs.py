@@ -23,6 +23,17 @@ def _normalize_path(path):
     return os.path.normpath(path)
 
 
+def _normalize_for_comparison(path: str) -> str:
+    normalized_path = _normalize_path(path).replace("\\", "/")
+    return normalized_path.casefold()
+
+
+def _get_comparison_pattern(path: str) -> str:
+    normalized_path = _normalize_for_comparison(path)
+    escaped_path = re.escape(normalized_path).replace("/", r"[/\\]")
+    return f"(?i:{escaped_path})"
+
+
 def remove_root_from_dependency_info(
     dependency_info: Dict[str, str], root_info: Dict[str, str]
 ) -> Dict[str, str]:
@@ -47,16 +58,21 @@ def remove_root_from_dependency_info(
             f"dependency_info: {dependency_info})"
         )
 
-    replacements = {path: replacer for replacer, path in root_info.items()}
-    pattern = "|".join(f"({re.escape(pat)})" for pat in replacements)
+    replacements = {
+        _normalize_for_comparison(path): replacer
+        for replacer, path in root_info.items()
+    }
+    pattern = "|".join(
+        f"({_get_comparison_pattern(path)})" for path in replacements
+    )
     regx = re.compile(pattern)
 
     # TODO test if there are cases where we have more than one match.group
     def _replace_match(match: re.Match):
-        match_grp_zero = match.group(0)
-        match_replacement = replacements.get(re.escape(match_grp_zero))
+        match_grp_zero = _normalize_for_comparison(match.group(0))
+        match_replacement = replacements.get(match_grp_zero)
         if not match_replacement:
-            return match_grp_zero
+            return match.group(0)
 
         replacement = "{root[" + match_replacement + "]}"
         return replacement
