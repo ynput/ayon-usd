@@ -2,9 +2,11 @@
 
 import json
 import os
+from typing import Optional
+
 from ayon_applications import LaunchTypes, PreLaunchHook
 from ayon_usd import config, utils
-from ayon_usd.addon import ADDON_DATA_JSON_PATH
+from ayon_usd.utils import ADDON_DATA_JSON_PATH
 
 
 class InitializeAssetResolver(PreLaunchHook):
@@ -22,21 +24,41 @@ class InitializeAssetResolver(PreLaunchHook):
     def execute(self):
         """Pre-launch hook entry method."""
         project_settings = self.data["project_settings"]
+        local_resolver = None
+
         if not project_settings["usd"]["distribution"]["enabled"]:
-            self.log.info(
-                "USD Binary distribution for AYON USD Resolver is"
-                " disabled.")
+            self.log.info("USD distribution is disabled; skipping resolver setup.")
             return
 
+        distribution_type = project_settings["usd"]["distribution"]["type"]
+        if distribution_type == "lake_fs":
+            local_resolver = self._handle_lake_fs_distribution(project_settings)
+        elif distribution_type == "local":
+            local_resolver = self._handle_local_distribution(project_settings)
+        
+        if local_resolver is None:
+            self.log.warning(
+                "Resolver setup skipped for %s because no resolver directory "
+                "was resolved.",
+                self.app_name,
+            )
+            return
+
+        self._setup_resolver(local_resolver, project_settings)
+    
+    def _handle_lake_fs_distribution(self, settings) -> Optional[str]:
         resolver_lake_fs_path = utils.get_resolver_to_download(
-            project_settings, self.app_name)
+            settings,
+            self.app_name
+        )
+
         if not resolver_lake_fs_path:
             self.log.warning(
                 "No USD Resolver could be found but AYON-Usd addon is"
                 f" activated for application: {self.app_name}"
             )
-            return
-
+            return None
+    
         self.log.info(f"Using resolver from lakeFS: {resolver_lake_fs_path}")
         lake_fs = config.get_global_lake_instance()
         lake_fs_resolver_time_stamp = (
@@ -51,9 +73,12 @@ class InitializeAssetResolver(PreLaunchHook):
             )
             return
 
-        # Check for existing local resolver that matches the lakefs timestamp
-        with open(ADDON_DATA_JSON_PATH, "r") as data_json:
-            addon_data_json = json.load(data_json)
+        # Bootstrap addon metadata for launches that happen without tray init.
+        addon_data_json = utils.get_addon_data_json()
+        
+        if not addon_data_json:
+            utils.create_addon_data_json_file()
+            addon_data_json = utils.get_addon_data_json()
 
         key = str(self.app_name).replace("/", "_")
         local_resolver_key = f"resolver_data_{key}"
@@ -66,15 +91,14 @@ class InitializeAssetResolver(PreLaunchHook):
             and lake_fs_resolver_time_stamp == local_resolver_timestamp
             and os.path.exists(local_resolver)
         ):
-            self._setup_resolver(local_resolver, project_settings)
-            return
-
+            return local_resolver
+        
         # If no existing match, download the resolver
         local_resolver = utils.lakefs_download_and_extract(
             resolver_lake_fs_path, str(utils.get_download_dir())
         )
         if not local_resolver:
-            return
+            return None
 
         addon_data_json[local_resolver_key] = [
             lake_fs_resolver_time_stamp,
@@ -82,10 +106,24 @@ class InitializeAssetResolver(PreLaunchHook):
         ]
         with open(ADDON_DATA_JSON_PATH, "w") as addon_json:
             json.dump(addon_data_json, addon_json)
+        
+        return local_resolver
 
-        self._setup_resolver(local_resolver, project_settings)
+    def _handle_local_distribution(self, settings) -> Optional[str]:
+        resolver_path = utils.get_local_resolver_path(settings, self.app_name)
 
-    def _setup_resolver(self, local_resolver, settings):
+        if not resolver_path or not os.path.isdir(resolver_path):
+            self.log.error(f"Invalid local resolver path: {resolver_path}")
+            return None
+
+        self.log.info(f"Using local resolver path for {self.app_name}: {resolver_path}")
+        return resolver_path
+
+    def _setup_resolver(
+        self,
+        local_resolver: str,
+        settings,
+    ):
         self.log.info(
             f"Initializing USD asset resolver for application: {self.app_name}"
         )
