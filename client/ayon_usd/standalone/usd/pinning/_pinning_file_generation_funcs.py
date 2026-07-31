@@ -29,6 +29,13 @@ def _normalize_for_comparison(path: str) -> str:
 
 
 def _get_comparison_pattern(path: str) -> str:
+    """This function creates a case-insensitive regex pattern to handle Windows
+    file paths where the disk drive letter (e.g., C:/ or c:/) can be uppercase 
+    or lowercase.
+
+    Args:
+        path (str): The file path to create a regex pattern for.
+    """
     normalized_path = _normalize_for_comparison(path)
     escaped_path = re.escape(normalized_path).replace("/", r"[/\\]")
     return f"(?i:{escaped_path})"
