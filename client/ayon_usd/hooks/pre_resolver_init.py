@@ -14,6 +14,7 @@ class InitializeAssetResolver(PreLaunchHook):
 
     Asset resolver is used to resolve assets in the application.
     """
+    order = 10
 
     app_groups = {"maya", "houdini", "unreal"}
     # TODO Use `farm_render` instead of `farm_publish`
