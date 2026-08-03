@@ -42,30 +42,12 @@ class SetupAssetResolver(PreLaunchHook):
             )
 
         env = self.launch_context.env
-        current_pythonpath = env.get("PYTHONPATH") or ""
-
         paths = [MAYA_STARTUP_DIR]
-        paths.extend(
-            path
-            for path in current_pythonpath.split(os.pathsep)
-            if path
-        )
+        current_pythonpath = env.get("PYTHONPATH")
+        if current_pythonpath:
+            paths.append(current_pythonpath)
 
-        unique_paths = []
-        normalized_paths = set()
-
-        for path in paths:
-            normalized = os.path.normcase(
-                os.path.abspath(os.path.normpath(path))
-            )
-
-            if normalized in normalized_paths:
-                continue
-
-            normalized_paths.add(normalized)
-            unique_paths.append(path)
-
-        env["PYTHONPATH"] = os.pathsep.join(unique_paths)
+        env["PYTHONPATH"] = os.pathsep.join(paths)
 
         self.log.info(
             "Added AYON USD Maya startup directory: %s",
