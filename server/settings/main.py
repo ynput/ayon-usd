@@ -349,6 +349,12 @@ class BinaryDistributionSettings(BaseSettingsModel):
     )
 
 
+class AppPreferefResolverSetup(BaseSettingsModel):
+    maya: bool = SettingsField(
+        title="Maya",
+        default=False,
+    )
+
 class AyonResolverSettings(BaseSettingsModel):
     """AYON USD resolver Settings"""
 
@@ -398,6 +404,10 @@ class USDSettings(BaseSettingsModel):
 
     distribution: BinaryDistributionSettings = SettingsField(
         default_factory=BinaryDistributionSettings, title="Binary Distribution"
+    )
+
+    app_setup: AppPreferefResolverSetup = SettingsField(
+        default_factory=AppPreferefResolverSetup, title="Set AyonUsdResolver as prefered"
     )
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
