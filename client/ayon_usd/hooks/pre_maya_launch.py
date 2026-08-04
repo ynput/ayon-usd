@@ -26,7 +26,7 @@ class SetupAssetResolver(PreLaunchHook):
     def execute(self):
         """Add the AYON USD Maya startup directory to PYTHONPATH."""
         if not self.data.get("ayon_usd_resolver_initialized"):
-            self.log.info(
+            self.log.debug(
                 "Skipping AYON USD Maya startup initialization because USD resolver is disabled."
             )
             return
@@ -43,10 +43,10 @@ class SetupAssetResolver(PreLaunchHook):
             )
 
         env = self.launch_context.env
-        paths = [MAYA_STARTUP_DIR]
-        current_pythonpath = env.get("PYTHONPATH")
-        if current_pythonpath:
-            paths.append(current_pythonpath)
+        current_pythonpath = env.get("PYTHONPATH", "")
+        paths = current_pythonpath.split(os.pathsep) if current_pythonpath else []
+        if MAYA_STARTUP_DIR not in paths:
+            paths.append(MAYA_STARTUP_DIR)
 
         env["PYTHONPATH"] = os.pathsep.join(paths)
 
