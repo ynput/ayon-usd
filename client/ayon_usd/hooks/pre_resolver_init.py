@@ -24,6 +24,7 @@ class InitializeAssetResolver(PreLaunchHook):
 
     def execute(self):
         """Pre-launch hook entry method."""
+        self.data["ayon_usd_resolver_initialized"] = False
         project_settings = self.data["project_settings"]
         local_resolver = None
 
@@ -133,3 +134,4 @@ class InitializeAssetResolver(PreLaunchHook):
             local_resolver, settings, env=self.launch_context.env
         )
         self.launch_context.env.update(updated_env)
+        self.data["ayon_usd_resolver_initialized"] = True

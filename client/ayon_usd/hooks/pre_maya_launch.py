@@ -21,13 +21,14 @@ class SetupAssetResolver(PreLaunchHook):
     app_groups = {"maya"}
     launch_types = {
         LaunchTypes.local,
-        LaunchTypes.farm_publish,
     }
 
     def execute(self):
         """Add the AYON USD Maya startup directory to PYTHONPATH."""
-        project_settings = self.data["project_settings"]
-        if not project_settings["usd"]["app_setup"]["maya"]:
+        if not self.data.get("ayon_usd_resolver_initialized"):
+            self.log.info(
+                "USD resolver is not initialized; skipping Maya startup setup."
+            )
             return
 
         user_setup_path = os.path.join(
