@@ -114,7 +114,14 @@ class InitializeAssetResolver(PreLaunchHook):
     def _handle_local_distribution(self, settings) -> Optional[str]:
         resolver_path = utils.get_local_resolver_path(settings, self.app_name)
 
-        if not resolver_path or not os.path.isdir(resolver_path):
+        if not resolver_path:
+            self.log.warning(
+                "No local resolver path could be found for application: "
+                f"{self.app_name}"
+            )
+            return None
+        
+        if not os.path.isdir(resolver_path):
             self.log.error(f"Invalid local resolver path: {resolver_path}")
             return None
 

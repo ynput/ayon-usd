@@ -27,7 +27,7 @@ class SetupAssetResolver(PreLaunchHook):
         """Add the AYON USD Maya startup directory to PYTHONPATH."""
         if not self.data.get("ayon_usd_resolver_initialized"):
             self.log.info(
-                "USD resolver is not initialized; skipping Maya startup setup."
+                "Skipping AYON USD Maya startup initialization because USD resolver is disabled."
             )
             return
 
