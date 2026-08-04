@@ -4,4 +4,4 @@ from pxr import Ar
 
 Ar.SetPreferredResolver("AyonUsdResolver")
 
-print("Preffered USD asset resolver set to `AyonUsdResolver`")
+print("Preferred USD asset resolver set to 'AyonUsdResolver'")
