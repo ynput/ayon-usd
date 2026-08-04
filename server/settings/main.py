@@ -407,7 +407,7 @@ class USDSettings(BaseSettingsModel):
     )
 
     app_setup: AppPreferefResolverSetup = SettingsField(
-        default_factory=AppPreferefResolverSetup, title="Set AyonUsdResolver as prefered"
+        default_factory=AppPreferefResolverSetup, title="Set AyonUsdResolver as preferred"
     )
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
