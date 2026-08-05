@@ -163,7 +163,7 @@ class LocalResolverPathModel(BaseSettingsModel):
     _layout = "collapsed"
     name: str = SettingsField(
         title="App Name",
-        description="Application name, e.g. houdini/20-5",
+        description="Application name",
         enum_resolver=apps_enum,
     )
     app_alias_list: list[str] = SettingsField(
