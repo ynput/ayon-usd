@@ -56,8 +56,7 @@ def file_logger_enum():
 
 
 async def apps_enum(project_name, addon, settings_variant):
-    addon_library = AddonLibrary.getinstance()
-    app_addons = addon_library.data.get("applications")
+    app_addons = AddonLibrary.get("applications")
     if not app_addons:
         return []
 
@@ -76,7 +75,7 @@ class AppPlatformPathModel(BaseSettingsModel):
     _layout = "collapsed"
     name: str = SettingsField(
         title="App Name",
-        description="Application name, e.g. maya/2025",
+        description="Application name",
         enum_resolver=apps_enum,
     )
 
@@ -85,7 +84,7 @@ class AppPlatformPathModel(BaseSettingsModel):
         description="Define a list of App Names that use the same "
         "resolver as the parent application",
         default_factory=list,
-        enum_resolver=apps_enum
+        enum_resolver=apps_enum,
     )
 
     # TODO: we need to take into account here different linux flavors
@@ -112,8 +111,8 @@ class AppPlatformURIModel(BaseSettingsModel):
     _layout = "expanded"
     app_name: str = SettingsField(
         title="App Name",
-        description="Application name, e.g. maya/2025",
-        enum_resolver=apps_enum
+        description="Application name",
+        enum_resolver=apps_enum,
     )
     # TODO: we need to take into account here different linux flavors
     platform: str = SettingsField(
@@ -165,7 +164,7 @@ class LocalResolverPathModel(BaseSettingsModel):
     name: str = SettingsField(
         title="App Name",
         description="Application name, e.g. houdini/20-5",
-        enum_resolver=apps_enum
+        enum_resolver=apps_enum,
     )
     app_alias_list: list[str] = SettingsField(
         title="Application Alias",
