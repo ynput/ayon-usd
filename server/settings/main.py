@@ -74,7 +74,7 @@ class AppPlatformPathModel(BaseSettingsModel):
 
     _layout = "collapsed"
     name: str = SettingsField(
-        title="App Name",
+        title="Application",
         description="Application name",
         enum_resolver=apps_enum,
     )
@@ -110,7 +110,7 @@ class AppPlatformURIModel(BaseSettingsModel):
 
     _layout = "expanded"
     app_name: str = SettingsField(
-        title="App Name",
+        title="Application",
         description="Application name",
         enum_resolver=apps_enum,
     )
@@ -162,7 +162,7 @@ class LocalResolverPathModel(BaseSettingsModel):
 
     _layout = "collapsed"
     name: str = SettingsField(
-        title="App Name",
+        title="Application",
         description="Application name",
         enum_resolver=apps_enum,
     )
