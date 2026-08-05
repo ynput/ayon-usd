@@ -57,7 +57,7 @@ def file_logger_enum():
 
 async def apps_enum(project_name, addon, settings_variant):
     app_addons = AddonLibrary.get("applications")
-    if not app_addons:
+    if app_addons is None:
         return []
 
     app_addons: ServerAddonDefinition
