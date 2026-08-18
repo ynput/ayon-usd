@@ -197,7 +197,7 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                     "value to use the USD builds we provide.",
     )
     server_repo: str = SettingsField(
-        "lakefs://ayon-usd/v1.2.0/",
+        "lakefs://ayon-usd/v1.2.1/",
         title="Repository URI",
         description="The repository tag or branch URI within the LakeFs server.",
     )
