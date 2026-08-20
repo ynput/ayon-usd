@@ -7,15 +7,18 @@ from .publish_plugins import (
     DEFAULT_PUBLISH_VALUES
 )
 
+from .publish_plugins import DEFAULT_PUBLISH_VALUES, PublishPluginsModel
 
-def _binary_distribution_enum():
+
+def _binary_distribution_enum() -> list[dict[str, str]]:
+    """Return enumerator for binary distribution methods."""
     return [
         {"value": "lake_fs", "label": "Distribute via AYON (LakeFS)"},
         {"value": "local", "label": "Configure via local path"},
     ]
 
 
-def platform_enum():
+def platform_enum() -> list[dict[str, str]]:
     """Return enumerator for supported platforms."""
     return [
         {"label": "Windows", "value": "windows"},
@@ -24,7 +27,7 @@ def platform_enum():
     ]
 
 
-def logger_logging_keys_enum():
+def logger_logging_keys_enum() -> list[dict[str, str]]:
     """Return enumerator for AyonCpp Logging Keys."""
     return [
         {"label": "Off", "value": ""},
@@ -35,7 +38,7 @@ def logger_logging_keys_enum():
 
 
 # TODO: find a way to pull this from AyonCppApi (later AyonLogger)
-def log_lvl_enum():
+def log_lvl_enum() -> list[dict[str, str]]:
     """Return enumerator for supported log levels."""
     return [
         {"label": "Info", "value": "INFO"},
@@ -47,7 +50,7 @@ def log_lvl_enum():
 
 
 # TODO: find a way to pull this from AyonCppApi (later AyonLogger)
-def file_logger_enum():
+def file_logger_enum() -> list[dict[str, str]]:
     """Return enumerator to enable or disable the file logger."""
     return [
         {"label": "Off", "value": "OFF"},
@@ -71,6 +74,7 @@ async def apps_enum(project_name, addon, settings_variant):
 
 
 class AppPlatformPathModel(BaseSettingsModel):
+    """Application platform path model."""
 
     _layout = "collapsed"
     name: str = SettingsField(
@@ -124,7 +128,7 @@ class AppPlatformURIModel(BaseSettingsModel):
         title="Repository Object URI",
         description=(
             "Path to USD Asset Resolver plugin zip file on the LakeFs server, "
-            "e.g: `lakefs://ayon-usd/V001/AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`"  # noqa
+            "e.g: `lakefs://ayon-usd/V001/AyonUsdResolverBin/Hou/ayon-usd-resolver_hou19.5_linux_py37.zip`"
         ),
     )
 
@@ -199,7 +203,8 @@ class LakeFSDistributionSettings(BaseSettingsModel):
     server_repo: str = SettingsField(
         "lakefs://ayon-usd/v1.2.0/",
         title="Repository URI",
-        description="The repository tag or branch URI within the LakeFs server.",
+        description=(
+            "The repository tag or branch URI within the LakeFs server.")
     )
     access_key_id: str = SettingsField(
         "{AYON_Distribution_Key_Id}",
@@ -214,7 +219,9 @@ class LakeFSDistributionSettings(BaseSettingsModel):
 
     asset_resolvers: list[AppPlatformPathModel] = SettingsField(
         title="Resolver Application Paths",
-        description="Allows an admin to define a specific Resolver Zip for a specific Application",
+        description=(
+            "Allows an admin to define a specific Resolver zip "
+            "for a specific Application"),
         default=[
             AppPlatformPathModel(
                 name="maya/2024",
@@ -326,18 +333,21 @@ class LakeFSDistributionSettings(BaseSettingsModel):
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
         title="Resolver Application Overrides",
         description=(
-            "Allows to define a specific Resolver Zip for a specific Application"
+            "Allows to define a specific Resolver "
+            "zip for a specific Application"
         ),
         default_factory=list,
     )
 
 
 class LocalBinaryDistributionSettings(BaseSettingsModel):
-    """Settings for using a locally stored resolver binary distribution"""
+    """Settings for using a locally stored resolver binary distribution."""
 
     roots: list[ResolverRootModel] = SettingsField(
         title="Resolver Roots",
-        description="Define named root paths usable as '{resolver_root}' in resolver paths.",
+        description=(
+            "Define named root paths usable "
+            "as '{resolver_root}' in resolver paths."),
         default_factory=list,
     )
     asset_resolvers: list[LocalResolverPathModel] = SettingsField(
@@ -350,11 +360,11 @@ class LocalBinaryDistributionSettings(BaseSettingsModel):
 
 
 class BinaryDistributionSettings(BaseSettingsModel):
-    """Binary distribution of USD and AYON USD Resolver"""
+    """Binary distribution of USD and AYON USD Resolver."""
 
     _layout = "collapsed"
 
-    enabled: bool = SettingsField(False)
+    enabled: bool = SettingsField(default=False)
     type: str = SettingsField(
         title="Distribution type",
         enum_resolver=_binary_distribution_enum,
@@ -371,8 +381,25 @@ class BinaryDistributionSettings(BaseSettingsModel):
     )
 
 
+class MemcachedSettings(BaseSettingsModel):
+    """Memcached settings for caching USD asset paths."""
+
+    _layout = "collapsed"
+
+    enabled: bool = SettingsField(
+        default=False,
+        title="Enable Memcached",
+        description="Enable or disable memcached for caching USD asset paths.",
+    )
+    servers: list[str] = SettingsField(
+        default=["localhost:11211"],
+        title="Memcached Servers",
+        description="List of memcached servers in the format 'host:port'.",
+    )
+
+
 class AyonResolverSettings(BaseSettingsModel):
-    """AYON USD resolver Settings"""
+    """AYON USD resolver Settings."""
 
     _layout = "collapsed"
 
@@ -406,7 +433,7 @@ class AyonResolverSettings(BaseSettingsModel):
 
 
 class UsdLibConfigSettings(BaseSettingsModel):
-    """Settings for USD"""
+    """Settings for USD."""
 
     _layout = "collapsed"
     usd_tf_debug: str = SettingsField(
@@ -417,6 +444,7 @@ class UsdLibConfigSettings(BaseSettingsModel):
 
 
 class USDSettings(BaseSettingsModel):
+    """Main settings for USD on AYON server."""
 
     distribution: BinaryDistributionSettings = SettingsField(
         default_factory=BinaryDistributionSettings, title="Binary Distribution"
@@ -424,6 +452,10 @@ class USDSettings(BaseSettingsModel):
 
     ayon_usd_resolver: AyonResolverSettings = SettingsField(
         default_factory=AyonResolverSettings, title="AYON USD Resolver Config"
+    )
+
+    memcached: MemcachedSettings = SettingsField(
+        default_factory=MemcachedSettings, title="Memcached Support Config"
     )
 
     usd: UsdLibConfigSettings = SettingsField(

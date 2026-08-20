@@ -1,6 +1,6 @@
 ## Introduction
 
-> **_NOTE_**\
+> **_NOTE_**
 > This addon is currently in its Alpha stage, and you will need to set some
 > LakeFs keys (LakeFs is the data server we use to distribute Bin data) you can
 > get those Keys on our Discord server just ask one of the Ynput staff for them.

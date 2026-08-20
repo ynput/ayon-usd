@@ -3,6 +3,7 @@ from ayon_server.settings import (
     SettingsField,
 )
 
+
 class EnabledOnlyModel(BaseSettingsModel):
     enabled: bool = SettingsField(True)
 

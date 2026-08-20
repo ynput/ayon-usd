@@ -1,6 +1,5 @@
 from typing import Any
 
-
 _LEGACY_LAKEFS_KEYS = (
     "server_uri",
     "server_repo",
@@ -15,7 +14,6 @@ def _convert_distribution_overrides(
     overrides: dict[str, Any],
 ) -> None:
     """Convert flat legacy `distribution` overrides to the nested schema."""
-
     distribution_overrides = overrides.get("distribution")
     if not isinstance(distribution_overrides, dict):
         return
