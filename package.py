@@ -2,7 +2,7 @@
 
 name = "usd"
 title = "USD"
-version = "0.1.6+dev"
+version = "0.1.7+dev"
 client_dir = "ayon_usd"
 
 services = {}
@@ -11,6 +11,7 @@ plugin_for = ["ayon_server"]
 build_command = ""
 
 ayon_required_addons = {
+    "applications": ">=1.4.0",
     "core": ">=1.5.3",
 }
 ayon_compatible_addons = {

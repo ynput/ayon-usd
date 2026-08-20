@@ -31,11 +31,26 @@ def get_global_lake_instance(settings=None):
     if not settings:
         settings = get_studio_settings()
     distribution = settings["usd"]["distribution"]["lake_fs"]
-    return wrapper.LakeCtl(
+
+    _LocalCache.lake_instance = wrapper.LakeCtl(
         server_url=distribution["server_uri"],
         access_key_id=distribution["access_key_id"],
         secret_access_key=distribution["secret_access_key"],
     )
+    return _LocalCache.lake_instance
+
+
+def _normalize_lakefs_repo_root(lake_fs_repo: str) -> str:
+    """Return a repo URI normalized for repo-root operations."""
+    lake_fs_repo = lake_fs_repo.strip()
+    if not lake_fs_repo.endswith("/"):
+        lake_fs_repo = f"{lake_fs_repo}/"
+    return lake_fs_repo
+
+
+def _normalize_lakefs_repo_base(lake_fs_repo: str) -> str:
+    """Return a repo URI normalized for object-path construction."""
+    return lake_fs_repo.strip().rstrip("/")
 
 
 def _get_lakefs_repo_items(lakefs_repo: str) -> list:
@@ -43,28 +58,30 @@ def _get_lakefs_repo_items(lakefs_repo: str) -> list:
     if not lakefs_repo:
         return []
 
-    if not lakefs_repo.endswith("/"):
-        lakefs_repo += "/"
+    lakefs_repo = _normalize_lakefs_repo_root(lakefs_repo)
     return get_global_lake_instance().list_repo_objects(lakefs_repo)
 
 
-def get_lakefs_usdlib_name(lakefs_repo: str) -> str:
+def get_lakefs_usdlib_name(lakefs_repo: str, settings=None) -> str:
     """Return AyonUsdBin/usd LakeFS repo object name for current platform."""
+    lakefs_repo = _normalize_lakefs_repo_base(lakefs_repo)
+
     global CACHED_ITEMS
-    platform_name = platform.system().lower()
     if CACHED_ITEMS:
-        lake_fs_repo_items = CACHED_ITEMS
+        lakefs_repo_items = CACHED_ITEMS
     else:
-        lake_fs_repo_items = _get_lakefs_repo_items(lakefs_repo)
-        CACHED_ITEMS = lake_fs_repo_items
-    for item in lake_fs_repo_items:
+        lakefs_repo_items = _get_lakefs_repo_items(lakefs_repo, settings)
+        CACHED_ITEMS = lakefs_repo_items
+
+    platform_name = platform.system().lower()
+    for item in lakefs_repo_items:
         if "AyonUsdBin/usd" in item and platform_name in item:
             return item
 
     raise RuntimeError(
         "No AyonUsdBin/usd item found for current platform "
         f"'{platform_name}' on LakeFS server: {lakefs_repo}. "
-        f"All LakeFS repository items found: {lake_fs_repo_items}")
+        f"All LakeFS repository items found: {lakefs_repo_items}")
 
 
 def get_lakefs_usdlib_path(lakefs_repo: str) -> str:

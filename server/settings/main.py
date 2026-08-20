@@ -1,6 +1,11 @@
 """Main settings for USD on AYON server."""
 
 from ayon_server.settings import BaseSettingsModel, SettingsField
+from ayon_server.addons import AddonLibrary, ServerAddonDefinition
+from .publish_plugins import (
+    PublishPluginsModel,
+    DEFAULT_PUBLISH_VALUES
+)
 
 from .publish_plugins import DEFAULT_PUBLISH_VALUES, PublishPluginsModel
 
@@ -53,12 +58,29 @@ def file_logger_enum() -> list[dict[str, str]]:
     ]
 
 
+async def apps_enum(project_name, addon, settings_variant):
+    app_addons = AddonLibrary.get("applications")
+    if app_addons is None:
+        return []
+
+    app_addons: ServerAddonDefinition
+    addon = app_addons.latest
+    if not hasattr(addon, "get_applications_settings_enum"):
+        return []
+    return await addon.get_applications_settings_enum(
+        project_name=project_name,
+        settings_variant=settings_variant,
+    )
+
+
 class AppPlatformPathModel(BaseSettingsModel):
     """Application platform path model."""
 
     _layout = "collapsed"
     name: str = SettingsField(
-        title="App Name", description="Application name, e.g. maya/2025"
+        title="Application",
+        description="Application name",
+        enum_resolver=apps_enum,
     )
 
     app_alias_list: list[str] = SettingsField(
@@ -66,6 +88,7 @@ class AppPlatformPathModel(BaseSettingsModel):
         description="Define a list of App Names that use the same "
         "resolver as the parent application",
         default_factory=list,
+        enum_resolver=apps_enum,
     )
 
     # TODO: we need to take into account here different linux flavors
@@ -91,7 +114,9 @@ class AppPlatformURIModel(BaseSettingsModel):
 
     _layout = "expanded"
     app_name: str = SettingsField(
-        title="App Name", description="Application name, e.g. maya/2025"
+        title="Application",
+        description="Application name",
+        enum_resolver=apps_enum,
     )
     # TODO: we need to take into account here different linux flavors
     platform: str = SettingsField(
@@ -141,8 +166,9 @@ class LocalResolverPathModel(BaseSettingsModel):
 
     _layout = "collapsed"
     name: str = SettingsField(
-        title="App Name",
-        description="Application name, e.g. houdini/20-5",
+        title="Application",
+        description="Application name",
+        enum_resolver=apps_enum,
     )
     app_alias_list: list[str] = SettingsField(
         title="Application Alias",
@@ -175,7 +201,7 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                     "value to use the USD builds we provide.",
     )
     server_repo: str = SettingsField(
-        "lakefs://ayon-usd/v1.0.1/",
+        "lakefs://ayon-usd/v1.2.0/",
         title="Repository URI",
         description=(
             "The repository tag or branch URI within the LakeFs server.")
@@ -301,16 +327,6 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                 name="unreal/5-4",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/UnrealWin/Unreal5_4_Py39_Win_Windows_AMD64.zip",
-            ),
-            AppPlatformPathModel(
-                name="ayon_usd/23-5",
-                platform="linux",
-                lake_fs_path="AyonUsdResolverBin/AyonUsdLinux/AyonUsd23_5_Py39_Linux_Linux_x86_64.zip",
-            ),
-            AppPlatformPathModel(
-                name="ayon_usd/23-5",
-                platform="windows",
-                lake_fs_path="AyonUsdResolverBin/AyonUsdWin/AyonUsd23_5_Py39_Win_Windows_AMD64.zip",
             ),
         ],
     )
