@@ -14,6 +14,7 @@ class InitializeAssetResolver(PreLaunchHook):
 
     Asset resolver is used to resolve assets in the application.
     """
+    order = 10
 
     app_groups = {"maya", "houdini", "unreal"}
     # TODO Use `farm_render` instead of `farm_publish`
@@ -23,6 +24,7 @@ class InitializeAssetResolver(PreLaunchHook):
 
     def execute(self):
         """Pre-launch hook entry method."""
+        self.data["ayon_usd_resolver_initialized"] = False
         project_settings = self.data["project_settings"]
         local_resolver = None
 
@@ -112,7 +114,14 @@ class InitializeAssetResolver(PreLaunchHook):
     def _handle_local_distribution(self, settings) -> Optional[str]:
         resolver_path = utils.get_local_resolver_path(settings, self.app_name)
 
-        if not resolver_path or not os.path.isdir(resolver_path):
+        if not resolver_path:
+            self.log.warning(
+                "No local resolver path could be found for application: "
+                f"{self.app_name}"
+            )
+            return None
+        
+        if not os.path.isdir(resolver_path):
             self.log.error(f"Invalid local resolver path: {resolver_path}")
             return None
 
@@ -132,3 +141,4 @@ class InitializeAssetResolver(PreLaunchHook):
             local_resolver, settings, env=self.launch_context.env
         )
         self.launch_context.env.update(updated_env)
+        self.data["ayon_usd_resolver_initialized"] = True
