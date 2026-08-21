@@ -302,6 +302,11 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                 lake_fs_path="AyonUsdResolverBin/HouLinux/Houdini21_Py311_Linux_Linux_x86_64.zip",
             ),
             AppPlatformPathModel(
+                name="houdini/22-0",
+                platform="linux",
+                lake_fs_path="AyonUsdResolverBin/HouLinux/Houdini22_Py313_Linux_Linux_x86_64.zip",
+            ),
+            AppPlatformPathModel(
                 name="houdini/20-5",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/HouWin/Houdini205_Py311_Win_Windows_AMD64.zip",
@@ -317,10 +322,16 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                 lake_fs_path="AyonUsdResolverBin/HouWin/Houdini21_Py311_Win_Windows_AMD64.zip",
             ),
             AppPlatformPathModel(
+                name="houdini/22-0",
+                platform="windows",
+                lake_fs_path="AyonUsdResolverBin/HouWin/Houdini22_Py313_Win_Windows_AMD64.zip",
+            ),
+            AppPlatformPathModel(
                 name="unreal/5-4",
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/UnrealWin/Unreal5_4_Py39_Win_Windows_AMD64.zip",
             ),
+
         ],
     )
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
