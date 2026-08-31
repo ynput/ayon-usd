@@ -331,7 +331,6 @@ class LakeFSDistributionSettings(BaseSettingsModel):
                 platform="windows",
                 lake_fs_path="AyonUsdResolverBin/UnrealWin/Unreal5_4_Py39_Win_Windows_AMD64.zip",
             ),
-
         ],
     )
     lake_fs_overrides: list[AppPlatformURIModel] = SettingsField(
