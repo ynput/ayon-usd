@@ -9,7 +9,11 @@ from fastapi import Depends  # noqa: F401
 from ayon_server.addons import BaseServerAddon
 
 
-from .settings import USDSettings, convert_settings_overrides
+from .settings import (
+    USDSettings,
+    DEFAULT_VALUES,
+    convert_settings_overrides,
+)
 
 PRIVATE_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent / "private"
 
@@ -22,6 +26,10 @@ class USDAddon(BaseServerAddon):
     def initialize(self):
         """Initialize USD Addon."""
         pass
+
+    async def get_default_settings(self):
+        settings_model_cls = self.get_settings_model()
+        return settings_model_cls(**DEFAULT_VALUES)
 
     async def convert_settings_overrides(
         self,
