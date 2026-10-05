@@ -2,10 +2,7 @@
 
 from ayon_server.settings import BaseSettingsModel, SettingsField
 from ayon_server.addons import AddonLibrary, ServerAddonDefinition
-from .publish_plugins import (
-    PublishPluginsModel,
-    DEFAULT_PUBLISH_VALUES
-)
+from .publish_plugins import PublishPluginsModel
 
 
 def _binary_distribution_enum():
@@ -441,5 +438,5 @@ class USDSettings(BaseSettingsModel):
 
     publish: PublishPluginsModel = SettingsField(
         title="Publish plugins",
-        default=DEFAULT_PUBLISH_VALUES
+        default_factory=PublishPluginsModel
     )

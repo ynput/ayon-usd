@@ -16,7 +16,9 @@ class EnabledBaseModel(BaseSettingsModel):
 
 class PublishPluginsModel(BaseSettingsModel):
     USDOutputProcessorRemapToRelativePaths: EnabledBaseModel = SettingsField(
-        default_factory=EnabledBaseModel,
+        default_factory=lambda: EnabledBaseModel(
+            enabled=False, optional=False, active=True
+        ),
         title="Process USD files to use relative paths",
         description=(
             "When enabled, published USD layers will anchor the asset paths to"
@@ -33,15 +35,3 @@ class PublishPluginsModel(BaseSettingsModel):
             "disabled when not using the USD resolver."
         )
     )
-
-
-DEFAULT_PUBLISH_VALUES = {
-    "USDOutputProcessorRemapToRelativePaths": {
-        "enabled": False,
-        "optional": False,
-        "active": True,
-    },
-    "ExtractSkeletonPinningJSON": {
-        "enabled": True
-    }
-}
