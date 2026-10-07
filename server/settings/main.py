@@ -440,6 +440,11 @@ class USDSettings(BaseSettingsModel):
         default_factory=UsdLibConfigSettings, title="USD Library Config")
 
     publish: PublishPluginsModel = SettingsField(
+        default_factory=PublishPluginsModel,
         title="Publish plugins",
-        default=DEFAULT_PUBLISH_VALUES
     )
+
+
+DEFAULT_VALUES = {
+    "publish": DEFAULT_PUBLISH_VALUES,
+}
