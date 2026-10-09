@@ -11,7 +11,9 @@ readme = "README.md"
 requires-python = ">=3.11,<3.12"
 
 dependencies = [
+    "ayon-python-api>=1.2.20,<2.0.0",
     "ruff>=0.15.0",
+    "ty",
     "pre-commit>=3.6.2",
     "codespell>=2.2.6",
     "pydocstyle>=0.0.0",
@@ -47,3 +49,13 @@ tests = [
 homepage = "https://ynput.io"
 documentation = "https://ayon.ynput.io"
 repository = "https://github.com/ynput/ayon-usd"
+
+[tool.uv]
+package = false
+
+[tool.codespell]
+# Ignore words that are not in the dictionary.
+ignore-words-list = "ayon,ynput"
+skip = "./.*,./client/ayon_usd/downloads,*/vendor/*,./downloads,./package,./private"
+count = true
+quiet-level = 3

@@ -12,7 +12,7 @@ PS> .\tools\manage.ps1
 
 .EXAMPLE
 
-To create virtual environment using Poetry:
+To create virtual environment using uv:
 PS> .\tools\manage.ps1 create-env
 
 .EXAMPLE
@@ -125,23 +125,9 @@ function Show-PSWarning() {
     }
 }
 
-function Install-Poetry() {
-    Write-Info -Text ">>> ", "Installing Poetry ... " -Color Green, Gray
-    $python = "python"
-    if (Get-Command "pyenv" -ErrorAction SilentlyContinue) {
-        if (-not (Test-Path -PathType Leaf -Path "$($RepoRoot)\.python-version")) {
-            $result = & pyenv global
-            if ($result -eq "no global version configured") {
-                Write-Info "!!! Using pyenv but having no local or global version of Python set." -Color Red, Yellow
-                Exit-WithCode 1
-            }
-        }
-        $python = & pyenv which python
-
-    }
-
-    $env:POETRY_HOME="$RepoRoot\.poetry"
-    (Invoke-WebRequest -Uri https://install.python-poetry.org/ -UseBasicParsing).Content | & $($python) -
+function Install-Uv() {
+    Write-Info -Text ">>> ", "Installing uv ... " -Color Green, Gray
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 }
 
 function Set-Cwd() {
@@ -157,11 +143,11 @@ function Restore-Cwd() {
 }
 
 function Initialize-Environment {
-    Write-Info -Text ">>> ", "Reading Poetry ... " -Color Green, Gray -NoNewline
-    if (-not(Test-Path -PathType Container -Path "$( $env:POETRY_HOME )\bin"))
+    Write-Info -Text ">>> ", "Reading uv ... " -Color Green, Gray -NoNewline
+    if (-not (Test-CommandExists "uv"))
     {
         Write-Info -Text "NOT FOUND" -Color Yellow
-        Install-Poetry
+        Install-Uv
         Write-Info -Text "INSTALLED" -Color Cyan
     }
     else
@@ -169,28 +155,19 @@ function Initialize-Environment {
         Write-Info -Text "OK" -Color Green
     }
 
-    if (-not(Test-Path -PathType Leaf -Path "$( $repo_root )\poetry.lock"))
-    {
-        Write-Info -Text ">>> ", "Installing virtual environment and creating lock." -Color Green, Gray
-    }
-    else
-    {
-        Write-Info -Text ">>> ", "Installing virtual environment from lock." -Color Green, Gray
-    }
+    Write-Info -Text ">>> ", "Syncing virtual environment from lock." -Color Green, Gray
     $startTime = [int][double]::Parse((Get-Date -UFormat %s))
-    & "$env:POETRY_HOME\bin\poetry" config virtualenvs.in-project true --local
-    & "$env:POETRY_HOME\bin\poetry" config virtualenvs.create true --local
-    & "$env:POETRY_HOME\bin\poetry" install --no-root $poetry_verbosity --ansi
+    & uv sync --all-groups
     if ($LASTEXITCODE -ne 0)
     {
-        Write-Info -Text "!!! ", "Poetry command failed." -Color Red, Yellow
+        Write-Info -Text "!!! ", "uv sync failed." -Color Red, Yellow
         Restore-Cwd
         Exit-WithCode 1
     }
-    if (Test-Path -PathType Container -Path "$( $repo_root )\.git")
+    if (Test-Path -PathType Container -Path "$( $RepoRoot )\.git")
     {
         Write-Info -Text ">>> ", "Installing pre-commit hooks ..." -Color Green, White
-        & "$env:POETRY_HOME\bin\poetry" run pre-commit install
+        & uv run pre-commit install
         if ($LASTEXITCODE -ne 0)
         {
             Write-Info -Text "!!! ", "Installation of pre-commit hooks failed." -Color Red, Yellow
@@ -202,7 +179,7 @@ function Initialize-Environment {
     {
         if (Test-CommandExists "New-BurntToastNotification")
         {
-            $app_logo = "$repo_root\tools\icons\ayon.ico"
+            $app_logo = "$RepoRoot\tools\icons\ayon.ico"
             New-BurntToastNotification -AppLogo "$app_logo" -Text "AYON", "Virtual environment created.", "All done in $( $endTime - $startTime ) secs."
         }
     }
@@ -214,24 +191,22 @@ function Invoke-Ruff {
     param (
         [switch] $Fix
     )
-    $Poetry = "$RepoRoot\.poetry\bin\poetry.exe"
     $RuffArgs = @( "run", "ruff", "check" )
     if ($Fix) {
         $RuffArgs += "--fix"
     }
-    & $Poetry $RuffArgs
+    & uv $RuffArgs
 }
 
 function Invoke-Codespell {
     param (
         [switch] $Fix
     )
-    $Poetry = "$RepoRoot\.poetry\bin\poetry.exe"
     $CodespellArgs = @( "run", "codespell" )
     if ($Fix) {
         $CodespellArgs += "--fix"
     }
-    & $Poetry $CodespellArgs
+    & uv $CodespellArgs
 }
 
 function Write-Help {
@@ -246,7 +221,7 @@ function Write-Help {
     Write-Host ""
     Write-Host "Commands:"
     Write-Host -Text "  build                         ", "Build the addon package" -ForegroundColor White -BackgroundColor Cyan
-    Write-Info -Text "  create-env                    ", "Install Poetry and update venv by lock file" -Color White, Cyan
+    Write-Info -Text "  create-env                    ", "Install uv and update venv by lock file" -Color White, Cyan
     Write-Info -Text "  ruff-check                    ", "Run Ruff check for the repository" -Color White, Cyan
     Write-Info -Text "  ruff-fix                      ", "Run Ruff fix for the repository" -Color White, Cyan
     Write-Info -Text "  codespell                     ", "Run codespell check for the repository" -Color White, Cyan
@@ -272,14 +247,8 @@ function Resolve-Function {
         Set-Cwd
         Invoke-CodeSpell
     } elseif ($FunctionName -eq "build") {
-        $poetryPath = "$RepoRoot\.poetry\bin\poetry.exe"
-        if (Get-Command $poetryPath -ErrorAction SilentlyContinue) {
-            Write-Host "Using Poetry at $poetryPath"
-            & "$($poetryPath)" run python $RepoRoot"\create_package.py"
-        } else {
-            Write-Host "Poetry does not exist at $poetryPath, using plain Python"
-            & python $RepoRoot"\create_package.py"
-        }
+        Set-Cwd
+        & uv run python "$RepoRoot\create_package.py"
 
         Write-Host "Package created in .\package folder."
     } else {

@@ -33,41 +33,10 @@ BICyan='\033[1;96m'       # Cyan
 BIWhite='\033[1;97m'      # White
 
 
-##############################################################################
-# Detect required version of python
-# Globals:
-#   colors
-#   PYTHON
-# Arguments:
-#   None
-# Returns:
-#   None
-###############################################################################
-detect_python () {
-  echo -e "${BIGreen}>>>${RST} Using python \c"
-  command -v python >/dev/null 2>&1 || { echo -e "${BIRed}- NOT FOUND${RST} ${BIYellow}You need Python 3.9 installed to continue.${RST}"; return 1; }
-  local version_command="import sys;print('{0}.{1}'.format(sys.version_info[0], sys.version_info[1]))"
-  local python_version="$(python <<< ${version_command})"
-  oIFS="$IFS"
-  IFS=.
-  set -- $python_version
-  IFS="$oIFS"
-  if [ "$1" -ge "3" ] && [ "$2" -ge "9" ] ; then
-    if [ "$2" -gt "9" ] ; then
-      echo -e "${BIWhite}[${RST} ${BIRed}$1.$2 ${BIWhite}]${RST} - ${BIRed}FAILED${RST} ${BIYellow}Version is new and unsupported, use${RST} ${BIPurple}3.9.x${RST}"; return 1;
-    else
-      echo -e "${BIWhite}[${RST} ${BIGreen}$1.$2${RST} ${BIWhite}]${RST}"
-    fi
-  else
-    command -v python >/dev/null 2>&1 || { echo -e "${BIRed}$1.$2$ - ${BIRed}FAILED${RST} ${BIYellow}Version is old and unsupported${RST}"; return 1; }
-  fi
-}
-
-install_poetry () {
-  echo -e "${BIGreen}>>>${RST} Installing Poetry ..."
-  export POETRY_HOME="$repo_root/.poetry"
+install_uv () {
+  echo -e "${BIGreen}>>>${RST} Installing uv ..."
   command -v curl >/dev/null 2>&1 || { echo -e "${BIRed}!!!${RST}${BIYellow} Missing ${RST}${BIBlue}curl${BIYellow} command.${RST}"; return 1; }
-  curl -sSL https://install.python-poetry.org/ | python -
+  curl -LsSf https://astral.sh/uv/install.sh | sh
 }
 
 ##############################################################################
@@ -87,8 +56,6 @@ realpath () {
 # Create Virtual Environment
 # Globals:
 #   repo_root
-#   POETRY_HOME
-#   poetry_verbosity
 # Arguments:
 #   Path to resolve
 # Returns:
@@ -98,34 +65,20 @@ create_env () {
   # Directories
   pushd "$repo_root" > /dev/null || return > /dev/null
 
-  echo -e "${BIGreen}>>>${RST} Reading Poetry ... \c"
-  if [ -f "$POETRY_HOME/bin/poetry" ]; then
+  echo -e "${BIGreen}>>>${RST} Reading uv ... \c"
+  if command -v uv >/dev/null 2>&1; then
     echo -e "${BIGreen}OK${RST}"
   else
     echo -e "${BIYellow}NOT FOUND${RST}"
-    install_poetry || { echo -e "${BIRed}!!!${RST} Poetry installation failed"; return 1; }
+    install_uv || { echo -e "${BIRed}!!!${RST} uv installation failed"; return 1; }
   fi
 
-  if [ -f "$repo_root/poetry.lock" ]; then
-    echo -e "${BIGreen}>>>${RST} Updating dependencies ..."
-  else
-    echo -e "${BIGreen}>>>${RST} Installing dependencies ..."
-  fi
-
-  "$POETRY_HOME/bin/poetry" install --no-root $poetry_verbosity || { echo -e "${BIRed}!!!${RST} Poetry environment installation failed"; return 1; }
-  if [ $? -ne 0 ] ; then
-    echo -e "${BIRed}!!!${RST} Virtual environment creation failed."
-    return 1
-  fi
-
-  echo -e "${BIGreen}>>>${RST} Cleaning cache files ..."
-  clean_pyc
-
-  "$POETRY_HOME/bin/poetry" run python -m pip install --disable-pip-version-check --force-reinstall pip
+  echo -e "${BIGreen}>>>${RST} Syncing dependencies ..."
+  uv sync --all-groups || { echo -e "${BIRed}!!!${RST} Virtual environment creation failed."; return 1; }
 
   if [ -d "$repo_root/.git" ]; then
     echo -e "${BIGreen}>>>${RST} Installing pre-commit hooks ..."
-    "$POETRY_HOME/bin/poetry" run pre-commit install
+    uv run pre-commit install
   fi
 }
 
@@ -154,7 +107,7 @@ default_help() {
   echo ""
   echo -e "${BWhite}Commands:${RST}"
   echo -e "  ${BWhite}build${RST}           ${BCyan}Build the addon${RST}"
-  echo -e "  ${BWhite}create-env${RST}      ${BCyan}Install Poetry and update venv by lock file${RST}"
+  echo -e "  ${BWhite}create-env${RST}      ${BCyan}Install uv and update venv by lock file${RST}"
   echo -e "  ${BWhite}ruff-check${RST}      ${BCyan}Run Ruff check for the repository${RST}"
   echo -e "  ${BWhite}ruff-fix${RST}        ${BCyan}Run Ruff fix for the repository${RST}"
   echo -e "  ${BWhite}codespell${RST}       ${BCyan}Run codespell check for the repository${RST}"
@@ -163,33 +116,27 @@ default_help() {
 
 run_ruff () {
   echo -e "${BIGreen}>>>${RST} Running Ruff check ..."
-  "$POETRY_HOME/bin/poetry" run ruff check
+  uv run ruff check
 }
 
 run_ruff_check () {
   echo -e "${BIGreen}>>>${RST} Running Ruff fix ..."
-  "$POETRY_HOME/bin/poetry" run ruff check --fix
+  uv run ruff check --fix
 }
 
 run_codespell () {
   echo -e "${BIGreen}>>>${RST} Running codespell check ..."
-  "$POETRY_HOME/bin/poetry" run codespell
+  uv run codespell
 }
 
 build () {
   echo -e "${BIGreen}>>>${RST} Building the addon ..."
-  python ./create_package.py
+  uv run python ./create_package.py
 }
 
 main () {
-  detect_python || return 1
-
   # Directories
   repo_root=$(realpath $(dirname $(dirname "${BASH_SOURCE[0]}")))
-
-  if [[ -z $POETRY_HOME ]]; then
-    export POETRY_HOME="$repo_root/.poetry"
-  fi
 
   pushd "$repo_root" > /dev/null || return > /dev/null
 
