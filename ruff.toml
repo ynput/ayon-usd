@@ -31,12 +31,17 @@ exclude = [
 
 extend-exclude = [
     "tests",
-    "mkdocs_hooks.py"
+    "mkdocs_hooks.py",
+    # git submodule, linted in its own repository
+    "client/ayon_usd/ayon_bin_client",
 ]
 
 # Same as Black.
 line-length = 79
 indent-width = 4
+
+# Client code runs inside DCC interpreters, keep it py39 compatible.
+target-version = "py39"
 
 [lint]
 preview = true  # this is needed for linting empty lines, etc.
@@ -46,22 +51,23 @@ pydocstyle.convention = "google"
 select = ["ALL"]
 ignore = [
     "PTH",
-    "ANN204",  # missing-return-type-special-method
-    "COM812",  # missing-trailing-comma
-    "S603",    # subprocess-without-shell-equals-true
-    "ERA001",  # commented-out-code
-    "TRY003",  # raise-vanilla-args
-    "UP006",   # non-pep585-annotation: older python version (type vs. Type)
-    "UP007",   # non-pep604-annotation-union: ..^
-    "UP035",   # deprecated-import: ..
-    "UP045",   # non-pep604-annotation-optional: Use `X | None` for type annotations
-    "ARG002",  # unused-method-argument
-    "INP001",  # implicit-namespace-package: add `__init__.py` to namespaced package
-    "FIX002",  # line-contains-todo: FIX all TODOs
-    "TD003",   # missing-todo-link: missing issue link
-    "S404",    # suspicious-subprocess-import: subprocess module can be insecure
-    "PLC0415", # import-outside-top-level: import must be on top of the file
-    "CPY001",  # missing-copyright-notice: missing copyright header
+    "missing-return-type-special-method",  # missing-return-type-special-method
+    "missing-trailing-comma",  # missing-trailing-comma
+    "subprocess-without-shell-equals-true",    # subprocess-without-shell-equals-true
+    "commented-out-code",  # commented-out-code
+    "raise-vanilla-args",  # raise-vanilla-args
+    "non-pep585-annotation",   # non-pep585-annotation: older python version (type vs. Type)
+    "non-pep604-annotation-union",   # non-pep604-annotation-union: ..^
+    "deprecated-import",   # deprecated-import: ..
+    "non-pep604-annotation-optional",   # non-pep604-annotation-optional: Use `X | None` for type annotations
+    "unused-method-argument",  # unused-method-argument
+    "implicit-namespace-package",  # implicit-namespace-package: add `__init__.py` to namespaced package
+    "line-contains-todo",  # line-contains-todo: FIX all TODOs
+    "missing-todo-link",   # missing-todo-link: missing issue link
+    "suspicious-subprocess-import",    # suspicious-subprocess-import: subprocess module can be insecure
+    "import-outside-top-level", # import-outside-top-level: import must be on top of the file
+    "missing-copyright-notice",  # missing-copyright-notice: missing copyright header
+    "missing-todo-author",  # missing-todo-author: TODOs are not attributed in this repo
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -70,6 +76,18 @@ unfixable = []
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# AYON server addon class must live in the package `__init__.py`
+"server/__init__.py" = ["non-empty-init-module"]
+"server/settings/*.py" = [
+    # Settings model docstrings are shown in the settings UI
+    "undocumented-public-class",
+    # `_isGroup` and similar are AYON settings model attributes
+    "mixed-case-variable-in-class-scope",
+    # Postponed annotations are not safe with pydantic settings models
+    "future-rewritable-type-annotation",
+]
 
 [format]
 # Like Black, use double quotes for strings.

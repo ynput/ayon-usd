@@ -1,9 +1,9 @@
 """Add the AYON USD startup script to Maya's Python path."""
 
 import os
+from typing import ClassVar
 
 from ayon_applications import LaunchTypes, PreLaunchHook
-
 
 MAYA_STARTUP_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -18,16 +18,22 @@ class SetupAssetResolver(PreLaunchHook):
     # Must run after InitializeAssetResolver.
     order = 20
 
-    app_groups = {"maya"}
-    launch_types = {
+    app_groups: ClassVar[set[str]] = {"maya"}
+    launch_types: ClassVar[set[str]] = {
         LaunchTypes.local,
     }
 
-    def execute(self):
-        """Add the AYON USD Maya startup directory to PYTHONPATH."""
+    def execute(self) -> None:
+        """Add the AYON USD Maya startup directory to PYTHONPATH.
+
+        Raises:
+            RuntimeError: Maya startup script was not found.
+
+        """
         if not self.data.get("ayon_usd_resolver_initialized"):
             self.log.debug(
-                "Skipping AYON USD Maya startup initialization because USD resolver is disabled."
+                "Skipping AYON USD Maya startup initialization because "
+                "USD resolver is disabled."
             )
             return
 
@@ -37,14 +43,17 @@ class SetupAssetResolver(PreLaunchHook):
         )
 
         if not os.path.isfile(user_setup_path):
-            raise RuntimeError(
+            msg = (
                 "AYON USD Maya userSetup.py was not found: "
                 f"{user_setup_path}"
             )
+            raise RuntimeError(msg)
 
         env = self.launch_context.env
         current_pythonpath = env.get("PYTHONPATH", "")
-        paths = current_pythonpath.split(os.pathsep) if current_pythonpath else []
+        paths = (
+            current_pythonpath.split(os.pathsep) if current_pythonpath else []
+        )
         if MAYA_STARTUP_DIR not in paths:
             paths.append(MAYA_STARTUP_DIR)
 

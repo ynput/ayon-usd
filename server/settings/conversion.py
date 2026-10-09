@@ -1,5 +1,6 @@
-from typing import Any
+"""Conversion of settings overrides from older addon versions."""
 
+from typing import Any
 
 _LEGACY_LAKEFS_KEYS = (
     "server_uri",
@@ -15,13 +16,15 @@ def _convert_distribution_overrides(
     overrides: dict[str, Any],
 ) -> None:
     """Convert flat legacy `distribution` overrides to the nested schema."""
-
     distribution_overrides = overrides.get("distribution")
     if not isinstance(distribution_overrides, dict):
         return
 
     # If overrides are already in the new format -> skip conversion
-    if any(key in distribution_overrides for key in ("type", "lake_fs", "local")):
+    if any(
+        key in distribution_overrides
+        for key in ("type", "lake_fs", "local")
+    ):
         return
 
     lake_fs_overrides = {}
@@ -38,8 +41,18 @@ def _convert_distribution_overrides(
 
 
 def convert_settings_overrides(
-    source_version: str,
+    source_version: str,  # ruff:ignore[unused-function-argument]
     overrides: dict[str, Any],
 ) -> dict[str, Any]:
+    """Convert settings overrides in place.
+
+    Args:
+        source_version (str): Addon version the overrides come from.
+        overrides (dict[str, Any]): Settings overrides.
+
+    Returns:
+        dict[str, Any]: Converted overrides.
+
+    """
     _convert_distribution_overrides(overrides)
     return overrides
