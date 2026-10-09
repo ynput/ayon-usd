@@ -36,7 +36,11 @@ BIWhite='\033[1;97m'      # White
 install_uv () {
   echo -e "${BIGreen}>>>${RST} Installing uv ..."
   command -v curl >/dev/null 2>&1 || { echo -e "${BIRed}!!!${RST}${BIYellow} Missing ${RST}${BIBlue}curl${BIYellow} command.${RST}"; return 1; }
-  curl -LsSf https://astral.sh/uv/install.sh | sh
+  curl -LsSf https://astral.sh/uv/install.sh | sh || return 1
+
+  # Installer only updates shell profiles, make uv available in this process
+  export PATH="${UV_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}:$PATH"
+  command -v uv >/dev/null 2>&1 || { echo -e "${BIRed}!!!${RST} uv not found on PATH after installation"; return 1; }
 }
 
 ##############################################################################

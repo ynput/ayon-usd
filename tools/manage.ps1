@@ -128,6 +128,21 @@ function Show-PSWarning() {
 function Install-Uv() {
     Write-Info -Text ">>> ", "Installing uv ... " -Color Green, Gray
     powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Info -Text "!!! ", "uv installation failed." -Color Red, Yellow
+        Exit-WithCode 1
+    }
+
+    # Installer runs in child process and only updates persisted user PATH,
+    # make uv available in this process too.
+    $uvInstallDir = $env:UV_INSTALL_DIR
+    if (-not $uvInstallDir) { $uvInstallDir = $env:XDG_BIN_HOME }
+    if (-not $uvInstallDir) { $uvInstallDir = Join-Path (Join-Path $HOME ".local") "bin" }
+    $env:Path = "$uvInstallDir;$env:Path"
+    if (-not (Test-CommandExists "uv")) {
+        Write-Info -Text "!!! ", "uv not found on PATH after installation." -Color Red, Yellow
+        Exit-WithCode 1
+    }
 }
 
 function Set-Cwd() {
