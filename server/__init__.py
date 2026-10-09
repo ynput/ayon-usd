@@ -4,18 +4,18 @@ import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends  # noqa: F401
-
 from ayon_server.addons import BaseServerAddon
-
+from fastapi import Depends  # ruff:ignore[unused-import]
 
 from .settings import (
-    USDSettings,
     DEFAULT_VALUES,
+    USDSettings,
     convert_settings_overrides,
 )
 
-PRIVATE_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent / "private"
+PRIVATE_DIR = (
+    Path(os.path.dirname(os.path.abspath(__file__))).parent / "private"
+)
 
 
 class USDAddon(BaseServerAddon):
@@ -23,11 +23,16 @@ class USDAddon(BaseServerAddon):
 
     settings_model = USDSettings
 
-    def initialize(self):
+    def initialize(self) -> None:
         """Initialize USD Addon."""
-        pass
 
-    async def get_default_settings(self):
+    async def get_default_settings(self) -> USDSettings:
+        """Return default settings.
+
+        Returns:
+            USDSettings: Settings model with default values.
+
+        """
         settings_model_cls = self.get_settings_model()
         return settings_model_cls(**DEFAULT_VALUES)
 
@@ -36,6 +41,12 @@ class USDAddon(BaseServerAddon):
         source_version: str,
         overrides: dict[str, Any],
     ) -> dict[str, Any]:
+        """Convert settings overrides from older addon versions.
+
+        Returns:
+            dict[str, Any]: Converted overrides.
+
+        """
         convert_settings_overrides(source_version, overrides)
         return await super().convert_settings_overrides(
             source_version, overrides

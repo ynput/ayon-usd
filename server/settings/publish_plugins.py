@@ -1,17 +1,20 @@
+"""Publish plugins settings."""
+
 from ayon_server.settings import (
     BaseSettingsModel,
     SettingsField,
 )
 
+
 class EnabledOnlyModel(BaseSettingsModel):
-    enabled: bool = SettingsField(True)
+    enabled: bool = SettingsField(default=True)
 
 
 class EnabledBaseModel(BaseSettingsModel):
     _isGroup = True
-    enabled: bool = SettingsField(True)
-    optional: bool = SettingsField(True, title="Optional")
-    active: bool = SettingsField(True, title="Active")
+    enabled: bool = SettingsField(default=True)
+    optional: bool = SettingsField(default=True, title="Optional")
+    active: bool = SettingsField(default=True, title="Active")
 
 
 class PublishPluginsModel(BaseSettingsModel):

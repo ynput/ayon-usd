@@ -3,16 +3,19 @@ from __future__ import annotations
 
 import json
 import os
-import platform
 import pathlib
+import platform
 import sys
 from datetime import datetime, timezone
+from typing import Any, Optional
 
 from ayon_core.lib.path_templates import StringTemplate
 
-from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
-from ayon_usd.ayon_bin_client.ayon_bin_distro.util import zip
 from ayon_usd import config
+from ayon_usd.ayon_bin_client.ayon_bin_distro.util import (
+    zip,  # ruff:ignore[builtin-import-shadowing]
+)
+from ayon_usd.ayon_bin_client.ayon_bin_distro.work_handler import worker
 
 USD_ADDON_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(USD_ADDON_ROOT_DIR, "downloads")
@@ -21,10 +24,15 @@ ADDON_FIRST_INIT_KEY = "ayon_usd_addon_first_init_utc"
 
 
 def get_addon_data_json() -> dict:
-    """Get addon data JSON content as dict."""
+    """Get addon data JSON content as dict.
+
+    Returns:
+        dict: Addon data, empty if file is missing or invalid.
+
+    """
     if os.path.exists(ADDON_DATA_JSON_PATH):
         try:
-            with open(ADDON_DATA_JSON_PATH, "r") as json_file:
+            with open(ADDON_DATA_JSON_PATH, encoding="utf-8") as json_file:
                 data = json.load(json_file)
         except (json.JSONDecodeError, OSError, ValueError):
             return {}
@@ -33,7 +41,7 @@ def get_addon_data_json() -> dict:
     return {}
 
 
-def create_addon_data_json_file():
+def create_addon_data_json_file() -> None:
     """Ensure addon data JSON file exists and contains init metadata."""
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     addon_data = get_addon_data_json()
@@ -44,11 +52,11 @@ def create_addon_data_json_file():
         timezone.utc
     ))
 
-    with open(ADDON_DATA_JSON_PATH, "w") as json_file:
+    with open(ADDON_DATA_JSON_PATH, "w", encoding="utf-8") as json_file:
         json.dump(addon_data, json_file)
 
 
-def get_download_dir(create_if_missing=True):
+def get_download_dir(create_if_missing: bool = True) -> str:  # ruff:ignore[boolean-type-hint-positional-argument, boolean-default-value-positional-argument]
     """Dir path where files are downloaded.
 
     Args:
@@ -63,8 +71,13 @@ def get_download_dir(create_if_missing=True):
     return DOWNLOAD_DIR
 
 
-def get_downloaded_usd_root(lake_fs_repo_uri) -> str:
-    """Get downloaded USDLib os local root path."""
+def get_downloaded_usd_root(lake_fs_repo_uri: str) -> str:
+    """Get downloaded USDLib os local root path.
+
+    Returns:
+        str: Local root path of downloaded USDLib.
+
+    """
     target_usd_lib = config.get_lakefs_usdlib_name(lake_fs_repo_uri)
     filename_no_ext = os.path.splitext(os.path.basename(target_usd_lib))[0]
     return os.path.join(DOWNLOAD_DIR, filename_no_ext)
@@ -72,11 +85,13 @@ def get_downloaded_usd_root(lake_fs_repo_uri) -> str:
 
 def lakefs_download_and_extract(resolver_lake_fs_path: str,
                                 download_dir: str) -> str:
-    """Download individual object based on the lake_fs_path and extracts
+    """Download and extract a LakeFS object.
+
+    Download individual object based on the lake_fs_path and extracts
     the zip into the specific download_dir.
 
-    Args
-        resolver_lake_fs_path (str): Lake FS Path for the resolver
+    Args:
+        resolver_lake_fs_path (str): Lake FS Path for the resolver.
         download_dir (str): Directory to download and unzip to.
 
     Returns:
@@ -103,7 +118,9 @@ def lakefs_download_and_extract(resolver_lake_fs_path: str,
     return str(extract_zip_item.func_return)
 
 
-def get_local_resolver_path(settings, app_name: str):
+def get_local_resolver_path(
+    settings: dict[str, Any], app_name: str
+) -> Optional[str]:
     """Check local_resolver_paths for a matching app + platform entry.
 
     Args:
@@ -131,17 +148,22 @@ def get_local_resolver_path(settings, app_name: str):
                 {root["name"]: root.get(current_platform) for root in roots}
             )
             return str(result)
-    
+
     return None
 
 
-def get_resolver_to_download(settings, app_name: str) -> str:
-    """
-    Gets LakeFs path that can be used with copy element to download
-    specific resolver, this will prioritize `lake_fs_overrides` over
-    asset_resolvers entries.
+def get_resolver_to_download(settings: dict[str, Any], app_name: str) -> str:
+    """Get LakeFs path of resolver to download.
 
-    Returns: str: LakeFs object path to be used with lake_fs_py wrapper
+    Path can be used with copy element to download specific resolver,
+    this will prioritize `lake_fs_overrides` over asset_resolvers entries.
+
+    Args:
+        settings (dict[str, Any]): Project settings.
+        app_name (str): Application name, e.g. "houdini/20-5".
+
+    Returns:
+        str: LakeFs object path to be used with lake_fs_py wrapper.
 
     """
     distribution = settings["usd"]["distribution"]["lake_fs"]
@@ -177,14 +199,13 @@ def get_resolver_to_download(settings, app_name: str) -> str:
 
     lake_fs_repo_uri = distribution["server_repo"]
     lake_fs_repo_uri = lake_fs_repo_uri.strip().rstrip("/")
-    resolver_lake_path = f"{lake_fs_repo_uri}/{resolver['lake_fs_path']}"
-    return resolver_lake_path
+    return f"{lake_fs_repo_uri}/{resolver['lake_fs_path']}"
 
 
 def get_resolver_setup_info(
-        resolver_dir,
-        settings,
-        env=None) -> dict:
+        resolver_dir: str,
+        settings: dict[str, Any],
+        env: Optional[dict[str, str]] = None) -> dict:
     """Get the environment variables to load AYON USD setup.
 
     Arguments:
@@ -194,8 +215,11 @@ def get_resolver_setup_info(
 
     Returns:
         dict[str, str]: The environment needed to load AYON USD correctly.
-    """
 
+    Raises:
+        RuntimeError: Resolver directory is missing required paths.
+
+    """
     resolver_root = pathlib.Path(resolver_dir) / "ayonUsdResolver"
     resolver_plugin_info_path = resolver_root / "resources" / "plugInfo.json"
     resolver_ld_path = resolver_root / "lib"
@@ -205,14 +229,20 @@ def get_resolver_setup_info(
         not os.path.exists(resolver_python_path)
         or not os.path.exists(resolver_ld_path)
     ):
-        raise RuntimeError(
+        msg = (
             f"Cant start Resolver missing path "
             f"resolver_python_path: {resolver_python_path}, "
             f"resolver_ld_path: {resolver_ld_path}"
         )
+        raise RuntimeError(msg)
 
-    def _append(_env: dict, key: str, path: str):
-        """Add path to key in env"""
+    def _append(_env: dict, key: str, path: str) -> str:
+        """Add path to key in env.
+
+        Returns:
+            str: Value of key with path appended.
+
+        """
         current: str = _env.get(key)
         if current:
             return os.pathsep.join([current, path])
@@ -236,9 +266,15 @@ def get_resolver_setup_info(
     return {
         "TF_DEBUG": settings["usd"]["usd"]["usd_tf_debug"],
         "AYON_USD_RESOLVER_LOG_LVL": resolver_settings["ayon_log_lvl"],
-        "AYON_USD_RESOLVER_LOG_FILE_ENABLED": resolver_settings["ayon_file_logger_enabled"],  # noqa
-        "AYON_USD_RESOLVER_LOG_FILE": resolver_settings["file_logger_file_path"],
-        "AYON_USD_RESOLVER_LOGGING_KEYS": resolver_settings["ayon_logger_logging_keys"],  # noqa
+        "AYON_USD_RESOLVER_LOG_FILE_ENABLED": (
+            resolver_settings["ayon_file_logger_enabled"]
+        ),
+        "AYON_USD_RESOLVER_LOG_FILE": (
+            resolver_settings["file_logger_file_path"]
+        ),
+        "AYON_USD_RESOLVER_LOGGING_KEYS": (
+            resolver_settings["ayon_logger_logging_keys"]
+        ),
         "PXR_PLUGINPATH_NAME": pxr_pluginpath_name,
         "PYTHONPATH": python_path,
         ld_path_key: ld_library_path,
@@ -246,5 +282,7 @@ def get_resolver_setup_info(
         "AYONLOGGERLOGLVL": resolver_settings["ayon_log_lvl"],
         "AYONLOGGERFILELOGGING": resolver_settings["ayon_file_logger_enabled"],
         "AYONLOGGERFILEPOS": resolver_settings["file_logger_file_path"],
-        "AYON_LOGGIN_LOGGIN_KEYS": resolver_settings["ayon_logger_logging_keys"],
+        "AYON_LOGGIN_LOGGIN_KEYS": (
+            resolver_settings["ayon_logger_logging_keys"]
+        ),
     }
