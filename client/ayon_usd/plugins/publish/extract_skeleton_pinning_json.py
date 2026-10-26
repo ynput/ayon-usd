@@ -1,7 +1,10 @@
+"""Extract USD pinning file for farm rendering."""
+
 import os
 from typing import ClassVar
-import pyblish.api
+
 import ayon_api
+import pyblish.api
 from ayon_core.pipeline import OptionalPyblishPluginMixin
 from ayon_core.pipeline.publish import FARM_JOB_ENV_DATA_KEY
 from ayon_usd.standalone.usd.pinning import generate_pinning_file
@@ -10,12 +13,12 @@ from ayon_usd.standalone.usd.pinning import generate_pinning_file
 class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
                                  OptionalPyblishPluginMixin):
     """Extract Skeleton Pinning JSON file.
-    
+
     This plugin generates a Pinning JSON file, which is useful
     for farm submission to decrease the overhead of resolving Entity URIs.
 
     This extractor does the following:
-        - Generates the pinning file as `__render__pin.json` 
+        - Generates the pinning file as `__render__pin.json`
             and places it next to `__render__.usd`.
         - Updates farm environment variables with the pinning file
             location and a flag to enable pinning mode on the farm.
@@ -25,7 +28,7 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
         beforehand. Therefore, **`__render__.usd`** must already exist so
         it can be parsed to create the pinning file accordingly.
 
-        Pinning preferably works with these render targets 
+        Pinning preferably works with these render targets
             - `Farm rendering`and
             - `Local Export, Farm Render`
 
@@ -38,7 +41,7 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
     label = "Extract Skeleton Pinning JSON"
     # Run After Extract ROP.
     order = pyblish.api.ExtractorOrder + 0.49
-    hosts = ["houdini"]
+    hosts: ClassVar[list[str]] = ["houdini"]
     families: ClassVar = ["usdrender"]
 
     settings_category: ClassVar = "usd"
@@ -69,23 +72,32 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
             pin_file_path
         )
 
-        self.log.debug(f"Pinning file was created at: '{pin_file_path}'.")
+        self.log.debug("Pinning file was created at: '%s'.", pin_file_path)
         pin_file_path = self.get_rootless_path(instance, pin_file_path)
 
         # Set farm env keys
         farm_job_data: dict[str, str] = instance.data.setdefault(
-		    FARM_JOB_ENV_DATA_KEY, {}
-		)
+            FARM_JOB_ENV_DATA_KEY, {}
+        )
         farm_job_data.update({
             "AYON_USD_RESOLVER_PINNING_FILE": pin_file_path,
             "AYON_USD_RESOLVER_ENABLE_PINNING": "1",
-            
+
             # Backwards compatibility (deprecated)
             "PINNING_FILE_PATH": pin_file_path,
             "ENABLE_STATIC_GLOBAL_CACHE": "1",
         })
 
-    def get_usd_file_path(self, instance):
+    def get_usd_file_path(self, instance: pyblish.api.Instance) -> str:
+        """Get USD file path, export it if it does not exist.
+
+        Args:
+            instance (pyblish.api.Instance): Instance object.
+
+        Returns:
+            str: Path to the USD file.
+
+        """
         usd_file_path = instance.data.get(
             "ifdFile", None
         )
@@ -98,7 +110,9 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
         # Export __render__.usd if file doesn't exist already.
         return self.export_usd_file(instance)
 
-    def export_usd_file(self, instance) -> str:
+    def export_usd_file(  # ruff:ignore[no-self-use]
+        self, instance: pyblish.api.Instance
+    ) -> str:
         """Save USD file from Houdini.
 
         This is called only from running host so we can safely assume
@@ -128,7 +142,19 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
 
         return filepath
 
-    def get_rootless_path(self, instance, path):
+    def get_rootless_path(
+        self, instance: pyblish.api.Instance, path: str
+    ) -> str:
+        """Convert path to rootless path using Anatomy roots.
+
+        Args:
+            instance (pyblish.api.Instance): Instance object.
+            path (str): Path to convert.
+
+        Returns:
+            str: Rootless path, or the original path if no root matches.
+
+        """
         anatomy = instance.context.data["anatomy"]
         # Convert path dir to `{root}/rest/of/path/...` with Anatomy
         success, rootless_path = anatomy.find_root_template_from_path(
@@ -136,8 +162,9 @@ class ExtractSkeletonPinningJSON(pyblish.api.InstancePlugin,
         if not success:
             # `rootless_path` is not set to `output_dir` if none of roots match
             self.log.warning(
-                f"Could not find root path for remapping '{path}'."
-                " This may cause issues on farm."
+                "Could not find root path for remapping '%s'."
+                " This may cause issues on farm.",
+                path,
             )
             rootless_path = path
         return rootless_path

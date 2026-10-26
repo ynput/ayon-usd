@@ -1,7 +1,9 @@
+"""Remap paths in published USD files to be relative."""
+
 import os
+from typing import ClassVar
 
 import pyblish.api
-
 from ayon_core.pipeline import OptionalPyblishPluginMixin
 from ayon_core.pipeline.publish.lib import get_instance_expected_output_path
 
@@ -17,23 +19,24 @@ except ImportError:
 RELATIVE_ANCHOR_PREFIXES = ("./", "../", ".\\", "..\\")
 
 
-def get_drive(path) -> str:
-    """Return disk drive from path"""
+def get_drive(path: str) -> str:
+    """Return disk drive from path."""
     return os.path.splitdrive(path)[0]
 
 
 class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
                                              OptionalPyblishPluginMixin):
-    """Remap all paths in a USD Layer to be relative to its published path"""
+    """Remap all paths in a USD Layer to be relative to its published path."""
 
     label = "Process USD files to use relative paths"
-    families = ["usd"]
+    families: ClassVar[list[str]] = ["usd"]
     settings_category = "usd"
 
     # Run just before the Integrator
     order = pyblish.api.IntegratorOrder - 0.01
 
-    def process(self, instance):
+    def process(self, instance: pyblish.api.Instance) -> None:
+        """Process the plugin."""
         if not self.is_active(instance.data):
             return
 
@@ -64,7 +67,7 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
             )
             published_path_root = os.path.dirname(published_path)
             self.log.debug(
-                f"Making USD paths relative to {published_path_root}")
+                "Making USD paths relative to %s", published_path_root)
 
             # Process all files of the representation
             staging_dir: str = representation.get(
@@ -76,7 +79,7 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
                 # Single file is stored as `str` in `instance.data["files"]`
                 filenames = [filenames]
 
-            filenames: "list[str]"
+            filenames: list[str]
             for filename in filenames:
                 path = os.path.join(staging_dir, filename)
                 self.process_usd(path, start=published_path_root)
@@ -93,14 +96,19 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
             dest_root = os.path.dirname(dest)
             self.process_usd(src, start=dest_root)
 
-    def process_usd(self, usd_path, start):
-        """Process a USD layer making all paths relative to `start`"""
-        self.log.debug(f"Processing '{usd_path}'")
+    def process_usd(self, usd_path: str, start: str) -> None:
+        """Process a USD layer making all paths relative to `start`."""
+        self.log.debug("Processing '%s'", usd_path)
         layer = Sdf.Layer.FindOrOpen(usd_path)
 
-        def modify_fn(asset_path: str):
-            """Make all absolute non-anchored paths relative to `start`"""
-            self.log.debug(f"Processing asset path: {asset_path}")
+        def modify_fn(asset_path: str) -> str:
+            """Make all absolute non-anchored paths relative to `start`.
+
+            Returns:
+                str: Remapped asset path.
+
+            """
+            self.log.debug("Processing asset path: %s", asset_path)
 
             # Do not touch paths already anchored paths
             if not os.path.isabs(asset_path):
@@ -120,8 +128,11 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
             if get_drive(start) != get_drive(asset_path):
                 # Log a warning if different drive
                 self.log.warning(
-                    f"USD Asset Path '{asset_path}' can not be made relative"
-                    f" to '{start}' because they are not on the same drive.")
+                    "USD Asset Path '%s' can not be made relative to '%s'"
+                    " because they are not on the same drive.",
+                    asset_path,
+                    start,
+                )
                 return asset_path
 
             anchored_path = "./" + os.path.relpath(asset_path, start)
@@ -130,7 +141,7 @@ class USDOutputProcessorRemapToRelativePaths(pyblish.api.InstancePlugin,
             # load correctly on e.g. Linux. It also makes the paths consistent
             # regardless of platforms
             anchored_path = anchored_path.replace("\\", "/")
-            self.log.debug(f"Anchored path: {anchored_path}")
+            self.log.debug("Anchored path: %s", anchored_path)
             return anchored_path
 
         # Get all "asset path" specs, sublayer paths and references/payloads.

@@ -21,18 +21,21 @@ Package contains server side files directly,
 client side code zipped in `private` subfolder.
 """
 
-import os
-import sys
-import re
-import io
-import shutil
-import platform
+from __future__ import annotations
+
 import argparse
-import logging
 import collections
-import zipfile
+import io
+import logging
+import os
+import pathlib
+import platform
+import re
+import shutil
 import subprocess
-from typing import Optional, Iterable, Pattern, Union, List, Tuple
+import sys
+import zipfile
+from typing import Iterable, List, Optional, Pattern, Tuple, Union
 
 import package
 
@@ -50,7 +53,7 @@ PRIVATE_ROOT: str = os.path.join(CURRENT_ROOT, "private")
 PUBLIC_ROOT: str = os.path.join(CURRENT_ROOT, "public")
 CLIENT_ROOT: str = os.path.join(CURRENT_ROOT, "client")
 
-VERSION_PY_CONTENT = f'''# -*- coding: utf-8 -*-
+VERSION_PY_CONTENT = f'''\
 """Package declaring AYON addon '{ADDON_NAME}' version."""
 __version__ = "{ADDON_VERSION}"
 '''
@@ -58,31 +61,31 @@ __version__ = "{ADDON_VERSION}"
 # Patterns of directories to be skipped for server part of addon
 IGNORE_DIR_PATTERNS: List[Pattern] = [
     re.compile(pattern)
-    for pattern in {
+    for pattern in (
         # Skip directories starting with '.'
         r"^\.",
         # Skip any pycache folders
         "^__pycache__$",
         "downloads",
         "test",
-    }
+    )
 ]
 
 # Patterns of files to be skipped for server part of addon
 IGNORE_FILE_PATTERNS: List[Pattern] = [
     re.compile(pattern)
-    for pattern in {
+    for pattern in (
         # Skip files starting with '.'
         # NOTE this could be an issue in some cases
         r"^\.",
         # Skip '.pyc' files
         r"\.pyc$",
-    }
+    )
 ]
 
 
 class ZipFileLongPaths(zipfile.ZipFile):
-    """Allows longer paths in zip files.
+    r"""Allows longer paths in zip files.
 
     Regular DOS paths are limited to MAX_PATH (260) characters, including
     the string's terminating NUL character.
@@ -92,7 +95,12 @@ class ZipFileLongPaths(zipfile.ZipFile):
 
     _is_windows = platform.system().lower() == "windows"
 
-    def _extract_member(self, member, tpath, pwd):
+    def _extract_member(
+        self,
+        member: Union[zipfile.ZipInfo, str],
+        tpath: str,
+        pwd: Optional[bytes],
+    ) -> str:
         if self._is_windows:
             tpath = os.path.abspath(tpath)
             if tpath.startswith("\\\\"):
@@ -108,18 +116,20 @@ def _get_yarn_executable() -> Union[str, None]:
     if platform.system().lower() == "windows":
         cmd = "where"
 
-    for line in subprocess.check_output([cmd, "yarn"], encoding="utf-8").splitlines():
+    output = subprocess.check_output([cmd, "yarn"], encoding="utf-8")
+    for line in output.splitlines():
         if not line or not os.path.exists(line):
             continue
         try:
             subprocess.call([line, "--version"])
-            return line
         except OSError:
             continue
+        else:
+            return line
     return None
 
 
-def safe_copy_file(src_path: str, dst_path: str):
+def safe_copy_file(src_path: str, dst_path: str) -> None:
     """Copy file and make sure destination directory exists.
 
     Ignore if destination already contains directories from source.
@@ -128,7 +138,6 @@ def safe_copy_file(src_path: str, dst_path: str):
         src_path (str): File path that will be copied.
         dst_path (str): Path to destination file.
     """
-
     if src_path == dst_path:
         return
 
@@ -164,7 +173,6 @@ def find_files_in_subdir(
         list[tuple[str, str]]: List of tuples with path to file and parent
             directories relative to 'src_path'.
     """
-
     if ignore_file_patterns is None:
         ignore_file_patterns = IGNORE_FILE_PATTERNS
 
@@ -196,30 +204,43 @@ def find_files_in_subdir(
     return output
 
 
-def update_client_version(logger):
+def update_client_version(logger: logging.Logger) -> None:
     """Update version in client code if version.py is present."""
     if not ADDON_CLIENT_DIR:
         return
 
-    version_path: str = os.path.join(CLIENT_ROOT, ADDON_CLIENT_DIR, "version.py")
+    version_path: str = os.path.join(
+        CLIENT_ROOT, ADDON_CLIENT_DIR, "version.py"
+    )
     if not os.path.exists(version_path):
         logger.debug("Did not find version.py in client directory")
         return
 
     logger.info("Updating client version")
-    with open(version_path, "w") as stream:
-        stream.write(VERSION_PY_CONTENT)
+    pathlib.Path(version_path).write_text(
+        VERSION_PY_CONTENT, encoding="utf-8"
+    )
 
 
-def build_frontend():
+def build_frontend() -> None:
+    """Build frontend using yarn.
+
+    Raises:
+        RuntimeError: Yarn was not found or build did not create output.
+
+    """
     yarn_executable = _get_yarn_executable()
     if yarn_executable is None:
-        raise RuntimeError("Yarn executable was not found.")
+        msg = "Yarn executable was not found."
+        raise RuntimeError(msg)
 
-    subprocess.run([yarn_executable, "install"], cwd=FRONTEND_ROOT)
-    subprocess.run([yarn_executable, "build"], cwd=FRONTEND_ROOT)
+    subprocess.run(
+        [yarn_executable, "install"], cwd=FRONTEND_ROOT, check=False
+    )
+    subprocess.run([yarn_executable, "build"], cwd=FRONTEND_ROOT, check=False)
     if not os.path.exists(FRONTEND_DIST_ROOT):
-        raise RuntimeError("Frontend build failed. Did not find 'dist' folder.")
+        msg = "Frontend build failed. Did not find 'dist' folder."
+        raise RuntimeError(msg)
 
 
 def get_client_files_mapping() -> List[Tuple[str, str]]:
@@ -241,7 +262,6 @@ def get_client_files_mapping() -> List[Tuple[str, str]]:
         list[tuple[str, str]]: List of path mappings to copy. The destination
             path is relative to expected output directory.
     """
-
     # Add client code content to zip
     client_code_dir: str = os.path.join(CLIENT_ROOT, ADDON_CLIENT_DIR)
 
@@ -251,7 +271,16 @@ def get_client_files_mapping() -> List[Tuple[str, str]]:
     ]
 
 
-def get_client_zip_content(log) -> io.BytesIO:
+def get_client_zip_content(log: logging.Logger) -> io.BytesIO:
+    """Zip client code into in-memory stream.
+
+    Args:
+        log (logging.Logger): Logger object.
+
+    Returns:
+        io.BytesIO: Stream with zipped client code.
+
+    """
     log.info("Preparing client code zip")
     files_mapping: List[Tuple[str, str]] = get_client_files_mapping()
     stream = io.BytesIO()
@@ -263,6 +292,12 @@ def get_client_zip_content(log) -> io.BytesIO:
 
 
 def get_base_files_mapping() -> List[FileMapping]:
+    """Mapping of server side files to destination paths.
+
+    Returns:
+        list[FileMapping]: List of path mappings to copy.
+
+    """
     filepaths_to_copy: List[FileMapping] = [
         (os.path.join(CURRENT_ROOT, "package.py"), "package.py")
     ]
@@ -288,17 +323,19 @@ def get_base_files_mapping() -> List[FileMapping]:
     return filepaths_to_copy
 
 
-def copy_client_code(output_dir: str, log: logging.Logger):
-    """Copies server side folders to 'addon_package_dir'
+def copy_client_code(output_dir: str, log: logging.Logger) -> None:
+    """Copy client code to output directory.
 
     Args:
         output_dir (str): Output directory path.
-        log (logging.Logger)
+        log (logging.Logger): Logger object.
 
     """
-    log.info(f"Copying client for {ADDON_NAME}-{ADDON_VERSION}")
+    log.info("Copying client for %s-%s", ADDON_NAME, ADDON_VERSION)
 
-    full_output_path = os.path.join(output_dir, f"{ADDON_NAME}_{ADDON_VERSION}")
+    full_output_path = os.path.join(
+        output_dir, f"{ADDON_NAME}_{ADDON_VERSION}"
+    )
     if os.path.exists(full_output_path):
         shutil.rmtree(full_output_path)
     os.makedirs(full_output_path, exist_ok=True)
@@ -312,7 +349,7 @@ def copy_client_code(output_dir: str, log: logging.Logger):
 
 def copy_addon_package(
     output_dir: str, files_mapping: List[FileMapping], log: logging.Logger
-):
+) -> None:
     """Copy client code to output directory.
 
     Args:
@@ -322,12 +359,12 @@ def copy_addon_package(
         log (logging.Logger): Logger object.
 
     """
-    log.info(f"Copying package for {ADDON_NAME}-{ADDON_VERSION}")
+    log.info("Copying package for %s-%s", ADDON_NAME, ADDON_VERSION)
 
     # Add addon name and version to output directory
     addon_output_dir: str = os.path.join(output_dir, ADDON_NAME, ADDON_VERSION)
     if os.path.isdir(addon_output_dir):
-        log.info(f"Purging {addon_output_dir}")
+        log.info("Purging %s", addon_output_dir)
         shutil.rmtree(addon_output_dir)
 
     os.makedirs(addon_output_dir, exist_ok=True)
@@ -338,8 +375,7 @@ def copy_addon_package(
         dst_dir: str = os.path.dirname(dst_path)
         os.makedirs(dst_dir, exist_ok=True)
         if isinstance(src_file, io.BytesIO):
-            with open(dst_path, "wb") as stream:
-                stream.write(src_file.getvalue())
+            pathlib.Path(dst_path).write_bytes(src_file.getvalue())
         else:
             safe_copy_file(src_file, dst_path)
 
@@ -348,8 +384,16 @@ def copy_addon_package(
 
 def create_addon_package(
     output_dir: str, files_mapping: List[FileMapping], log: logging.Logger
-):
-    log.info(f"Creating package for {ADDON_NAME}-{ADDON_VERSION}")
+) -> None:
+    """Create addon zip package.
+
+    Args:
+        output_dir (str): Output directory path.
+        files_mapping (List[FileMapping]): List of path mappings to copy.
+        log (logging.Logger): Logger object.
+
+    """
+    log.info("Creating package for %s-%s", ADDON_NAME, ADDON_VERSION)
 
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, f"{ADDON_NAME}-{ADDON_VERSION}.zip")
@@ -367,9 +411,20 @@ def create_addon_package(
 
 def main(
     output_dir: Optional[str] = None,
-    skip_zip: Optional[bool] = False,
-    only_client: Optional[bool] = False,
-):
+    skip_zip: Optional[bool] = False,  # ruff:ignore[boolean-type-hint-positional-argument, boolean-default-value-positional-argument]
+    only_client: Optional[bool] = False,  # ruff:ignore[boolean-type-hint-positional-argument, boolean-default-value-positional-argument]
+) -> None:
+    """Create addon package.
+
+    Args:
+        output_dir (Optional[str]): Output directory path.
+        skip_zip (Optional[bool]): Copy files instead of creating zip.
+        only_client (Optional[bool]): Copy only client code.
+
+    Raises:
+        RuntimeError: Client code is missing.
+
+    """
     log: logging.Logger = logging.getLogger("create_package")
     log.info("Package creation started")
 
@@ -380,20 +435,22 @@ def main(
     if has_client_code:
         client_dir: str = os.path.join(CLIENT_ROOT, ADDON_CLIENT_DIR)
         if not os.path.exists(client_dir):
-            raise RuntimeError(
+            msg = (
                 f"Client directory was not found '{client_dir}'."
                 " Please check 'client_dir' in 'package.py'."
             )
+            raise RuntimeError(msg)
         update_client_version(log)
 
     if only_client:
         if not has_client_code:
-            raise RuntimeError("Client code is not available. Skipping")
+            msg = "Client code is not available. Skipping"
+            raise RuntimeError(msg)
 
         copy_client_code(output_dir, log)
         return
 
-    log.info(f"Preparing package for {ADDON_NAME}-{ADDON_VERSION}")
+    log.info("Preparing package for %s-%s", ADDON_NAME, ADDON_VERSION)
 
     if os.path.exists(FRONTEND_ROOT):
         build_frontend()
@@ -402,7 +459,9 @@ def main(
     files_mapping.extend(get_base_files_mapping())
 
     if has_client_code:
-        files_mapping.append((get_client_zip_content(log), "private/client.zip"))
+        files_mapping.append(
+            (get_client_zip_content(log), "private/client.zip")
+        )
 
     # Skip server zipping
     if skip_zip:
@@ -420,7 +479,8 @@ if __name__ == "__main__":
         dest="skip_zip",
         action="store_true",
         help=(
-            "Skip zipping server package and create only" " server folder structure."
+            "Skip zipping server package and create only"
+            " server folder structure."
         ),
     )
     parser.add_argument(
@@ -443,7 +503,10 @@ if __name__ == "__main__":
         ),
     )
     parser.add_argument(
-        "--debug", dest="debug", action="store_true", help="Debug log messages."
+        "--debug",
+        dest="debug",
+        action="store_true",
+        help="Debug log messages.",
     )
 
     args = parser.parse_args(sys.argv[1:])
